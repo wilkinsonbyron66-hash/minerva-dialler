@@ -1216,9 +1216,16 @@ let BASE={};try{BASE=JSON.parse(localStorage.getItem(BKEY)||'{}')||{}}catch(e){B
 const baseSave=()=>{try{localStorage.setItem(BKEY,JSON.stringify(BASE))}catch(e){}};
 let gTimer=null,gBusy=false,gLastTry=0,gState='off',gMsg='',gConflict=null,gSnaps=null,gOld=false;
 const fmtT=t=>{const d=new Date(t);return d.toDateString()===new Date().toDateString()?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})};
+let gStep='';
 async function gPost(body){
- const r=await fetch(G.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({key:G.key},body)),redirect:'follow'});
- const t=await r.text();try{return JSON.parse(t)}catch(e){throw new Error(/<html/i.test(t)?'access':'bad')}
+ gStep=body.action;const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),body.action==='ping'?30000:120000);
+ let r,t;
+ try{r=await fetch(G.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({key:G.key},body)),redirect:'follow',signal:ac.signal});t=await r.text()}
+ catch(e){const er=new TypeError(e.name==='AbortError'?'timed out waiting for Google ('+body.action+')':(e.message||'network error')+' during '+body.action);throw er}
+ finally{clearTimeout(tm)}
+ if(!r.ok&&!t){const er=new Error('bad');er.detail='HTTP '+r.status+' during '+body.action;throw er}try{return JSON.parse(t)}catch(e){
+  if(/<html/i.test(t)){const m=t.replace(/<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();const er=new Error('access');er.detail=m.slice(0,220);throw er}
+  const er=new Error('bad');er.detail=t.slice(0,200);throw er}
 }
 // Stable identity for each lead across devices
 const gNorm=v=>String(v==null?'':v).toLowerCase().replace(/\s+/g,' ').trim();
@@ -1320,7 +1327,8 @@ async function gSync(){
   }
   gStatus('wait','Another device is saving at the same time. Will retry shortly.');gTimer=setTimeout(()=>gSync(),15000);
  }catch(e){
-  gStatus('err',e.message==='key'?'The key does not match the script in your Google Sheet. Use the setup code from your other device.':e.message==='access'?'Google refused the request. In Apps Script, check the web app is deployed with "Who has access: Anyone".':'Could not reach Google right now. Your data is safe here and will retry automatically.');
+  const net=e instanceof TypeError;
+  gStatus('err',e.message==='key'?'The key does not match the script in your Google Sheet. Use the setup code from your other device.':e.message==='access'?'Google refused the request. In Apps Script, check the web app is deployed with "Who has access: Anyone". Google said: '+(e.detail||''):net?'Could not reach Google (no connection, or Google blocked the request). Your data is safe here and will retry automatically. ('+e.message+')':'Your Google Sheet script reported an error, so nothing was changed. Details: '+(e.detail||e.message));
   if(e.message!=='key'&&e.message!=='access')gTimer=setTimeout(()=>{if(gState==='err')gState='wait';gSync()},60000);
  }finally{gBusy=false}
 }
@@ -1358,7 +1366,7 @@ function gParse(code){try{const m=String(code).trim().match(/MD1\.([\w-]+)/);if(
 const appLink=()=>/^https?:$/.test(location.protocol)?location.origin+location.pathname:'';
 let QRP=null;
 function loadQR(){if(window.QRCode)return Promise.resolve();return QRP||(QRP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';s.onload=res;s.onerror=()=>{QRP=null;rej()};document.head.appendChild(s)}))}
-async function drawQR(){const el=$('#gqr');if(!el||!appLink())return;try{await loadQR();el.innerHTML='';new QRCode(el,{text:appLink()+'#pair='+gCode(),width:190,height:190,correctLevel:QRCode.CorrectLevel.M})}catch(e){el.innerHTML='<p class="mute">QR code needs internet. Use the setup code instead.</p>'}}
+async function drawQR(){const el=$('#gqr');if(!el||!appLink())return;try{await loadQR();const t=appLink()+'#pair='+gCode();el.innerHTML='';try{new QRCode(el,{text:t,width:190,height:190,correctLevel:QRCode.CorrectLevel.M})}catch(x){el.innerHTML='';new QRCode(el,{text:t,width:190,height:190,correctLevel:QRCode.CorrectLevel.L})}}catch(e){el.innerHTML='<p class="mute">QR code needs internet. Use the setup code instead.</p>'}}
 async function gConnectWith(u,k){
  const oldU=G.url,oldK=G.key;G.url=u;G.key=k;
  try{
