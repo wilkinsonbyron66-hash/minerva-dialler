@@ -1,0 +1,15 @@
+{
+  "name": "Minerva Dialler",
+  "short_name": "Dialler",
+  "description": "Call leads, log outcomes and track follow-ups.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#E9EDF0",
+  "theme_color": "#0F5F6B",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
