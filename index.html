@@ -256,7 +256,7 @@ aside{box-shadow:1px 0 0 var(--line)}
  <input type="file" id="file2" accept=".csv,.xlsx,.xls" hidden>
  <input type="file" id="file4" accept=".json,application/json" hidden>
 </header>
-<nav id="tabs"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button><div class="tright"><button id="gsync" title="Google Sheet backup">&#9729; Set up cloud backup</button><button id="fudue" hidden></button><span id="tstat" hidden></span><button id="resume2" hidden>Resume</button><button id="hdrtoggle" title="Collapse or expand the top bar">&#9650; Hide bar</button></div></nav>
+<nav id="tabs"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button><div class="tright"><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="fudue" hidden></button><span id="tstat" hidden></span><button id="resume2" hidden>Resume</button><button id="hdrtoggle" title="Collapse or expand the top bar">&#9650; Hide bar</button></div></nav>
 <main id="main" data-view="list">
  <aside>
   <div class="filt">
@@ -311,6 +311,7 @@ aside{box-shadow:1px 0 0 var(--line)}
    then Deploy > New deployment > Web app: Execute as "Me", Who has access "Anyone".
    The KEY must match the key shown in the dialler's Cloud backup panel. */
 const KEY = '__KEY__';
+const SCRIPT_VERSION = 2;
 const CHUNK = 40000;   // characters per cell (Sheets limit is 50,000)
 const KEEP_DAYS = 30;  // daily snapshots kept
 
@@ -321,7 +322,7 @@ function doPost(e) {
     lock.waitLock(25000);
     const req = JSON.parse(e.postData.contents);
     if (req.key !== KEY) res = { ok: false, error: 'key' };
-    else if (req.action === 'ping') res = Object.assign({ ok: true }, info_());
+    else if (req.action === 'ping') res = Object.assign({ ok: true, script: SCRIPT_VERSION }, info_());
     else if (req.action === 'save') res = save_(req);
     else if (req.action === 'restore') res = restore_(req.day);
     else if (req.action === 'snapshots') res = { ok: true, list: snapList_() };
@@ -348,12 +349,13 @@ function chunks_(json) { const a = []; for (let i = 0; i < json.length; i += CHU
 
 function info_() {
   const b = sh_('Backup');
-  const v = b.getRange('B1:B3').getValues();
+  const v = b.getRange('B1:B5').getValues();
   return {
     url: ss_().getUrl(),
     saved: v[0][0] instanceof Date ? v[0][0].getTime() : null,
     leads: Number(v[1][0]) || 0,
-    calls: Number(v[2][0]) || 0
+    calls: Number(v[2][0]) || 0,
+    v: Number(v[4][0]) || 0
   };
 }
 
@@ -363,17 +365,20 @@ function save_(req) {
   const leads = rows.length;
   const calls = rows.reduce(function (n, r) { return n + ((r.log || []).length); }, 0);
   const prev = info_();
+  // Another device saved since this one last read the sheet: it must merge first.
+  if (req.expect != null && Number(req.expect) !== prev.v) return { ok: false, error: 'stale', v: prev.v };
   // Never let an empty or much smaller copy wipe a good backup unless the user chose to overwrite.
   if (!req.force) {
     if (leads === 0 && prev.leads > 0) return { ok: false, error: 'empty', prev: prev };
     if (prev.calls >= 20 && calls < prev.calls * 0.5) return { ok: false, error: 'shrink', prev: prev };
   }
   const now = new Date();
+  const ver = prev.v + 1;
   const parts = chunks_(JSON.stringify(st));
   const b = sh_('Backup');
   b.clear();
-  b.getRange(1, 1, 5, 2).setValues([
-    ['Last saved', now], ['Leads', leads], ['Calls logged', calls], ['Parts', parts.length],
+  b.getRange(1, 1, 6, 2).setValues([
+    ['Last saved', now], ['Leads', leads], ['Calls logged', calls], ['Parts', parts.length], ['Version', ver],
     ["Do not edit this sheet. It is the dialler's full backup.", '']
   ]);
   fit_(b, 7 + parts.length, 2);
@@ -382,7 +387,7 @@ function save_(req) {
   readable_(st);
   const blank = ss_().getSheetByName('Sheet1');
   if (blank && blank.getLastRow() === 0 && ss_().getSheets().length > 1) ss_().deleteSheet(blank);
-  return { ok: true, saved: now.getTime(), leads: leads, calls: calls, url: ss_().getUrl() };
+  return { ok: true, saved: now.getTime(), leads: leads, calls: calls, v: ver, url: ss_().getUrl() };
 }
 
 function snapshot_(parts, now, leads, calls) {
@@ -422,10 +427,10 @@ function restore_(day) {
   } else {
     const b = sh_('Backup');
     const k = Number(b.getRange('B4').getValue()) || 0;
-    if (!k) return { ok: false, error: 'none' };
+    if (!k) return { ok: true, state: null, v: info_().v };
     parts = b.getRange(7, 1, k, 1).getValues().map(function (r) { return r[0]; });
   }
-  return { ok: true, state: JSON.parse(parts.join('')) };
+  return { ok: true, state: JSON.parse(parts.join('')), v: info_().v };
 }
 
 function snapList_() {
@@ -522,7 +527,7 @@ function ensureCompany(){
  const c=S.cols.find(c=>!c.role&&CO.test(c.n))||S.cols.find(c=>!c.role&&/name/i.test(c.n)&&!/contact|person|first|last|full/i.test(c.n));
  if(c){c.role='company';save()}
 }
-function history(r){
+function leadHistory(r){
  const k=title(r).toLowerCase();
  return S.rows.filter(x=>title(x).toLowerCase()===k).flatMap(x=>x.log.map(l=>({x,l}))).sort((a,b)=>b.l.t-a.l.t);
 }
@@ -557,7 +562,7 @@ function renderCard(){
  c.innerHTML='<button class="back" data-back>Back to list</button>'+(cn('company')?'':'<p class="warnb">No column is set as Company, so exports show the contact name instead. <button data-fields>Choose Company column</button></p>')+
  '<div class="ch"><div><h2 id="hd">'+esc(title(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p></div>'+(tel?'<a class="dial" href="tel:'+esc(tel)+'">Call '+esc(ph)+'</a>':'<span class="nophone">No phone number set</span>')+'</div>'+
  '<div class="fields">'+S.cols.filter(x=>x.show).map(x=>{const v=val(r,x.n),wd=isWide(x),long=wd||String(v).length>60;return '<label'+(wd?' class="wide"':'')+' data-ci="'+S.cols.indexOf(x)+'"><button type="button" class="hide wbtn" data-wide="'+S.cols.indexOf(x)+'" title="'+(wd?'Make this box narrower':'Make this box full width')+'" aria-label="Toggle width of '+esc(x.n)+'">'+(wd?'&#8689;':'&#10530;')+'</button><button type="button" class="hide" data-hide="'+S.cols.indexOf(x)+'" title="Hide this field (also removes it from the Excel export)" aria-label="Hide '+esc(x.n)+'">&times;</button><span class="grip" title="Drag to move this box">&#8942;&#8942; '+esc(x.n)+'</span>'+(long?'<textarea rows="3" data-f="'+esc(x.n)+'">'+esc(v)+'</textarea>':'<input data-f="'+esc(x.n)+'" value="'+esc(v)+'">')+'</label>'}).join('')+'</div>'+
- addBoxHtml()+'<div class="log"><h3>Previous dealings with '+esc(title(r))+'</h3>'+(function(){const h=history(r);return h.length?'<ul class="hist">'+h.map(y=>'<li>'+fmt(y.l.t)+' - <b class="co">'+esc(y.l.o)+'</b>'+(y.x!==r&&val(y.x,cn('contact'))?' ('+esc(val(y.x,cn('contact')))+')':'')+(y.l.note?': '+esc(y.l.note):'')+'</li>').join('')+'</ul>':'<p class="mute" style="margin:0">No calls logged yet. Account details are in the boxes above.</p>'})()+
+ addBoxHtml()+'<div class="log"><h3>Previous dealings with '+esc(title(r))+'</h3>'+(function(){const h=leadHistory(r);return h.length?'<ul class="hist">'+h.map(y=>'<li>'+fmt(y.l.t)+' - <b class="co">'+esc(y.l.o)+'</b>'+(y.x!==r&&val(y.x,cn('contact'))?' ('+esc(val(y.x,cn('contact')))+')':'')+(y.l.note?': '+esc(y.l.note):'')+'</li>').join('')+'</ul>':'<p class="mute" style="margin:0">No calls logged yet. Account details are in the boxes above.</p>'})()+
 '<h3 style="margin-top:16px">'+(r.done?'Logged. Add notes or call again':'Live call notes')+'</h3><textarea id="note" rows="6" placeholder="Type what is said, names, numbers, quantities, extensions...">'+esc(r.draft||'')+'</textarea><p class="draftmsg">Saved as you type. Pressing an outcome logs these notes to the report and loads the next lead.</p>'+fuHtml(r)+
 '<div class="oc">'+OUT.map(o=>'<button data-o="'+o+'">'+o+'</button>').join('')+(r.done?'<button data-reopen>Put back in To call</button>':'')+'<button class="del" data-delete>Delete lead</button></div></div>';
  fitAll();
@@ -1201,129 +1206,236 @@ $('#srgo').onclick=async()=>{
  b.disabled=false;b.textContent='Download report';
 };
 
-// ---- Google Sheet auto-backup ----
-const GKEY='minerva-dialler-sync';
-let G={url:'',key:'',last:0,leads:0,calls:0,sheet:'',pending:false};
+// ---- Google Sheet two-way sync ----
+const GKEY='minerva-dialler-sync',BKEY='minerva-dialler-base';
+let G={url:'',key:'',last:0,leads:0,calls:0,sheet:'',pending:false,v:0};
 try{Object.assign(G,JSON.parse(localStorage.getItem(GKEY)||'{}'))}catch(e){}
 if(!G.key){const a=new Uint8Array(16);crypto.getRandomValues(a);G.key='mdk-'+Array.from(a,b=>b.toString(16).padStart(2,'0')).join('')}
 const gSave=()=>{try{localStorage.setItem(GKEY,JSON.stringify(G))}catch(e){}};gSave();
-let gTimer=null,gBusy=false,gLastTry=0,gState='off',gMsg='',gConflict=null,gSnaps=null;
+let BASE={};try{BASE=JSON.parse(localStorage.getItem(BKEY)||'{}')||{}}catch(e){BASE={}}
+const baseSave=()=>{try{localStorage.setItem(BKEY,JSON.stringify(BASE))}catch(e){}};
+let gTimer=null,gBusy=false,gLastTry=0,gState='off',gMsg='',gConflict=null,gSnaps=null,gOld=false;
 const fmtT=t=>{const d=new Date(t);return d.toDateString()===new Date().toDateString()?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})};
 async function gPost(body){
  const r=await fetch(G.url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({key:G.key},body)),redirect:'follow'});
  const t=await r.text();try{return JSON.parse(t)}catch(e){throw new Error(/<html/i.test(t)?'access':'bad')}
 }
-const GST={off:['☁ Set up cloud backup','var(--mute)'],ok:['☁ Backed up','var(--ok)'],busy:['☁ Saving to Google...','var(--accent)'],wait:['☁ Changes waiting','var(--warn)'],err:['⚠ Backup needs attention','var(--bad)']};
+// Stable identity for each lead across devices
+const gNorm=v=>String(v==null?'':v).toLowerCase().replace(/\s+/g,' ').trim();
+function gUids(rows){
+ const seen=new Set(rows.filter(r=>r.u).map(r=>r.u));
+ rows.forEach(r=>{if(r.u)return;
+  const co=gNorm(val(r,cn('company'))),ph=String(val(r,cn('phone'))).replace(/\D/g,'').slice(-9);
+  let u=(co||ph)?'k:'+co+'|'+ph:'n:'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+  const b=u;let i=2;while(seen.has(u))u=b+'#'+(i++);seen.add(u);r.u=u});
+}
+const lkey=l=>l.t+'|'+l.o;
+const gSig=rows=>JSON.stringify(rows.map(r=>[r.u,r.f,!!r.done,r.fu||null,r.log.length]));
+function gHash(){const t=gSig(S.rows)+JSON.stringify(S.cols.map(c=>c.n));let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return h}
+function gCounts(st){st=st||S;return{leads:st.rows.length,calls:st.rows.reduce((n,r)=>n+((r.log||[]).length),0)}}
+const snapRow=r=>({f:Object.assign({},r.f),d:!!r.done,fu:r.fu||null,n:(r.log||[]).length});
+function setBase(rows){BASE={};rows.forEach(r=>{if(r.u)BASE[r.u]=snapRow(r)});baseSave()}
+const same=(a,b)=>(a==null?'':String(a))===(b==null?'':String(b));
+function rowChanged(r,b){if(!b)return true;if(!same(!!r.done,b.d)||!same(r.fu,b.fu)||(r.log||[]).length!==b.n)return true;const ks=new Set(Object.keys(r.f||{}).concat(Object.keys(b.f)));for(const k of ks)if(!same((r.f||{})[k],b.f[k]))return true;return false}
+// 3-way merge: local (this device) + remote (sheet) against BASE (what both agreed on last time)
+function gMerge(L,R){
+ const rr=(R&&R.rows)||[];gUids(rr);gUids(L.rows);
+ const rm=new Map(rr.map(r=>[r.u,r])),lm=new Map(L.rows.map(r=>[r.u,r]));
+ const lastT=r=>Math.max(0,...(r.log||[]).map(l=>l.t));
+ const out=[],usedIds=new Set();let nid=Math.max(L.nid||1,...L.rows.map(r=>r.id+1));
+ L.rows.forEach(l=>{
+  const r=rm.get(l.u),b=BASE[l.u];
+  if(!r){if(b&&!rowChanged(l,b))return;out.push(l);usedIds.add(l.id);return}
+  const lw=lastT(l)>=lastT(r),pick=(lv,rv,bv)=>same(lv,rv)?lv:b&&same(lv,bv)?rv:b&&same(rv,bv)?lv:(lw?lv:rv);
+  const f={};new Set(Object.keys(l.f||{}).concat(Object.keys(r.f||{}))).forEach(k=>{f[k]=pick((l.f||{})[k],(r.f||{})[k],b&&b.f[k]);if(f[k]==null)f[k]=''});
+  const logs=new Map();(r.log||[]).concat(l.log||[]).forEach(x=>logs.set(lkey(x),x));
+  const m=Object.assign({},l,{f,log:[...logs.values()].sort((a,c)=>a.t-c.t),done:!!pick(!!l.done,!!r.done,b&&b.d),fu:pick(l.fu||null,r.fu||null,b&&b.fu)||null});
+  if(m.fu==='')m.fu=null;if(m.fu)m.fu=+m.fu;
+  out.push(m);usedIds.add(l.id);
+ });
+ rr.forEach(r=>{if(lm.has(r.u))return;const b=BASE[r.u];if(b&&!rowChanged(r,b))return;
+  const n=Object.assign({},r,{log:(r.log||[]).slice(),draft:''});if(usedIds.has(n.id)||!n.id)n.id=nid++;usedIds.add(n.id);nid=Math.max(nid,n.id+1);out.push(n)});
+ const cols=L.cols.slice();((R&&R.cols)||[]).forEach(c=>{if(!cols.some(x=>x.n===c.n))cols.push(Object.assign({},c))});
+ return{rows:out,cols,nid};
+}
+function keepFocus(fn){
+ const a=document.activeElement,sel=a&&a.closest&&a.closest('#card')?{id:a.id,f:a.dataset&&a.dataset.f,s:a.selectionStart,e:a.selectionEnd}:null;
+ fn();
+ if(sel){const n=sel.id?document.getElementById(sel.id):sel.f?document.querySelector('#card [data-f="'+CSS.escape(sel.f)+'"]'):null;if(n){n.focus();try{n.setSelectionRange(sel.s,sel.e)}catch(e){}}}
+}
+function gApply(M){
+ S.rows=M.rows;S.cols=M.cols;S.nid=Math.max(S.nid||1,M.nid);
+ if(S.last!=null&&!byId(S.last)){const r=S.rows.find(r=>!r.done);S.last=r?r.id:null}
+ G.h=gHash();save();keepFocus(()=>{render();renderCols()});
+}
+const GST={off:['☁ Set up cloud backup','var(--mute)'],ok:['☁ Synced','var(--ok)'],busy:['☁ Syncing...','var(--accent)'],wait:['☁ Changes waiting','var(--warn)'],err:['⚠ Sync needs attention','var(--bad)']};
 function gStatus(st,msg){
  gState=st;gMsg=msg||'';const b=$('#gsync'),m=GST[st];
- b.textContent=m[0]+(st==='ok'&&G.last?' '+fmtT(G.last):'');b.style.color=m[1];b.style.borderColor=m[1];b.title=gMsg||'Google Sheet backup';
+ b.textContent=m[0]+(st==='ok'&&G.last?' '+fmtT(G.last):'');b.style.color=m[1];b.style.borderColor=m[1];b.title=gMsg||'Google Sheet sync';
  if(!$('#gsp').hidden)renderG();
 }
 window.syncSoon=function(){
- if(!G.url)return;
+ if(!G.url||gBusy)return;
  if(!G.pending){if(gHash()===G.h)return;G.pending=true;gSave()}
  if(gState!=='busy'&&gState!=='err')gStatus('wait');
- clearTimeout(gTimer);gTimer=setTimeout(()=>gSync(),Math.max(8000,60000-(Date.now()-gLastTry)));
+ clearTimeout(gTimer);gTimer=setTimeout(()=>gSync(),Math.max(6000,45000-(Date.now()-gLastTry)));
 };
-async function gSync(force){
+const OLD_MSG='Your Google Sheet script is an older version. Copy the updated script below, paste it over the old one in Apps Script, then Deploy › Manage deployments › ✏ Edit › Version: New version › Deploy. Your link stays the same.';
+const gSigS=rows=>gSig(rows.slice().sort((a,b)=>a.u<b.u?-1:a.u>b.u?1:0));
+// returns 'ok' | 'stale' | 'conflict'
+async function gPush(expect){
+ gUids(S.rows);const sent=gSig(S.rows);
+ const w=await gPost({action:'save',state:S,expect});
+ if(w.ok){setBase(JSON.parse(JSON.stringify(S.rows)));const ch=gSig(S.rows)!==sent;Object.assign(G,{v:w.v,last:w.saved,leads:w.leads,calls:w.calls,sheet:w.url||G.sheet,pending:ch});G.h=ch?0:gHash();gSave();gConflict=null;gStatus(ch?'wait':'ok');if(ch)gTimer=setTimeout(()=>gSync(),20000);return 'ok'}
+ if(w.error==='stale')return 'stale';
+ if(w.error==='empty'||w.error==='shrink'){gConflict=w.prev;gStatus('err','Your Google Sheet has much more data than this device, so nothing was overwritten. Choose what to keep below.');return 'conflict'}
+ throw new Error(w.error||'bad');
+}
+async function gSync(){
  if(!G.url||gBusy)return;
- if(!navigator.onLine){gStatus('wait','You are offline. Your changes are safe on this device and will back up when you reconnect.');return}
- clearTimeout(gTimer);gBusy=true;gLastTry=Date.now();gStatus('busy');
- const snap=JSON.stringify(S),sh=gHash();let again=false;
+ if(!navigator.onLine){gStatus(G.pending?'wait':gState==='err'?'err':'ok',G.pending?'You are offline. Changes are safe on this device and will sync when you reconnect.':gMsg);return}
+ clearTimeout(gTimer);gBusy=true;gLastTry=Date.now();if(G.pending)gStatus('busy');
  try{
-  const j=await gPost({action:'save',state:JSON.parse(snap),force:!!force});
-  if(j.ok){Object.assign(G,{last:j.saved,leads:j.leads,calls:j.calls,sheet:j.url||G.sheet});G.h=sh;again=gHash()!==sh;G.pending=again;gSave();gConflict=null;gStatus(again?'wait':'ok')}
-  else if(j.error==='empty'||j.error==='shrink'){gConflict=j.prev;gStatus('err','Your Google Sheet has more data ('+j.prev.leads+' leads, '+j.prev.calls+' calls) than this device ('+gCounts().leads+' leads, '+gCounts().calls+' calls), so nothing was overwritten.')}
-  else if(j.error==='key')gStatus('err','The key in your Google Sheet script does not match this app. Copy the script again or enter the right key.');
-  else throw new Error(j.error||'bad');
- }catch(e){gStatus('err',e.message==='access'?'Google refused the request. In Apps Script, check the web app is deployed with "Who has access: Anyone".':'Could not reach Google right now. Your data is safe here and will retry automatically.');again=true}
- gBusy=false;
- if(again&&gState!=='err')gTimer=setTimeout(()=>gSync(),60000);
+  const p=await gPost({action:'ping'});
+  if(!p.ok)throw new Error(p.error==='key'?'key':(p.error||'bad'));
+  if(p.script!==2){gOld=true;gStatus('err',OLD_MSG);return}
+  gOld=false;G.sheet=p.url||G.sheet;
+  if(G.v>0&&p.v===G.v){
+   // Nobody else has saved since our last sync
+   if(!G.pending&&gHash()===G.h){Object.assign(G,{leads:p.leads,calls:p.calls,last:Date.now()});gSave();if(!gConflict)gStatus('ok');return}
+   const r=await gPush(G.v);if(r!=='stale')return;
+  }
+  for(let attempt=0;attempt<3;attempt++){
+   const j=await gPost({action:'restore'});
+   if(!j.ok)throw new Error(j.error||'bad');
+   const R=j.state||{rows:[],cols:[]};
+   if(!R.rows||!R.rows.length){BASE={};baseSave()}  // empty sheet: never treat as "everything deleted"
+   const before=gSig(S.rows),M=gMerge(S,R);
+   if(gSig(M.rows)!==before||M.cols.length!==S.cols.length)gApply(M);
+   const c=gCounts();
+   if(gSigS(S.rows)===gSigS(R.rows||[])&&S.cols.length===(R.cols||[]).length){
+    setBase(S.rows);Object.assign(G,{v:j.v,leads:c.leads,calls:c.calls,last:Date.now(),pending:false});G.h=gHash();gSave();gConflict=null;gStatus('ok');return}
+   gStatus('busy');
+   const r=await gPush(j.v);if(r!=='stale')return;
+  }
+  gStatus('wait','Another device is saving at the same time. Will retry shortly.');gTimer=setTimeout(()=>gSync(),15000);
+ }catch(e){
+  gStatus('err',e.message==='key'?'The key does not match the script in your Google Sheet. Use the setup code from your other device.':e.message==='access'?'Google refused the request. In Apps Script, check the web app is deployed with "Who has access: Anyone".':'Could not reach Google right now. Your data is safe here and will retry automatically.');
+  if(e.message!=='key'&&e.message!=='access')gTimer=setTimeout(()=>{if(gState==='err')gState='wait';gSync()},60000);
+ }finally{gBusy=false}
 }
-function gHash(){const t=JSON.stringify([S.rows,S.cols]);let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return h}
-function gCounts(){return{leads:S.rows.length,calls:S.rows.reduce((n,r)=>n+r.log.length,0)}}
-function applyState(d){
- S=Object.assign({rows:[],cols:[],last:null,filter:'todo',q:'',nid:1,view:'list',mig:1},d);
- S.nid=Math.max(S.nid||1,...S.rows.map(r=>(r.id||0)+1));
- if(S.rows.length&&(!byId(S.last)||byId(S.last).done)){const r=S.rows.find(r=>!r.done);S.last=r?r.id:S.last}
- ADDOPEN=false;$('#q').value='';save();render();renderCols();setTab(S.tab);applyHdr();
-}
-async function gRestore(day){
- if(!G.url)return;toast('Loading from your Google Sheet...');
+// Explicit restore or overwrite: one side replaces the other completely
+async function gTakeSheet(day){
+ toast('Loading from your Google Sheet...');
  try{
   const j=await gPost({action:'restore',day:day||''});
-  if(!j.ok)throw new Error(j.error==='none'?'none':(j.error||'bad'));
-  const d=j.state;if(!d||!Array.isArray(d.rows))throw new Error('bad');
-  const calls=d.rows.reduce((n,r)=>n+((r.log||[]).length),0);
-  if(S.rows.length&&!(await ask('Replace what is on this device with the Google Sheet backup'+(day?' from '+day:'')+'?\n\n'+d.rows.length+' leads and '+calls+' logged calls.','Restore',true)))return;
-  gConflict=null;applyState(d);clearTimeout(gTimer);G.h=gHash();G.pending=false;gSave();gStatus('ok');
-  toast('Restored '+d.rows.length+' leads from Google Sheet');
+  if(!j.ok||!j.state||!Array.isArray(j.state.rows))throw new Error(j.error==='none'||!j.state?'none':'bad');
+  const d=j.state,c=gCounts(d);
+  if(S.rows.length&&!(await ask('Replace everything on this device with the Google Sheet'+(day?' snapshot from '+day:'')+'?\n\n'+c.leads+' leads and '+c.calls+' logged calls.','Replace',true)))return;
+  gUids(d.rows);applyState(d);gConflict=null;
+  if(day){await gPushLocal(true);toast('Restored '+day+' and updated the sheet');return}
+  setBase(S.rows);Object.assign(G,{v:j.v,pending:false,leads:c.leads,calls:c.calls,last:Date.now()});G.h=gHash();gSave();gStatus('ok');toast('Loaded '+c.leads+' leads from Google Sheet');
  }catch(e){toast(e.message==='none'?'No backup found in the sheet yet':'Could not load from Google Sheet')}
 }
-async function gConnect(){
- const u=($('#gurl').value||'').trim(),k=($('#gk').value||'').trim();
- if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec/.test(u)){toast('Paste the Web app URL. It starts with https://script.google.com/macros/s/ and ends with /exec');return}
- if(k)G.key=k;
- const old=G.url;G.url=u;$('#gconn').disabled=true;$('#gconn').textContent='Connecting...';
+async function gPushLocal(force){
+ gUids(S.rows);gBusy=true;gStatus('busy');
+ try{const w=await gPost({action:'save',state:S,force:!!force});
+  if(!w.ok)throw new Error(w.error);
+  setBase(S.rows);Object.assign(G,{v:w.v,last:w.saved,leads:w.leads,calls:w.calls,sheet:w.url||G.sheet,pending:false});G.h=gHash();gSave();gConflict=null;gStatus('ok');
+ }catch(e){gStatus('err','Could not save to Google Sheet. Try again in a moment.')}finally{gBusy=false}
+}
+function applyState(d){
+ S=Object.assign({rows:[],cols:[],last:null,filter:'todo',q:'',nid:1,view:'list',mig:1},d,{tab:S.tab,hdrOff:S.hdrOff,srby:S.srby,srfor:S.srfor});
+ S.nid=Math.max(S.nid||1,...S.rows.map(r=>(r.id||0)+1));
+ if(!byId(S.last)||byId(S.last).done){const r=S.rows.find(r=>!r.done);S.last=r?r.id:(S.rows[0]?S.rows[0].id:null)}
+ ADDOPEN=false;$('#q').value='';G.h=gHash();save();render();renderCols();setTab(S.tab);applyHdr();
+}
+// Pairing another device
+const b64u=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const ub64=s=>decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))));
+const gCode=()=>'MD1.'+b64u(JSON.stringify({u:G.url,k:G.key}));
+function gParse(code){try{const m=String(code).trim().match(/MD1\.([\w-]+)/);if(!m)return null;const o=JSON.parse(ub64(m[1]));return o&&o.u&&o.k?o:null}catch(e){return null}}
+const appLink=()=>/^https?:$/.test(location.protocol)?location.origin+location.pathname:'';
+let QRP=null;
+function loadQR(){if(window.QRCode)return Promise.resolve();return QRP||(QRP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';s.onload=res;s.onerror=()=>{QRP=null;rej()};document.head.appendChild(s)}))}
+async function drawQR(){const el=$('#gqr');if(!el||!appLink())return;try{await loadQR();el.innerHTML='';new QRCode(el,{text:appLink()+'#pair='+gCode(),width:190,height:190,correctLevel:QRCode.CorrectLevel.M})}catch(e){el.innerHTML='<p class="mute">QR code needs internet. Use the setup code instead.</p>'}}
+async function gConnectWith(u,k){
+ const oldU=G.url,oldK=G.key;G.url=u;G.key=k;
  try{
   const j=await gPost({action:'ping'});
-  if(!j.ok){G.url=old;gSave();toast(j.error==='key'?'Key does not match the script. Copy the script again, paste it and redeploy.':'The script answered with an error');return}
-  G.sheet=j.url||'';G.leads=j.leads;G.calls=j.calls;G.last=j.saved||0;gSave();
-  if(j.leads>0&&!S.rows.length){gStatus('ok');renderG();await gRestore();return}
-  if(j.leads>0&&S.rows.length){
-   if(await ask('Your Google Sheet already has a backup ('+j.leads+' leads, '+j.calls+' calls).\n\nLoad it onto this device?\nChoose Cancel to keep this device\'s data and back it up to the sheet instead.','Load from sheet')){await gRestore();return}
-   await gSync(true);toast('Connected. Backing up automatically from now on');return;
-  }
-  await gSync(true);toast('Connected. Backing up automatically from now on');
- }catch(e){G.url=old;gSave();toast(e.message==='access'?'Google refused. Set "Who has access" to Anyone and deploy again':'Could not reach that URL')}
- finally{const b=$('#gconn');if(b){b.disabled=false;b.textContent='Connect'}if(G.url&&gState==='off')gStatus('ok');renderG()}
+  if(!j.ok){G.url=oldU;G.key=oldK;gSave();toast(j.error==='key'?'That key does not match the script. Use the setup code from your other device.':'The script answered with an error');return false}
+  G.sheet=j.url||'';G.pending=true;G.v=0;gSave();
+  if(j.script!==2){gOld=true;gStatus('err',OLD_MSG);renderG();return true}
+  await gSync();
+  toast(j.leads?'Connected. Data combined with your Google Sheet':'Connected. Syncing automatically from now on');return true;
+ }catch(e){G.url=oldU;G.key=oldK;gSave();toast(e.message==='access'?'Google refused. Set "Who has access" to Anyone and deploy again':'Could not reach that link');return false}
+}
+async function gConnect(){
+ const code=gParse(($('#gcode')||{}).value||'');
+ let u,k;
+ if(code){u=code.u;k=code.k}else{u=($('#gurl').value||'').trim();k=($('#gk').value||'').trim()||G.key}
+ if(!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec/.test(u)){toast(code===null&&($('#gcode')||{}).value?'That setup code is not valid':'Paste the Web app link (it ends with /exec) or a setup code');return}
+ const b=$('#gconn');b.disabled=true;b.textContent='Connecting...';
+ await gConnectWith(u,k);
+ b.disabled=false;b.textContent='Connect';renderG();
 }
 function gScript(){return $('#gscode').textContent.replace('__KEY__',G.key).trim()}
 function renderG(){
  const el=$('#gbody');
  if(!G.url){
-  el.innerHTML='<p style="margin:0">Every change you make is copied to your own Google Sheet within about a minute. It also keeps a snapshot of each day for 30 days, plus readable <b>Call Log</b> and <b>Leads</b> tabs you can open anytime. Takes about 5 minutes, once.</p>'+
+  el.innerHTML='<div class="gstat"><b>Already set up on another device?</b>Paste the setup code from that device (Cloud sync › Connect another device):<input id="gcode" placeholder="MD1...." style="width:100%;margin-top:6px"><div class="drow" style="margin-top:8px"><button class="sales" id="gconn">Connect</button></div></div>'+
+  '<details'+(G.v?'':' open')+'><summary>First time: set up your Google Sheet</summary><div style="display:flex;flex-direction:column;gap:10px;margin-top:10px"><p style="margin:0">Your leads and calls sync to your own Google Sheet, and every device you connect shares the same data. It also keeps a snapshot of each day for 30 days, plus readable <b>Call Log</b> and <b>Leads</b> tabs.</p>'+
   '<ol><li>Create a new Google Sheet: <a class="btnlink" href="https://sheets.new" target="_blank" rel="noopener noreferrer">Open a new sheet</a> and name it <code>Minerva Dialler Backup</code>.</li>'+
-  '<li>In the sheet, go to <b>Extensions &rsaquo; Apps Script</b>. Delete the code that is there and paste this script: <div class="gbtns" style="margin-top:6px"><button class="primary" id="gcopy">Copy script</button></div><details style="margin-top:6px"><summary>Show script</summary><textarea id="gsrc" rows="8" readonly></textarea></details></li>'+
-  '<li>Click the <b>Save</b> icon. Then <b>Deploy &rsaquo; New deployment</b>, click the gear next to "Select type" and choose <b>Web app</b>. Set <b>Execute as: Me</b> and <b>Who has access: Anyone</b>. Click <b>Deploy</b> and allow access to your Google account (if Google warns the app is unverified, click <b>Advanced &rsaquo; Go to project</b>, it is your own script).</li>'+
-  '<li>Copy the <b>Web app URL</b> and paste it here:<input id="gurl" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;margin-top:6px"></li></ol>'+
-  '<label>Backup key (already in the script you copied)<input id="gk" class="gkey" value="'+esc(G.key)+'"></label>'+
-  '<p class="mute" style="margin:0;font-size:13px">Setting up a second computer? Paste the same Web app URL and the key from the first computer.</p>'+
-  '<div class="drow"><button id="gclose">Close</button><button class="sales" id="gconn">Connect</button></div>';
+  '<li>In the sheet, go to <b>Extensions › Apps Script</b>. Delete the code that is there and paste this script: <div class="gbtns" style="margin-top:6px"><button class="primary" id="gcopy">Copy script</button></div><details style="margin-top:6px"><summary>Show script</summary><textarea id="gsrc" rows="8" readonly></textarea></details></li>'+
+  '<li>Click <b>Save</b>. Then <b>Deploy › New deployment</b>, click the gear next to "Select type", choose <b>Web app</b>. Set <b>Execute as: Me</b> and <b>Who has access: Anyone</b>. Click <b>Deploy</b> and allow access (if Google says the app is unverified, click <b>Advanced › Go to project</b>, it is your own script).</li>'+
+  '<li>Copy the <b>Web app URL</b> (ends with /exec) and paste it here:<input id="gurl" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;margin-top:6px"></li></ol>'+
+  '<label>Sync key (already inside the script you copied)<input id="gk" class="gkey" value="'+esc(G.key)+'"></label>'+
+  '<div class="drow"><button class="sales" id="gconn2">Connect</button></div></div></details>'+
+  '<div class="drow"><button id="gclose">Close</button></div>';
   $('#gsrc').value=gScript();return;
  }
  const c=gCounts(),col={ok:'var(--ok)',busy:'var(--accent)',wait:'var(--warn)',err:'var(--bad)',off:'var(--mute)'}[gState];
- const head={ok:'Backed up'+(G.last?' at '+fmtT(G.last):''),busy:'Saving to Google...',wait:'Changes waiting to back up',err:'Backup needs attention',off:'Connected'}[gState];
+ const head={ok:'Synced'+(G.last?' at '+fmtT(G.last):''),busy:'Syncing with Google...',wait:'Changes waiting to sync',err:'Sync needs attention',off:'Connected'}[gState];
  el.innerHTML='<div class="gstat" style="--gc:'+col+'"><b style="color:'+col+'">'+esc(head)+'</b>'+(gMsg?esc(gMsg)+'<br>':'')+'This device: '+c.leads+' leads, '+c.calls+' calls. Google Sheet: '+G.leads+' leads, '+G.calls+' calls.</div>'+
- (gConflict?'<div class="gbtns"><button class="primary" data-g="restore">Load the Google Sheet onto this device</button><button class="danger" data-g="force">Overwrite the sheet with this device</button></div>':'')+
- '<div class="gbtns">'+(G.sheet?'<a class="btnlink" href="'+esc(G.sheet)+'" target="_blank" rel="noopener noreferrer">Open Google Sheet</a>':'')+'<button data-g="now">Back up now</button><button data-g="restore">Restore latest from sheet</button></div>'+
+ (gOld?'<div class="gbtns"><button class="primary" id="gcopy">Copy updated script</button><button data-g="now">I updated it, sync now</button></div>':'')+
+ (gConflict?'<div class="gbtns"><button class="primary" data-g="take">Load the Google Sheet onto this device</button><button class="danger" data-g="force">Overwrite the sheet with this device</button></div>':'')+
+ '<div class="gbtns">'+(G.sheet?'<a class="btnlink" href="'+esc(G.sheet)+'" target="_blank" rel="noopener noreferrer">Open Google Sheet</a>':'')+'<button data-g="now">Sync now</button></div>'+
+ '<details id="gpair"><summary>Connect another device (phone, second laptop)</summary><div style="display:flex;flex-direction:column;gap:10px;margin-top:10px">'+
+ (appLink()?'<div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div id="gqr" style="background:#fff;padding:8px;border-radius:8px;width:206px;min-height:206px"></div><p style="margin:0;flex:1;min-width:180px;font-size:14px"><b>Android:</b> scan this with your phone camera and open the link. The dialler opens already connected.<br><br><b>iPhone:</b> install the app from Safari first, then paste the setup code below into its Cloud sync panel.</p></div>':'')+
+ '<label>Setup code<input readonly class="gkey" id="gcodeout" value="'+esc(gCode())+'"></label><div class="gbtns"><button data-g="copycode">Copy setup code</button>'+(appLink()?'<button data-g="copylink">Copy setup link</button>':'')+'</div>'+
+ '<p class="mute" style="margin:0;font-size:13px">Keep this code private. Anyone with it can read and change your backup.</p></div></details>'+
  '<label>Restore an earlier day<div class="gbtns"><select id="gday" style="flex:1"><option value="">'+(gSnaps?gSnaps.length?'Choose a day':'No snapshots yet':'Loading snapshots...')+'</option>'+(gSnaps||[]).map(s=>'<option value="'+esc(s.day)+'">'+esc(s.day)+' — '+esc(s.leads)+' leads, '+esc(s.calls)+' calls</option>').join('')+'</select><button data-g="day">Restore that day</button></div></label>'+
- '<details><summary>Connection details</summary><p class="mute" style="font-size:13px;overflow-wrap:anywhere">Web app URL: '+esc(G.url)+'<br>Key: <span class="gkey">'+esc(G.key)+'</span><br>Use the same URL and key to connect another computer.</p><button class="danger" data-g="disc">Disconnect this device</button></details>'+
+ '<details><summary>Connection details</summary><p class="mute" style="font-size:13px;overflow-wrap:anywhere">Web app link: '+esc(G.url)+'<br>Key: <span class="gkey">'+esc(G.key)+'</span></p><div class="gbtns"><button data-g="take">Replace this device with the sheet</button><button class="danger" data-g="disc">Disconnect this device</button></div></details>'+
  '<div class="drow"><button id="gclose">Close</button></div>';
+ const pd=$('#gpair');if(pd)pd.addEventListener('toggle',()=>{if(pd.open)drawQR()});
 }
 async function gLoadSnaps(){gSnaps=null;try{const j=await gPost({action:'snapshots'});gSnaps=j.ok?j.list:[]}catch(e){gSnaps=[]}if(!$('#gsp').hidden)renderG()}
-$('#gsync').onclick=()=>{renderG();$('#gsp').hidden=false;if(G.url)gLoadSnaps()};
+async function copyText(t,msg){try{await navigator.clipboard.writeText(t);toast(msg)}catch(x){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}a.remove();toast(ok?msg:'Copy blocked. Select the text and press Ctrl+C')}}
+$('#gsync').onclick=()=>{renderG();$('#gsp').hidden=false;if(G.url&&!gOld)gLoadSnaps()};
 $('#gsp').onclick=async e=>{
  if(e.target.id==='gsp'||e.target.id==='gclose'){$('#gsp').hidden=true;return}
- if(e.target.id==='gconn'){gConnect();return}
- if(e.target.id==='gcopy'){const s=gScript();try{await navigator.clipboard.writeText(s);toast('Script copied. Paste it into Apps Script')}catch(x){const t=$('#gsrc');t.closest('details').open=true;t.focus();t.select();toast('Press Ctrl+C to copy the selected script')}return}
+ if(e.target.id==='gconn'||e.target.id==='gconn2'){if(e.target.id==='gconn2'&&$('#gcode'))$('#gcode').value='';gConnect();return}
+ if(e.target.id==='gcopy'){copyText(gScript(),'Script copied. Paste it into Apps Script');return}
  const a=e.target.dataset.g;if(!a)return;
- if(a==='now')gSync();
- if(a==='restore')gRestore();
- if(a==='day'){const d=$('#gday').value;if(!d){toast('Choose a day first');return}gRestore(d)}
- if(a==='force'){if(await ask('Overwrite the Google Sheet backup with this device ('+gCounts().leads+' leads, '+gCounts().calls+' calls)?\n\nDaily snapshots in the sheet are kept, so older days can still be restored.','Overwrite sheet',true))gSync(true)}
- if(a==='disc'){if(await ask('Stop backing up this device to Google Sheets?\n\nYour sheet and its data are not deleted.','Disconnect',true)){G.url='';G.pending=false;gSave();gConflict=null;gStatus('off');renderG()}}
+ if(a==='now'){G.pending=true;gSave();gSync()}
+ if(a==='take')gTakeSheet();
+ if(a==='day'){const d=$('#gday').value;if(!d){toast('Choose a day first');return}gTakeSheet(d)}
+ if(a==='copycode')copyText(gCode(),'Setup code copied');
+ if(a==='copylink')copyText(appLink()+'#pair='+gCode(),'Setup link copied. Open it on your phone');
+ if(a==='force'){if(await ask('Overwrite the Google Sheet with this device ('+gCounts().leads+' leads, '+gCounts().calls+' calls)?\n\nDaily snapshots in the sheet are kept, so older days can still be restored.','Overwrite sheet',true))gPushLocal(true)}
+ if(a==='disc'){if(await ask('Stop syncing this device with Google Sheets?\n\nYour sheet and its data are not deleted.','Disconnect',true)){G.url='';G.pending=false;G.v=0;gSave();BASE={};baseSave();gConflict=null;gStatus('off');renderG()}}
 };
-window.addEventListener('online',()=>{if(G.url&&G.pending)gSync()});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&G.url&&G.pending&&!gBusy&&gState!=='err')gSync()});
-setInterval(()=>{if(G.url&&G.pending&&!gBusy&&gState!=='err'&&Date.now()-gLastTry>110000)gSync()},120000);
-if(G.url){
- gStatus(G.pending?'wait':'ok');
- setTimeout(async()=>{
-  if(!S.rows.length&&G.leads>0){if(await ask('This device has no leads, but your Google Sheet backup has '+G.leads+' leads and '+G.calls+' calls.\n\nRestore them now?','Restore'))gRestore()}
-  else if(G.pending)gSync();
- },1200);
-}else gStatus('off');
+window.addEventListener('online',()=>{if(G.url)gSync()});
+document.addEventListener('visibilitychange',()=>{if(!G.url||gBusy)return;if(document.visibilityState==='visible'&&Date.now()-gLastTry>20000)gSync();else if(document.visibilityState==='hidden'&&G.pending&&gState!=='err')gSync()});
+setInterval(()=>{if(G.url&&!gBusy&&document.visibilityState==='visible'&&gState!=='err'&&Date.now()-gLastTry>85000)gSync()},30000);
+(async()=>{
+ const m=location.hash.match(/^#pair=(.+)$/);
+ if(m){window.history.replaceState(null,'',location.pathname+location.search);const o=gParse(m[1]);
+  if(o&&(o.u!==G.url||o.k!==G.key)){await new Promise(r=>setTimeout(r,400));
+   if(await ask('Connect this device to your Google Sheet?\n\nLeads and calls on this device will be combined with the sheet, and both devices will stay in sync.','Connect')){gStatus('busy');await gConnectWith(o.u,o.k)}}
+  else if(!o)toast('That setup link is not valid')}
+ if(G.url){gStatus(G.pending?'wait':'ok');setTimeout(()=>gSync(),1500)}else if(!m)gStatus('off');
+})();
 
 // ---- Standalone app: backup / restore, install, offline ----
 function backup(){
