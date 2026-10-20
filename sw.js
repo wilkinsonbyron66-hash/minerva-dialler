@@ -1,5 +1,5 @@
 // Minerva Dialler offline cache. Bump VERSION after uploading a new index.html.
-const VERSION = 'dialler-v4';
+const VERSION = 'dialler-v5';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './logo-white.png', './logo-navy.png',
   'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
