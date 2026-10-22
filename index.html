@@ -1475,11 +1475,6 @@ async function buildSalesReport(R,by,forWho){
   D.ems.forEach((x,i)=>{const n=x.m.note||'',col=x.m.k==='rfq'?'FF0B7A4B':x.m.k==='later'?'FFB45309':XC.ink;r=trow(r,[[new Date(x.m.t).toLocaleDateString('en-GB',{day:'numeric',month:'short'}),2,2],[title(x.r),3,3,{bold:true}],[val(x.r,cn('contact')),4,4],[EMT[x.m.k]||'Email reply',5,5,{bold:true,color:{argb:col}}],[n.length>600?n.slice(0,600)+'...':n,6,7]],i%2,estH(n.slice(0,600),40))})}
  else r=trow(r,[['No email responses logged in this period.',2,7,{italic:true,color:{argb:XC.mute}}]]);
  r++;
- // Next steps
- r=section(r,'Next steps — follow-ups and call backs ('+D.next.length+')');
- if(D.next.length){r=thead(r,[['Due / requested',2,2],['Company',3,3],['Contact',4,4],['Action',5,5],['Last note',6,7]]);
-  D.next.forEach((x,i)=>{const od=x.type==='Follow-up call'&&x.t<Date.now();r=trow(r,[[new Date(x.t).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})+(od?' (overdue)':''),2,2,od?{bold:true,color:{argb:XC.or}}:{}],[title(x.r),3,3,{bold:true}],[[val(x.r,cn('contact')),val(x.r,cn('phone'))].filter(Boolean).join('\n'),4,4],[x.type,5,5],[x.note,6,7]],i%2,estH(x.note,40))})}
- else r=trow(r,[['No follow-ups or call backs open.',2,7,{italic:true,color:{argb:XC.mute}}]]);
  r+=2;ws.mergeCells(r,2,r,7);cellAt(r,2,'Minerva Technologies  •  driving excellence  •  delivering expectations',{size:9,italic:true,color:{argb:XC.mute}},{horizontal:'center'});
  // Call log sheet
  const vis=S.cols.filter(c=>c.show),rest=vis.filter(c=>!['company','contact','phone'].includes(c.role));
@@ -1502,9 +1497,9 @@ function srPreview(){
  const R=srRange(k,$('#srfrom').value,$('#srto').value);
  if(!R){$('#srprev').textContent='Pick a start and end date.';return null}
  const D=srData(R);
- const dp=D.dupes,dtxt=[dp.emails?dp.emails+' duplicate email'+(dp.emails>1?'s':''):'',dp.calls?dp.calls+' double-logged call'+(dp.calls>1?'s':''):'',dp.steps?dp.steps+' repeated follow-up'+(dp.steps>1?'s':''):''].filter(Boolean);
+ const dp=D.dupes,dtxt=[dp.emails?dp.emails+' duplicate email'+(dp.emails>1?'s':''):'',dp.calls?dp.calls+' double-logged call'+(dp.calls>1?'s':''):''].filter(Boolean);
  const _e=D.ems.length?', '+D.ems.length+' email responses ('+D.rfq+' requests)':'';
- $('#srprev').innerHTML='<b>'+esc(R.lab)+'</b> ('+esc(R.txt)+')<br>'+D.c.length+' calls to '+D.leads+' accounts, '+D.sp+' conversations ('+Math.round(100*D.rate)+'% connect rate), '+D.next.length+' next steps'+_e+'.'+'<br><span style="color:var(--ok)">\u2713 Checked for duplicates'+(dtxt.length?': left out '+dtxt.join(', '):': none found')+'</span>';
+ $('#srprev').innerHTML='<b>'+esc(R.lab)+'</b> ('+esc(R.txt)+')<br>'+D.c.length+' calls to '+D.leads+' accounts, '+D.sp+' conversations ('+Math.round(100*D.rate)+'% connect rate)'+_e+'.'+'<br><span style="color:var(--ok)">\u2713 Checked for duplicates'+(dtxt.length?': left out '+dtxt.join(', '):': none found')+'</span>';
  return R;
 }
 function openSR(){
@@ -1534,7 +1529,7 @@ function buildPdf(R,by,forWho){
  font(10.5);col(CY);doc.text(pdfTxt(R.lab+'  •  '+R.txt),W-M,21.5,{align:'right'});
  font(8.5);col([200,220,235]);doc.text(fit([by?'Prepared by '+by:'',forWho?'for '+forWho:''].filter(Boolean).join(' ')||'Minerva Technologies',120),W-M,27.5,{align:'right'});
  // KPI tiles
- const tiles=[['Calls made',String(D.c.length),D.leads+' accounts reached',CY],['Conversations',String(D.sp),Math.round(100*D.rate)+'% connect rate',CY],['Requests received',String(D.rfq),'RFQs by email',GREEN],['Promised requests',String(D.later),'will send by email',OR],['Open follow-ups',String(D.next.length),(()=>{const o=D.next.filter(x=>x.type==='Follow-up call'&&x.t<Date.now()).length;return o?o+' overdue':'none overdue'})(),D.next.some(x=>x.type==='Follow-up call'&&x.t<Date.now())?OR:CY]];
+ const days=D.buckets.filter(x=>x.n).length,tiles=[['Calls made',String(D.c.length),days?Math.round(D.c.length/days)+' per calling day':'in this period',CY],['Accounts reached',String(D.leads),'unique companies called',CY],['Conversations',String(D.sp),Math.round(100*D.rate)+'% connect rate',CY],['Requests received',String(D.rfq),'RFQs by email',GREEN],['Promised requests',String(D.later),'will send by email',OR]];
  const gap=4,tw=(CW-gap*(tiles.length-1))/tiles.length,ty=42,th=25;
  tiles.forEach(([l,v,s,c],i)=>{const x=M+i*(tw+gap);fill(SOFT);doc.roundedRect(x,ty,tw,th,1.6,1.6,'F');fill(c);doc.rect(x,ty,tw,1.3,'F');
   font(20,'bold');col(NAVY);doc.text(v,x+tw/2,ty+12.5,{align:'center'});font(7.8,'bold');col(INK);doc.text(fit(l,tw-3),x+tw/2,ty+18.2,{align:'center'});font(6.8);col(MUTE);doc.text(fit(s,tw-3),x+tw/2,ty+22.2,{align:'center'})});
@@ -1553,23 +1548,16 @@ function buildPdf(R,by,forWho){
   .concat(D.ems.filter(x=>x.m.k==='later').map(x=>({t:x.m.t,k:'Promised',c:AMBER,r:x.r,n:x.m.note})))
   .concat(D.conv.filter(x=>x.l.note).map(x=>({t:x.l.t,k:'Spoke',c:NAVY,r:x.r,n:x.l.note})));
  const seen=new Set(),opps=[];opp.forEach(o=>{const ck=coKey(o.r)||'#'+o.r.id;if(o.k==='Spoke'&&seen.has(ck))return;seen.add(ck);opps.push(o)});
- const nsRows=Math.max(1,Math.min(6,D.next.length)),OMAX=Math.max(4,Math.floor((283-y-6.5-5-6.5-nsRows*7.4-(D.next.length>6?4:0)-5)/7.4));
+ const OMAX=Math.max(4,Math.floor((283-y-6.5-5)/7.4));
  sect('Requests & conversations'+(opps.length?' ('+opps.length+')':''),M,y,CW);y+=6.5;
  const row=(cells,h)=>{cells.forEach(([t,x,w,f,c,al])=>{font(f[0],f[1]);col(c||INK);doc.text(fit(t,w),al==='r'?x+w:x,y,al==='r'?{align:'right'}:undefined)});stroke(LINE);doc.setLineWidth(0.2);doc.line(M,y+2.6,M+CW,y+2.6);y+=h};
  const pill=(t,x,c)=>{font(6.6,'bold');const w=doc.getTextWidth(t)+4;fill(c);doc.roundedRect(x,y-3.1,w,4.3,1.2,1.2,'F');col([255,255,255]);doc.text(t,x+2,y)};
  if(opps.length){opps.slice(0,OMAX).forEach(o=>{pill(o.k,M+13,o.c);row([[dshort(o.t),M,12,[7.8],MUTE],[title(o.r),M+33,50,[8.2,'bold']],[o.n||'',M+86,CW-86,[7.8],INK]],7.4)});
   if(opps.length>OMAX){font(7,'italic');col(MUTE);doc.text('+ '+(opps.length-OMAX)+' more in the Excel report',M,y);y+=4}}
  else{font(8.5,'italic');col(MUTE);doc.text('No requests or conversations with notes in this period.',M,y);y+=6}
- // Next steps
- y+=5;const ns=D.next.slice(0,Math.max(1,Math.min(6,Math.floor((283-y-6.5-5)/7.4))));
- sect('Next steps'+(D.next.length?' ('+D.next.length+')':''),M,y,CW);y+=6.5;
- if(ns.length){ns.forEach(x=>{const od=x.type==='Follow-up call'&&x.t<Date.now();
-  row([[new Date(x.t).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+(x.type==='Follow-up call'?' '+new Date(x.t).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):''),M,24,[7.8,od?'bold':'normal'],od?OR:MUTE],[title(x.r),M+26,57,[8.2,'bold']],[x.type==='Follow-up call'?(od?'Follow-up (overdue)':'Follow-up call'):'Call back',M+86,30,[7.8],od?OR:INK],[x.note||'',M+118,CW-118,[7.8],MUTE]],7.4)});
-  if(D.next.length>ns.length){font(7,'italic');col(MUTE);doc.text('+ '+(D.next.length-ns.length)+' more in the Excel report',M,y)}}
- else{font(8.5,'italic');col(MUTE);doc.text('No follow-ups or call backs open.',M,y)}
  // Footer
  stroke(LINE);doc.setLineWidth(0.3);doc.line(M,287,W-M,287);font(7);col(MUTE);
- doc.text('Minerva Technologies  •  driving excellence  •  delivering expectations'+((D.dupes.calls+D.dupes.emails+D.dupes.steps)?'   |   Duplicates excluded: '+(D.dupes.calls+D.dupes.emails+D.dupes.steps):''),M,291.5);
+ doc.text('Minerva Technologies  •  driving excellence  •  delivering expectations'+((D.dupes.calls+D.dupes.emails)?'   |   Duplicates excluded: '+(D.dupes.calls+D.dupes.emails):''),M,291.5);
  doc.text('Generated '+new Date().toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),W-M,291.5,{align:'right'});
  return doc;
 }
