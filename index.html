@@ -411,7 +411,7 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   <div class="srrow" id="srcust" hidden><label>From<input type="date" id="srfrom"></label><label>To<input type="date" id="srto"></label></div>
   <div class="srrow"><label>Prepared by<input id="srby" placeholder="Your name"></label><label>Prepared for<input id="srfor" placeholder="e.g. Sales Director"></label></div>
   <div id="srprev"></div>
-  <div class="drow"><button id="srclose">Cancel</button><button class="sales" id="srgo">Download report</button></div>
+  <div class="drow"><button id="srclose">Cancel</button><button id="srgo" title="Every call, email and detail, for your records">Excel (full detail)</button><button class="sales" id="srpdf" title="Clean one-page summary with charts for a sales meeting">PDF (1 page)</button></div>
  </div>
 </div></div>
 <div id="gsp" hidden><div class="srbox" role="dialog" aria-label="Cloud backup">
@@ -1164,9 +1164,9 @@ function showText(w){
 $('#txtclose').onclick=()=>$('#txt').hidden=true;
 $('#t1').onclick=()=>showText('log');$('#t2').onclick=()=>showText('leads');
 $('#tsel').onclick=()=>{const a=$('#txtarea');a.focus();a.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}toast(ok?'Copied. Paste it into your spreadsheet':'Selected. Press Ctrl+C (or Cmd+C) to copy')};
-function browserSave(name,data){
+function browserSave(name,data,mime){
  try{
-  const b=new Blob([data],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const b=new Blob([data],{type:mime||'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const u=URL.createObjectURL(b),a=document.createElement('a');
   a.href=u;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();
   setTimeout(()=>URL.revokeObjectURL(u),8000);return true;
@@ -1293,13 +1293,13 @@ function srData(R){
   cbs:S.rows.filter(r=>touched.has(r.id)&&r.log.length&&r.log[r.log.length-1].o==='Call back').length,
   fus:S.rows.filter(r=>r.fu&&r.fu>=Date.now()-864e5).length,left:S.rows.filter(r=>!r.done).length};
 }
-function chartPng(kind,D,W,H){
- const k=2,cv=document.createElement('canvas');cv.width=W*k;cv.height=H*k;const g=cv.getContext('2d');g.scale(k,k);
+function chartPng(kind,D,W,H,K){
+ const k=K||2,cv=document.createElement('canvas');cv.width=W*k;cv.height=H*k;const g=cv.getContext('2d');g.scale(k,k);
  g.fillStyle='#fff';g.fillRect(0,0,W,H);
  const F=(s,w)=>(w||500)+' '+s+'px Barlow, "Segoe UI", Arial, sans-serif';
  g.textBaseline='middle';
  if(kind==='days'){
-  const B=D.buckets,pl=40,pr=12,pt=34,pb=46,cw=W-pl-pr,ch=H-pt-pb,mx=Math.max(1,...B.map(b=>b.n));
+  const B=D.buckets,pl=40,pr=12,pt=46,pb=46,cw=W-pl-pr,ch=H-pt-pb,mx=Math.max(1,...B.map(b=>b.n));
   const step=Math.max(1,Math.ceil(mx/5)),top=Math.ceil(mx/step)*step;
   g.font=F(11);g.fillStyle='#5A6B7A';g.textAlign='right';
   for(let v=0;v<=top;v+=step){const y=pt+ch-ch*v/top;g.strokeStyle='#E3EAF0';g.lineWidth=1;g.beginPath();g.moveTo(pl,y);g.lineTo(W-pr,y);g.stroke();g.fillText(v,pl-6,y)}
@@ -1421,19 +1421,76 @@ $('#srbtn').onclick=openSR;$('#srbtn2').onclick=()=>{$('#rep').hidden=true;openS
 $('#srclose').onclick=()=>$('#srp').hidden=true;
 $('#srp').onclick=e=>{if(e.target.id==='srp')$('#srp').hidden=true};
 ['#srrange','#srfrom','#srto'].forEach(s=>$(s).onchange=srPreview);
-$('#srgo').onclick=async()=>{
+// ---- One-page PDF sales report ----
+let PDFP=null;
+function loadPDF(){if(window.jspdf)return Promise.resolve();return PDFP||(PDFP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='jspdf.umd.min.js';s.onload=res;s.onerror=()=>{PDFP=null;rej(new Error('load'))};document.head.appendChild(s)}))}
+const pdfTxt=t=>String(t==null?'':t).normalize('NFKC').replace(/[\r\n\t]+/g,' ').replace(/[^\x20-\x7E -ÿ–—‘’“”•…]/g,'').replace(/\s+/g,' ').trim();
+function buildPdf(R,by,forWho){
+ const D=srData(R),{jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4',compress:true});
+ const W=210,M=12,CW=W-2*M,NAVY=[0,70,121],CY=[0,183,237],OR=[240,83,34],INK=[29,39,48],MUTE=[100,114,128],LINE=[214,224,232],SOFT=[241,246,250],GREEN=[11,122,75],AMBER=[180,83,9];
+ const col=c=>doc.setTextColor(c[0],c[1],c[2]),fill=c=>doc.setFillColor(c[0],c[1],c[2]),stroke=c=>doc.setDrawColor(c[0],c[1],c[2]);
+ const font=(sz,st)=>{doc.setFont('helvetica',st||'normal');doc.setFontSize(sz)};
+ const fit=(t,w)=>{t=pdfTxt(t);if(doc.getTextWidth(t)<=w)return t;while(t.length>1&&doc.getTextWidth(t+'…')>w)t=t.slice(0,-1);return t.replace(/[\s,.;:-]+$/,'')+'…'};
+ const dshort=t=>new Date(t).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+ // Header band
+ fill(NAVY);doc.rect(0,0,W,34,'F');fill(CY);doc.rect(0,34,W,1.2,'F');
+ try{doc.addImage(LOGO_W,'PNG',M,9.5,46,12)}catch(e){}
+ font(15,'bold');col([255,255,255]);doc.text('SALES ACTIVITY REPORT',W-M,15,{align:'right'});
+ font(10.5);col(CY);doc.text(pdfTxt(R.lab+'  •  '+R.txt),W-M,21.5,{align:'right'});
+ font(8.5);col([200,220,235]);doc.text(fit([by?'Prepared by '+by:'',forWho?'for '+forWho:''].filter(Boolean).join(' ')||'Minerva Technologies',120),W-M,27.5,{align:'right'});
+ // KPI tiles
+ const tiles=[['Calls made',String(D.c.length),D.leads+' accounts reached',CY],['Conversations',String(D.sp),Math.round(100*D.rate)+'% connect rate',CY],['Requests received',String(D.rfq),'RFQs by email',GREEN],['Promised requests',String(D.later),'will send by email',OR],['Open follow-ups',String(D.next.length),(()=>{const o=D.next.filter(x=>x.type==='Follow-up call'&&x.t<Date.now()).length;return o?o+' overdue':'none overdue'})(),D.next.some(x=>x.type==='Follow-up call'&&x.t<Date.now())?OR:CY]];
+ const gap=4,tw=(CW-gap*(tiles.length-1))/tiles.length,ty=42,th=25;
+ tiles.forEach(([l,v,s,c],i)=>{const x=M+i*(tw+gap);fill(SOFT);doc.roundedRect(x,ty,tw,th,1.6,1.6,'F');fill(c);doc.rect(x,ty,tw,1.3,'F');
+  font(20,'bold');col(NAVY);doc.text(v,x+tw/2,ty+12.5,{align:'center'});font(7.8,'bold');col(INK);doc.text(fit(l,tw-3),x+tw/2,ty+18.2,{align:'center'});font(6.8);col(MUTE);doc.text(fit(s,tw-3),x+tw/2,ty+22.2,{align:'center'})});
+ // Section title helper
+ const sect=(t,x,y,w)=>{font(8.6,'bold');col(NAVY);doc.setCharSpace(0.35);doc.text(t.toUpperCase(),x,y);doc.setCharSpace(0);stroke(CY);doc.setLineWidth(0.5);doc.line(x,y+1.6,x+w,y+1.6)};
+ // Charts
+ const cy0=75,lw=114,rw=CW-lw-6,chH=56;
+ sect(D.weekly?'Weekly activity':'Daily activity',M,cy0,lw);sect('Call outcomes',M+lw+6,cy0,rw);
+ if(D.c.length){
+  doc.addImage(chartPng('days',D,540,265,3),'PNG',M,cy0+3.5,lw,chH,undefined,'FAST');
+  doc.addImage(chartPng('out',D,330,265,3),'PNG',M+lw+6,cy0+3.5,rw,chH,undefined,'FAST');
+ }else{font(9,'italic');col(MUTE);doc.text('No calls logged in this period.',M,cy0+12)}
+ // Opportunities
+ let y=cy0+chH+11;
+ const opp=D.ems.filter(x=>x.m.k==='rfq').map(x=>({t:x.m.t,k:'Request',c:GREEN,r:x.r,n:x.m.note}))
+  .concat(D.ems.filter(x=>x.m.k==='later').map(x=>({t:x.m.t,k:'Promised',c:AMBER,r:x.r,n:x.m.note})))
+  .concat(D.conv.filter(x=>x.l.note).map(x=>({t:x.l.t,k:'Spoke',c:NAVY,r:x.r,n:x.l.note})));
+ const seen=new Set(),opps=[];opp.forEach(o=>{const key=o.r.id+'|'+o.k;if(seen.has(key)&&o.k==='Spoke')return;seen.add(key);opps.push(o)});
+ const nsRows=Math.max(1,Math.min(6,D.next.length)),OMAX=Math.max(4,Math.floor((283-y-6.5-5-6.5-nsRows*7.4-(D.next.length>6?4:0)-5)/7.4));
+ sect('Requests & conversations'+(opps.length?' ('+opps.length+')':''),M,y,CW);y+=6.5;
+ const row=(cells,h)=>{cells.forEach(([t,x,w,f,c,al])=>{font(f[0],f[1]);col(c||INK);doc.text(fit(t,w),al==='r'?x+w:x,y,al==='r'?{align:'right'}:undefined)});stroke(LINE);doc.setLineWidth(0.2);doc.line(M,y+2.6,M+CW,y+2.6);y+=h};
+ const pill=(t,x,c)=>{font(6.6,'bold');const w=doc.getTextWidth(t)+4;fill(c);doc.roundedRect(x,y-3.1,w,4.3,1.2,1.2,'F');col([255,255,255]);doc.text(t,x+2,y)};
+ if(opps.length){opps.slice(0,OMAX).forEach(o=>{pill(o.k,M+13,o.c);row([[dshort(o.t),M,12,[7.8],MUTE],[title(o.r),M+33,50,[8.2,'bold']],[o.n||'',M+86,CW-86,[7.8],INK]],7.4)});
+  if(opps.length>OMAX){font(7,'italic');col(MUTE);doc.text('+ '+(opps.length-OMAX)+' more in the Excel report',M,y);y+=4}}
+ else{font(8.5,'italic');col(MUTE);doc.text('No requests or conversations with notes in this period.',M,y);y+=6}
+ // Next steps
+ y+=5;const ns=D.next.slice(0,Math.max(1,Math.min(6,Math.floor((283-y-6.5-5)/7.4))));
+ sect('Next steps'+(D.next.length?' ('+D.next.length+')':''),M,y,CW);y+=6.5;
+ if(ns.length){ns.forEach(x=>{const od=x.type==='Follow-up call'&&x.t<Date.now();
+  row([[new Date(x.t).toLocaleDateString('en-GB',{day:'numeric',month:'short'})+(x.type==='Follow-up call'?' '+new Date(x.t).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):''),M,24,[7.8,od?'bold':'normal'],od?OR:MUTE],[title(x.r),M+26,57,[8.2,'bold']],[x.type==='Follow-up call'?(od?'Follow-up (overdue)':'Follow-up call'):'Call back',M+86,30,[7.8],od?OR:INK],[x.note||'',M+118,CW-118,[7.8],MUTE]],7.4)});
+  if(D.next.length>ns.length){font(7,'italic');col(MUTE);doc.text('+ '+(D.next.length-ns.length)+' more in the Excel report',M,y)}}
+ else{font(8.5,'italic');col(MUTE);doc.text('No follow-ups or call backs open.',M,y)}
+ // Footer
+ stroke(LINE);doc.setLineWidth(0.3);doc.line(M,287,W-M,287);font(7);col(MUTE);
+ doc.text('Minerva Technologies  •  driving excellence  •  delivering expectations',M,291.5);
+ doc.text('Generated '+new Date().toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),W-M,291.5,{align:'right'});
+ return doc;
+}
+async function srBuild(kind){
  const R=srPreview();if(!R)return;
  S.srby=$('#srby').value.trim();S.srfor=$('#srfor').value.trim();save();
- const b=$('#srgo');b.disabled=true;b.textContent='Building...';
+ const b=kind==='pdf'?$('#srpdf'):$('#srgo'),lbl=b.textContent;b.disabled=true;b.textContent='Building...';
  try{
-  await loadXJ();
-  const wb=await buildSalesReport(R,S.srby,S.srfor),buf=await wb.xlsx.writeBuffer();
-  const name='Minerva-Sales-Report-'+R.lab.replace(/\s+/g,'-')+'-'+ymd(new Date())+'.xlsx';
-  toast(browserSave(name,buf)?'Sales report downloaded':'Download blocked in this browser');
+  const base='Minerva-Sales-Report-'+R.lab.replace(/\s+/g,'-')+'-'+ymd(new Date());
+  if(kind==='pdf'){await loadPDF();const doc=buildPdf(R,S.srby,S.srfor);toast(browserSave(base+'.pdf',doc.output('arraybuffer'),'application/pdf')?'PDF report downloaded':'Download blocked in this browser')}
+  else{await loadXJ();const wb=await buildSalesReport(R,S.srby,S.srfor),buf=await wb.xlsx.writeBuffer();toast(browserSave(base+'.xlsx',buf)?'Excel report downloaded':'Download blocked in this browser')}
   $('#srp').hidden=true;
  }catch(e){console.error(e);toast(e&&e.message==='load'?'Report tool needs internet the first time. Connect and try again':'Could not build the report')}
- b.disabled=false;b.textContent='Download report';
-};
+ b.disabled=false;b.textContent=lbl;
+}
+$('#srgo').onclick=()=>srBuild('xlsx');$('#srpdf').onclick=()=>srBuild('pdf');
 
 // ---- Google Sheet two-way sync ----
 const GKEY='minerva-dialler-sync',BKEY='minerva-dialler-base';
