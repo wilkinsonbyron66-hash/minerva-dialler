@@ -680,12 +680,13 @@ function histHtml(r){
 }
 const FREEMAIL=/^(gmail|googlemail|outlook|hotmail|live|yahoo|icloud|me|msn|aol|proton|protonmail|ymail|minerva)\./i;
 let EMSEL=null,EMAUTO=true;
-function emPick(id,auto){EMSEL=id;const r=byId(id);$('#emsel').hidden=!r;$('#emfindbox').hidden=!!r;if(r)$('#emco').textContent=title(r)+(val(r,cn('contact'))?' ('+val(r,cn('contact'))+')':'');$('#emhow').textContent=r&&auto?'Matched automatically from the email address':'';}
+function emPick(id,auto){EMSEL=id;const r=byId(id);$('#emsel').hidden=!r;$('#emfindbox').hidden=!!r;if(r)$('#emco').textContent=title(r)+(val(r,cn('contact'))?' ('+val(r,cn('contact'))+')':'');$('#emhow').textContent=r&&auto?'Matched automatically from the email':'';}
 function emMatches(){
  const q=($('#emfind').value||'').toLowerCase().trim(),txt=($('#emtext').value||'').toLowerCase();
  const mails=[...new Set((q+' '+txt).match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g)||[])].filter(m=>!/@minerva/.test(m));
- const doms=[...new Set(mails.map(m=>m.split('@')[1]).filter(d=>!FREEMAIL.test(d)))];
- if(!q&&!mails.length)return [];
+ const webs=((q+' '+txt).match(/(?:https?:\/\/|www\.)[a-z0-9.-]+\.[a-z]{2,}/g)||[]).map(u=>u.replace(/^https?:\/\//,'').replace(/^www\./,''));
+ const doms=[...new Set(mails.map(m=>m.split('@')[1]).concat(webs).filter(d=>!FREEMAIL.test(d)&&!/(^|\.)(minerva\.ae|microsoft\.com|outlook\.com|office\.com|google\.com|linkedin\.com|aka\.ms)$/.test(d)))];
+ if(!q&&!doms.length&&!mails.length)return [];
  const sc=S.rows.map(r=>{const t=Object.values(r.f).join(' ').toLowerCase();let n=0;
   mails.forEach(m=>{if(t.includes(m))n+=100});doms.forEach(d=>{if(t.includes(d))n+=40;else{const b=d.split('.')[0];if(b.length>3&&t.includes(b))n+=15}});
   if(q&&!q.includes('@')&&q.length>1&&t.includes(q))n+=title(r).toLowerCase().startsWith(q)?30:20;
