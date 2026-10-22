@@ -1544,17 +1544,34 @@ function buildPdf(R,by,forWho){
  }else{font(9,'italic');col(MUTE);doc.text('No calls logged in this period.',M,cy0+12)}
  // Opportunities
  let y=cy0+chH+11;
- const opp=D.ems.filter(x=>x.m.k==='rfq').map(x=>({t:x.m.t,k:'Request',c:GREEN,r:x.r,n:x.m.note}))
+ const reqs=D.ems.filter(x=>x.m.k==='rfq'),RMAX=4,rn=Math.min(RMAX,reqs.length),boxH=reqs.length?11+rn*12.2+(reqs.length>RMAX?4.5:0):17,boxY=284-boxH;
+ const reqCos=new Set(reqs.map(x=>coKey(x.r)||'#'+x.r.id));
+ const opp=[]
   .concat(D.ems.filter(x=>x.m.k==='later').map(x=>({t:x.m.t,k:'Promised',c:AMBER,r:x.r,n:x.m.note})))
   .concat(D.conv.filter(x=>x.l.note).map(x=>({t:x.l.t,k:'Spoke',c:NAVY,r:x.r,n:x.l.note})));
  const seen=new Set(),opps=[];opp.forEach(o=>{const ck=coKey(o.r)||'#'+o.r.id;if(o.k==='Spoke'&&seen.has(ck))return;seen.add(ck);opps.push(o)});
- const OMAX=Math.max(4,Math.floor((283-y-6.5-5)/7.4));
- sect('Requests & conversations'+(opps.length?' ('+opps.length+')':''),M,y,CW);y+=6.5;
+ const OMAX=Math.max(3,Math.floor((boxY-6-y-6.5-5)/7.4));
+ opps.splice(0,opps.length,...opps.filter(o=>!(o.k==='Spoke'&&reqCos.has(coKey(o.r)||'#'+o.r.id))));
+ sect('Conversations & promised requests'+(opps.length?' ('+opps.length+')':''),M,y,CW);y+=6.5;
  const row=(cells,h)=>{cells.forEach(([t,x,w,f,c,al])=>{font(f[0],f[1]);col(c||INK);doc.text(fit(t,w),al==='r'?x+w:x,y,al==='r'?{align:'right'}:undefined)});stroke(LINE);doc.setLineWidth(0.2);doc.line(M,y+2.6,M+CW,y+2.6);y+=h};
  const pill=(t,x,c)=>{font(6.6,'bold');const w=doc.getTextWidth(t)+4;fill(c);doc.roundedRect(x,y-3.1,w,4.3,1.2,1.2,'F');col([255,255,255]);doc.text(t,x+2,y)};
  if(opps.length){opps.slice(0,OMAX).forEach(o=>{pill(o.k,M+13,o.c);row([[dshort(o.t),M,12,[7.8],MUTE],[title(o.r),M+33,50,[8.2,'bold']],[o.n||'',M+86,CW-86,[7.8],INK]],7.4)});
   if(opps.length>OMAX){font(7,'italic');col(MUTE);doc.text('+ '+(opps.length-OMAX)+' more in the Excel report',M,y);y+=4}}
- else{font(8.5,'italic');col(MUTE);doc.text('No requests or conversations with notes in this period.',M,y);y+=6}
+ else{font(8.5,'italic');col(MUTE);doc.text('No promised requests or conversations with notes in this period.',M,y);y+=6}
+ // Highlight box: requests received, for discussion in the meeting
+ {const bx=M,bw=CW;fill([234,247,240]);stroke(GREEN);doc.setLineWidth(0.6);doc.roundedRect(bx,boxY,bw,boxH,2.2,2.2,'FD');fill(GREEN);doc.rect(bx,boxY+2.2,1.6,boxH-4.4,'F');
+  font(9.4,'bold');col(GREEN);doc.setCharSpace(0.3);doc.text('REQUESTS TO DISCUSS'+(reqs.length?' ('+reqs.length+')':''),bx+6,boxY+7);doc.setCharSpace(0);
+  font(7.2);col(MUTE);doc.text('Requests received by email in this period',bx+bw-5,boxY+7,{align:'right'});
+  let ry=boxY+13.2;
+  if(!reqs.length){font(8.6,'italic');col(MUTE);doc.text('No new requests received in this period.',bx+6,ry)}
+  reqs.slice(0,RMAX).forEach((x,i)=>{
+   if(i){stroke([196,226,208]);doc.setLineWidth(0.2);doc.line(bx+6,ry-4.6,bx+bw-5,ry-4.6)}
+   font(8.8,'bold');col(INK);const co=fit(title(x.r),95),coW=doc.getTextWidth(co);doc.text(co,bx+6,ry);
+   const ct=val(x.r,cn('contact')),ph=val(x.r,cn('phone'));font(7.6);col(MUTE);doc.text(fit([ct,ph].filter(Boolean).join('  \u2022  '),Math.max(10,bw-12-coW-22)),bx+6+coW+3,ry);
+   font(7.6,'bold');col(GREEN);doc.text(dshort(x.m.t),bx+bw-5,ry,{align:'right'});
+   font(7.9);col(INK);const lines=doc.splitTextToSize(pdfTxt(x.m.note||'No email text saved'),bw-12);const two=lines.slice(0,2);if(lines.length>2)two[1]=fit(two[1]+' '+lines.slice(2).join(' '),bw-12);
+   two.forEach((l,j)=>doc.text(l,bx+6,ry+4.1+j*3.7));ry+=12.2});
+  if(reqs.length>RMAX){font(7,'italic');col(MUTE);doc.text('+ '+(reqs.length-RMAX)+' more requests in the Excel report',bx+6,ry-2.8)}}
  // Footer
  stroke(LINE);doc.setLineWidth(0.3);doc.line(M,287,W-M,287);font(7);col(MUTE);
  doc.text('Minerva Technologies  •  driving excellence  •  delivering expectations'+((D.dupes.calls+D.dupes.emails)?'   |   Duplicates excluded: '+(D.dupes.calls+D.dupes.emails):''),M,291.5);
