@@ -1266,10 +1266,33 @@ function srRange(k,f,t){
  const last=new Date(Math.min(b,Date.now())-1);
  return {k,a,b,lab,txt:dl(a)+(last-a>=864e5?' – '+dl(last):'')};
 }
+// Report fact-check: leave out duplicates (the saved data is not changed)
+const coKey=r=>{const t=title(r);return t==='(blank lead)'?'':gNormCo(t)};
+const LEGAL=new Set(['llc','fze','fzco','fzc','fz','wll','ltd','limited','co','company','est','inc','plc','spc','pjsc','psc']);
+function gNormCo(t){let w=String(t||'').toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9\u0600-\u06ff]+/g,' ').trim().split(/\s+/).filter(Boolean);
+ for(;;){const n=w.length;if(n>=3&&/^(l l c|w l l|f z e)$/.test(w.slice(-3).join(' ')))w=w.slice(0,-3);else if(n>1&&LEGAL.has(w[n-1]))w.pop();else break}
+ return w.join('')}
+const txtKey=t=>String(t||'').toLowerCase().replace(/^(re|fw|fwd)\s*:\s*/g,'').replace(/[^a-z0-9]+/g,'');
+function dedupCalls(list){
+ const out=[],last=new Map();let n=0;
+ list.forEach(x=>{const k=coKey(x.r)+'|'+x.l.o,p=last.get(k);
+  if(p&&x.l.t-p.l.t<=120000){n++;const a=p.l.note||'',b=x.l.note||'';if(b&&!a.includes(b))p.l=Object.assign({},p.l,{note:a&&!b.includes(a)?a+' / '+b:b});return}
+  const y={r:x.r,l:x.l};out.push(y);last.set(k,y)});
+ return {list:out,n};
+}
+function dedupEmails(list){
+ const rank={rfq:3,later:2,other:1},kept=[];let n=0;
+ list.slice().sort((a,b)=>a.m.t-b.m.t).forEach(x=>{
+  const ck=coKey(x.r)||'#'+x.r.id,tk=txtKey(x.m.note);
+  const d=kept.find(y=>y.ck===ck&&Math.abs(y.x.m.t-x.m.t)<=14*864e5&&(tk&&y.tk?(tk===y.tk||(tk.length>25&&y.tk.length>25&&(tk.includes(y.tk)||y.tk.includes(tk)))):(!tk&&!y.tk&&y.x.m.k===x.m.k&&Math.abs(y.x.m.t-x.m.t)<=864e5)));
+  if(d){n++;let m=d.x.m;if((rank[x.m.k]||0)>(rank[m.k]||0))m=Object.assign({},m,{k:x.m.k});if(tk.length>d.tk.length){m=Object.assign({},m,{note:x.m.note});d.tk=tk}d.x={r:d.x.r,m};return}
+  kept.push({ck,tk,x})});
+ return {list:kept.map(k=>k.x).sort((a,b)=>b.m.t-a.m.t),n};
+}
 function srData(R){
- const c=S.rows.flatMap(r=>r.log.map(l=>({r,l}))).filter(x=>x.l.t>=R.a&&x.l.t<R.b).sort((x,y)=>x.l.t-y.l.t);
+ const dc=dedupCalls(S.rows.flatMap(r=>r.log.map(l=>({r,l}))).filter(x=>x.l.t>=R.a&&x.l.t<R.b).sort((x,y)=>x.l.t-y.l.t)),c=dc.list;
  const by={};OUT.forEach(o=>by[o]=0);c.forEach(x=>by[x.l.o]=(by[x.l.o]||0)+1);
- const sp=by.Spoke||0,leads=new Set(c.map(x=>x.r.id)).size;
+ const sp=by.Spoke||0,leads=new Set(c.map(x=>coKey(x.r)||'#'+x.r.id)).size;
  const span=Math.min(R.b,Date.now())-R.a,weekly=span>45*864e5,buckets=[];
  const end=Math.min(R.b,Date.now()+1);
  for(let t=R.a;t<end;){
@@ -1287,9 +1310,11 @@ function srData(R){
   else if(l&&l.o==='Call back')next.push({r,t:l.t,type:'Call back requested',note:l.note||''});
  });
  next.sort((x,y)=>x.t-y.t);
+ const nseen=new Set(),next2=next.filter(x=>{const k=coKey(x.r)||'#'+x.r.id;if(nseen.has(k))return false;nseen.add(k);return true});
  const touched=new Set(c.map(x=>x.r.id));
- const es=emStats(R.a,R.b);
- return {c,by,sp,leads,rate:c.length?sp/c.length:0,buckets,weekly,conv,next,ems:es.list,rfq:es.rfq,later:es.later,
+ const de=dedupEmails(emStats(R.a,R.b).list),ems=de.list;
+ const dupes={calls:dc.n,emails:de.n,steps:next.length-next2.length};
+ return {c,by,sp,leads,rate:c.length?sp/c.length:0,buckets,weekly,conv,next:next2,ems,rfq:ems.filter(x=>x.m.k==='rfq').length,later:ems.filter(x=>x.m.k==='later').length,dupes,
   cbs:S.rows.filter(r=>touched.has(r.id)&&r.log.length&&r.log[r.log.length-1].o==='Call back').length,
   fus:S.rows.filter(r=>r.fu&&r.fu>=Date.now()-864e5).length,left:S.rows.filter(r=>!r.done).length};
 }
@@ -1408,8 +1433,9 @@ function srPreview(){
  const R=srRange(k,$('#srfrom').value,$('#srto').value);
  if(!R){$('#srprev').textContent='Pick a start and end date.';return null}
  const D=srData(R);
+ const dp=D.dupes,dtxt=[dp.emails?dp.emails+' duplicate email'+(dp.emails>1?'s':''):'',dp.calls?dp.calls+' double-logged call'+(dp.calls>1?'s':''):'',dp.steps?dp.steps+' repeated follow-up'+(dp.steps>1?'s':''):''].filter(Boolean);
  const _e=D.ems.length?', '+D.ems.length+' email responses ('+D.rfq+' requests)':'';
- $('#srprev').innerHTML='<b>'+esc(R.lab)+'</b> ('+esc(R.txt)+')<br>'+D.c.length+' calls to '+D.leads+' accounts, '+D.sp+' conversations ('+Math.round(100*D.rate)+'% connect rate), '+D.next.length+' next steps'+_e+'.';
+ $('#srprev').innerHTML='<b>'+esc(R.lab)+'</b> ('+esc(R.txt)+')<br>'+D.c.length+' calls to '+D.leads+' accounts, '+D.sp+' conversations ('+Math.round(100*D.rate)+'% connect rate), '+D.next.length+' next steps'+_e+'.'+'<br><span style="color:var(--ok)">\u2713 Checked for duplicates'+(dtxt.length?': left out '+dtxt.join(', '):': none found')+'</span>';
  return R;
 }
 function openSR(){
@@ -1457,7 +1483,7 @@ function buildPdf(R,by,forWho){
  const opp=D.ems.filter(x=>x.m.k==='rfq').map(x=>({t:x.m.t,k:'Request',c:GREEN,r:x.r,n:x.m.note}))
   .concat(D.ems.filter(x=>x.m.k==='later').map(x=>({t:x.m.t,k:'Promised',c:AMBER,r:x.r,n:x.m.note})))
   .concat(D.conv.filter(x=>x.l.note).map(x=>({t:x.l.t,k:'Spoke',c:NAVY,r:x.r,n:x.l.note})));
- const seen=new Set(),opps=[];opp.forEach(o=>{const key=o.r.id+'|'+o.k;if(seen.has(key)&&o.k==='Spoke')return;seen.add(key);opps.push(o)});
+ const seen=new Set(),opps=[];opp.forEach(o=>{const ck=coKey(o.r)||'#'+o.r.id;if(o.k==='Spoke'&&seen.has(ck))return;seen.add(ck);opps.push(o)});
  const nsRows=Math.max(1,Math.min(6,D.next.length)),OMAX=Math.max(4,Math.floor((283-y-6.5-5-6.5-nsRows*7.4-(D.next.length>6?4:0)-5)/7.4));
  sect('Requests & conversations'+(opps.length?' ('+opps.length+')':''),M,y,CW);y+=6.5;
  const row=(cells,h)=>{cells.forEach(([t,x,w,f,c,al])=>{font(f[0],f[1]);col(c||INK);doc.text(fit(t,w),al==='r'?x+w:x,y,al==='r'?{align:'right'}:undefined)});stroke(LINE);doc.setLineWidth(0.2);doc.line(M,y+2.6,M+CW,y+2.6);y+=h};
@@ -1474,7 +1500,7 @@ function buildPdf(R,by,forWho){
  else{font(8.5,'italic');col(MUTE);doc.text('No follow-ups or call backs open.',M,y)}
  // Footer
  stroke(LINE);doc.setLineWidth(0.3);doc.line(M,287,W-M,287);font(7);col(MUTE);
- doc.text('Minerva Technologies  •  driving excellence  •  delivering expectations',M,291.5);
+ doc.text('Minerva Technologies  •  driving excellence  •  delivering expectations'+((D.dupes.calls+D.dupes.emails+D.dupes.steps)?'   |   Duplicates excluded: '+(D.dupes.calls+D.dupes.emails+D.dupes.steps):''),M,291.5);
  doc.text('Generated '+new Date().toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),W-M,291.5,{align:'right'});
  return doc;
 }
