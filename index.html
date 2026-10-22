@@ -163,6 +163,25 @@ aside{display:flex;flex-direction:column;min-height:0;border-right:1px solid var
 .addbox{max-width:900px;margin-top:12px}.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.newbox{display:flex;gap:6px;max-width:420px}.newbox input{flex:1;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--panel)}
 .fields label.drag{opacity:.4}
 .fields label.over{outline:2px dashed var(--accent);outline-offset:2px;border-radius:6px}
+#elog{position:fixed;right:0;top:0;bottom:0;width:min(900px,100%);background:var(--panel);border-left:1px solid var(--line);padding:calc(14px + env(safe-area-inset-top,0px)) 16px 24px;overflow:auto;z-index:7;box-shadow:-6px 0 20px rgba(0,0,0,.15)}
+#elog[hidden]{display:none}
+.elctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.elctl input{flex:1;min-width:220px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.elctl .seg{flex:0 0 auto}.elctl .seg button{padding:6px 10px;white-space:nowrap}
+.ecard{border:1px solid var(--line);border-left:5px solid var(--ec,var(--line));border-radius:10px;padding:10px 12px;margin-bottom:10px;background:var(--panel)}
+.ecard.rfq{--ec:var(--ok)}.ecard.later{--ec:var(--warn)}.ecard.other{--ec:var(--c-teal)}
+.ehead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.ehead .edate{color:var(--mute);font-size:13px;min-width:92px}
+.ehead .eco{border:0;background:none;padding:0;font-weight:700;font-size:16px;color:var(--ink);text-align:left}
+.ehead .eco:hover{color:var(--accent);text-decoration:underline}
+.ehead .ect{color:var(--mute);font-size:14px}
+.ehead select{margin-left:auto;padding:5px 8px;border:1px solid var(--ec);border-radius:6px;background:var(--bg);color:var(--ink);font-weight:600}
+.ebody{margin:8px 0 4px;white-space:pre-wrap;line-height:1.45;font-size:14.5px;color:var(--ink)}
+.ebody.clamp{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.ebody.empty{color:var(--mute);font-style:italic}
+.emore{border:0;background:none;padding:0;color:var(--accent);font-weight:600;font-size:13px}
+.eact{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}.eact button{padding:5px 10px;font-size:13px}
+.edup{display:inline-block;margin-top:6px;font-size:12.5px;font-weight:600;color:var(--bad);background:rgba(180,35,24,.08);border-radius:5px;padding:2px 8px}
 #rep,#txt{position:fixed;right:0;top:0;bottom:0;width:min(780px,100%);background:var(--panel);border-left:1px solid var(--line);padding:calc(14px + env(safe-area-inset-top,0px)) 14px 14px;overflow:auto;z-index:6}
 #rep[hidden],#txt[hidden]{display:none}
 #txt{z-index:7;width:min(640px,100%)}
@@ -324,7 +343,8 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
  .dtiles{grid-template-columns:1fr 1fr;gap:8px}
  .tile{padding:9px 11px}.tile b{font-size:26px}
  .dgrid{grid-template-columns:1fr}
- #det,#rep,#cols,#txt{padding-left:12px;padding-right:12px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+ #elog .ehead select{margin-left:0;width:100%}
+ #det,#rep,#cols,#txt,#elog{padding-left:12px;padding-right:12px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
  #srp,#gsp,#emp{align-items:flex-end;padding:0}
  #srp .srbox,#gsp .srbox,#emp .srbox{max-width:none;width:100%;border-radius:16px 16px 0 0;max-height:92vh;overflow:auto;padding-bottom:env(safe-area-inset-bottom)}
  .srhd{padding:12px 14px}.srhd img{height:24px}.srhd b{font-size:15px}
@@ -345,6 +365,7 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
   <button id="morebtn" aria-label="More actions">&#9776; Menu</button>
   <button id="addlead">+ Lead</button>
   <button id="emglobal" title="Log a client email reply: find the lead by pasting the email">&#9993; Email reply</button>
+  <button id="elogbtn" title="See, check and edit every email reply you have logged">&#9993; Email log</button>
   <button id="colbtn">Fields</button>
   <button id="impl" class="primary" title="Add leads from an Excel or CSV list to the ones you already have">Import list</button>
   <button id="imp" title="Throw away the current leads and call log and load this file instead">Replace list</button>
@@ -394,6 +415,12 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
  <p class="mute">If the Excel file did not download, click Select and copy, then paste into Excel or Google Sheets at cell A1.</p>
  <div class="rt"><button id="t1">Call log</button><button id="t2">All leads</button><button class="primary" id="tsel">Select and copy</button></div>
  <textarea id="txtarea" rows="16" readonly></textarea>
+</div>
+<div id="elog" hidden>
+ <div class="dhead"><h2 id="elt">Email replies</h2><button id="elnew">&#9993; Log new reply</button><button id="elclose">Close</button></div>
+ <div class="elctl"><input id="elq" type="search" placeholder="Search company, contact or email text..."><div class="seg" id="elseg"><button data-elf="all" class="on">All</button><button data-elf="rfq">Requests</button><button data-elf="later">Will send later</button><button data-elf="other">Other</button></div></div>
+ <p id="elsum" class="mute" style="margin:6px 0 12px"></p>
+ <div id="ellist"></div>
 </div>
 <div id="emp" hidden><div class="srbox" role="dialog" aria-label="Log email reply">
  <div class="srhd"><img src="logo-white.png" alt="Minerva"><b>Log email reply</b></div>
@@ -723,7 +750,7 @@ $('#emsave').onclick=()=>{
  const loc0=old?new Date(old.t-new Date(old.t).getTimezoneOffset()*6e4).toISOString().slice(0,16):'';
  let tt=old&&$('#emdate').value===loc0?old.t:t;if(!old)while(r.em.some(m=>m.t===tt))tt++;
  r.em.push({id:old?emId(old):'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:tt,k,note,mt:Date.now()});r.em.sort((a,b)=>a.t-b.t);const was=!!old;EMEDIT=null;
- save();$('#emp').hidden=true;if(r.id===S.last)keepFocus(renderCard);toast((was?'Updated: ':'Saved: ')+EMT[k]+' from '+title(r));
+ save();$('#emp').hidden=true;if(r.id===S.last)keepFocus(renderCard);if(!$('#elog').hidden)renderElog();toast((was?'Updated: ':'Saved: ')+EMT[k]+' from '+title(r));
 };
 function emStats(a,b){const list=S.rows.flatMap(r=>(r.em||[]).map(m=>({r,m}))).filter(x=>x.m.t>=a&&x.m.t<b).sort((x,y)=>y.m.t-x.m.t);return{list,rfq:list.filter(x=>x.m.k==='rfq').length,later:list.filter(x=>x.m.k==='later').length}}
 function leadHistory(r){
@@ -793,7 +820,7 @@ $('#card').onclick=async e=>{
  if(e.target.closest('[data-em]')){openEmail(S.last);return}
  const eme=e.target.closest('[data-emedit]');if(eme){openEmail(S.last,eme.dataset.emedit);return}
  const emd=e.target.closest('[data-emdel]');
- if(emd){const r=byId(S.last);if(!r)return;const t=emd.dataset.emdel;if(!(await ask('Delete this email entry for '+title(r)+'?','Delete',true)))return;r.em=(r.em||[]).filter(m=>emId(m)!==t);save();renderCard();toast('Email entry deleted');return}
+ if(emd){const r=byId(S.last);if(!r)return;const t=emd.dataset.emdel;if(!(await ask('Delete this email entry for '+title(r)+'?','Delete',true)))return;r.em=(r.em||[]).filter(m=>emId(m)!==t);save();renderCard();if(!$('#elog').hidden)renderElog();toast('Email entry deleted');return}
  const pkb=e.target.closest('[data-pick]');
  if(pkb){e.preventDefault();const n=pkb.dataset.pick;S.pick=S.pick||[];const i=S.pick.indexOf(n);if(i<0)S.pick.push(n);else S.pick.splice(i,1);save();keepFocus(renderCard);return}
  if(e.target.closest('[data-cpall]')){const r=byId(S.last);if(!r)return;const cs=pickedCols();if(!cs.length){toast('Tick the boxes you want first (\u2610 next to each box)');return}
@@ -1092,6 +1119,38 @@ function openDetail(kind,arg,push){
  $('#detback').hidden=!DETSTK.length;$('#det').hidden=false;$('#det').scrollTop=0;
 }
 function closeDet(){$('#det').hidden=true;DETSTK=[];DETCUR=null}
+// ---- Email log: review and fix every logged reply ----
+let ELF='all';const ELOPEN=new Set();
+const emOpt=k=>Object.keys(EMT).map(v=>'<option value="'+v+'"'+(v===k?' selected':'')+'>'+EMT[v]+'</option>').join('');
+function renderElog(){
+ const q=($('#elq').value||'').toLowerCase().trim();
+ const all=S.rows.flatMap(r=>(r.em||[]).map(m=>({r,m}))).sort((a,b)=>b.m.t-a.m.t);
+ const dd=dedupEmails(all).dropped;
+ const list=all.filter(x=>(ELF==='all'||x.m.k===ELF)&&(!q||(title(x.r)+' '+(x.m.note||'')+' '+Object.values(x.r.f).join(' ')).toLowerCase().includes(q)));
+ const cnt=k=>all.filter(x=>x.m.k===k).length;
+ $('#elt').textContent='Email replies ('+all.length+')';
+ document.querySelectorAll('#elseg button').forEach(b=>b.classList.toggle('on',b.dataset.elf===ELF));
+ $('#elsum').innerHTML=all.length?cnt('rfq')+' requests received \u00B7 '+cnt('later')+' will send later \u00B7 '+cnt('other')+' other'+(dd.size?' \u00B7 <b style="color:var(--bad)">'+dd.size+' possible duplicate'+(dd.size>1?'s':'')+'</b>':'')+(list.length!==all.length?' \u00B7 showing '+list.length:''):'';
+ $('#ellist').innerHTML=list.length?list.map(x=>{const id=emId(x.m),n=x.m.note||'',long=n.length>320||n.split('\n').length>5,open=ELOPEN.has(id),dupT=dd.get(id);
+  return '<div class="ecard '+esc(x.m.k)+'" data-row="'+x.r.id+'" data-eid="'+esc(id)+'"><div class="ehead"><span class="edate">'+esc(new Date(x.m.t).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}))+'</span><button type="button" class="eco" data-elopen title="Open this lead">'+esc(title(x.r))+'</button>'+(val(x.r,cn('contact'))?'<span class="ect">'+esc(val(x.r,cn('contact')))+'</span>':'')+'<select data-eltype aria-label="Disposition">'+emOpt(x.m.k)+'</select></div>'+
+  (dupT?'<span class="edup">Possible duplicate of the entry from '+esc(new Date(dupT).toLocaleDateString('en-GB',{day:'numeric',month:'short'}))+' (left out of reports)</span>':'')+
+  '<div class="ebody'+(n?'':' empty')+(long&&!open?' clamp':'')+'">'+(n?esc(n):'No email text saved')+'</div>'+(long?'<button type="button" class="emore" data-elmore>'+(open?'Show less':'Show full email')+'</button>':'')+
+  '<div class="eact"><button type="button" data-eledit>&#9998; Edit</button><button type="button" data-elopen>Open lead</button><button type="button" class="danger" data-eldel>Delete</button></div></div>'}).join(''):'<p class="mute">'+(all.length?'Nothing matches. Clear the search or pick All.':'No email replies logged yet. Use \u2709 Log new reply to add one.')+'</p>';
+}
+function openElog(){$('#elog').hidden=false;renderElog();$('#elog').scrollTop=0}
+$('#elogbtn').onclick=openElog;
+$('#elclose').onclick=()=>$('#elog').hidden=true;
+$('#elnew').onclick=()=>openEmail(null);
+$('#elq').oninput=renderElog;
+$('#elseg').onclick=e=>{const f=e.target.dataset.elf;if(f){ELF=f;renderElog()}};
+const elFind=el=>{const c=el.closest('.ecard');if(!c)return{};const r=byId(+c.dataset.row);return{c,r,m:r&&(r.em||[]).find(m=>emId(m)===c.dataset.eid)}};
+$('#ellist').onchange=e=>{if(!e.target.matches('[data-eltype]'))return;const {r,m}=elFind(e.target);if(!m)return;m.k=e.target.value;m.mt=Date.now();save();renderElog();if(r.id===S.last)keepFocus(renderCard);toast(title(r)+': now '+EMT[m.k])};
+$('#ellist').onclick=async e=>{const {c,r,m}=elFind(e.target);if(!m)return;
+ if(e.target.closest('[data-elmore]')){const id=c.dataset.eid;ELOPEN.has(id)?ELOPEN.delete(id):ELOPEN.add(id);renderElog();return}
+ if(e.target.closest('[data-eledit]')){openEmail(r.id,emId(m));return}
+ if(e.target.closest('[data-elopen]')){$('#elog').hidden=true;openLead(r.id);return}
+ if(e.target.closest('[data-eldel]')){if(!(await ask('Delete this email entry from '+title(r)+'?','Delete',true)))return;r.em=r.em.filter(x=>x!==m);save();renderElog();if(r.id===S.last)renderCard();toast('Email entry deleted')}
+};
 function openLead(id){closeDet();S.filter='all';S.q='';$('#q').value='';setTab('dial');select(id,'card')}
 $('#dash').onclick=e=>{
  const o=e.target.closest('[data-open]');if(o){openLead(+o.dataset.open);return}
@@ -1245,7 +1304,7 @@ $('#addf').onclick=()=>{
  S.cols.push({n,show:true,role:''});S.rows.forEach(r=>r.f[n]='');$('#newf').value='';save();renderCols();render();
 };
 // ---- Phone layout: menu sheet, no pinch zoom ----
-const MENU=['emglobal','addlead','impl','imp','addcols','colbtn','repbtn','srbtn','exp','bkp','rst','inst','reset'];
+const MENU=['emglobal','elogbtn','addlead','impl','imp','addcols','colbtn','repbtn','srbtn','exp','bkp','rst','inst','reset'];
 $('#morebtn').onclick=()=>{
  $('#mgrid').innerHTML=MENU.map(id=>{const b=document.getElementById(id);if(!b||b.hidden)return '';return '<button data-m="'+id+'" class="'+esc(b.className)+'">'+esc(b.textContent.trim())+'</button>'}).join('');
  $('#msheet').hidden=false;
@@ -1291,13 +1350,13 @@ function dedupCalls(list){
  return {list:out,n};
 }
 function dedupEmails(list){
- const rank={rfq:3,later:2,other:1},kept=[];let n=0;
+ const rank={rfq:3,later:2,other:1},kept=[],dropped=new Map();let n=0;
  list.slice().sort((a,b)=>a.m.t-b.m.t).forEach(x=>{
   const ck=coKey(x.r)||'#'+x.r.id,tk=txtKey(x.m.note);
   const d=kept.find(y=>y.ck===ck&&Math.abs(y.x.m.t-x.m.t)<=14*864e5&&(tk&&y.tk?(tk===y.tk||(tk.length>25&&y.tk.length>25&&(tk.includes(y.tk)||y.tk.includes(tk)))):(!tk&&!y.tk&&y.x.m.k===x.m.k&&Math.abs(y.x.m.t-x.m.t)<=864e5)));
-  if(d){n++;let m=d.x.m;if((rank[x.m.k]||0)>(rank[m.k]||0))m=Object.assign({},m,{k:x.m.k});if(tk.length>d.tk.length){m=Object.assign({},m,{note:x.m.note});d.tk=tk}d.x={r:d.x.r,m};return}
+  if(d){n++;dropped.set(emId(x.m),d.x.m.t);let m=d.x.m;if((rank[x.m.k]||0)>(rank[m.k]||0))m=Object.assign({},m,{k:x.m.k});if(tk.length>d.tk.length){m=Object.assign({},m,{note:x.m.note});d.tk=tk}d.x={r:d.x.r,m};return}
   kept.push({ck,tk,x})});
- return {list:kept.map(k=>k.x).sort((a,b)=>b.m.t-a.m.t),n};
+ return {list:kept.map(k=>k.x).sort((a,b)=>b.m.t-a.m.t),n,dropped};
 }
 function srData(R){
  const dc=dedupCalls(S.rows.flatMap(r=>r.log.map(l=>({r,l}))).filter(x=>x.l.t>=R.a&&x.l.t<R.b).sort((x,y)=>x.l.t-y.l.t)),c=dc.list;
