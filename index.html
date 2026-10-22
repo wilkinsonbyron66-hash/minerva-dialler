@@ -224,6 +224,8 @@ aside{box-shadow:1px 0 0 var(--line)}
 .hist li.em.later b.co{color:var(--warn)}
 .hist .emdel{border:0;background:none;color:var(--mute);padding:0 4px;font-size:15px;cursor:pointer}
 .hist .emdel:hover{color:var(--bad)}
+.hist .emed{font-size:12.5px;font-weight:600;color:var(--accent);margin-left:6px}
+.hist .emed:hover{color:var(--accent);text-decoration:underline}
 .hist .emtxt{white-space:pre-wrap}
 .srbox{background:var(--panel);border-radius:12px;max-width:460px;width:100%;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.3)}
 .srhd{background:linear-gradient(100deg,#003660,#004679);color:#fff;padding:14px 18px;border-bottom:3px solid var(--cy);display:flex;align-items:center;gap:12px}
@@ -671,15 +673,17 @@ function ensureCompany(){
  if(c){c.role='company';save()}
 }
 const EMT={rfq:'Request received',later:'Will send request later',other:'Email reply'};
+const emId=m=>m.id||('L'+m.t);
+const emSig=r=>(r.em||[]).map(m=>emId(m)+':'+(m.mt||0)).join(',');
 function histHtml(r){
  const k=title(r).toLowerCase(),same=S.rows.filter(x=>title(x).toLowerCase()===k);
  const items=same.flatMap(x=>x.log.map(l=>({x,t:l.t,html:'<li>'+fmt(l.t)+' - <b class="co">'+esc(l.o)+'</b>'+(x!==r&&val(x,cn('contact'))?' ('+esc(val(x,cn('contact')))+')':'')+(l.note?': '+esc(l.note):'')+'</li>'}))
-  .concat((x.em||[]).map(m=>({x,t:m.t,html:'<li class="em '+esc(m.k)+'">'+fmt(m.t)+' - <b class="co">\u2709 '+esc(EMT[m.k]||'Email reply')+'</b>'+(x!==r&&val(x,cn('contact'))?' ('+esc(val(x,cn('contact')))+')':'')+(m.note?': <span class="emtxt">'+esc(m.note.length>400?m.note.slice(0,400)+'...':m.note)+'</span>':'')+(x===r?' <button type="button" class="emdel" data-emdel="'+m.t+'" title="Delete this email entry" aria-label="Delete email entry">&times;</button>':'')+'</li>'}))));
+  .concat((x.em||[]).map(m=>({x,t:m.t,html:'<li class="em '+esc(m.k)+'">'+fmt(m.t)+' - <b class="co">\u2709 '+esc(EMT[m.k]||'Email reply')+'</b>'+(x!==r&&val(x,cn('contact'))?' ('+esc(val(x,cn('contact')))+')':'')+(m.note?': <span class="emtxt">'+esc(m.note.length>400?m.note.slice(0,400)+'...':m.note)+'</span>':'')+(x===r?' <button type="button" class="emdel emed" data-emedit="'+esc(emId(m))+'" title="Edit this email entry" aria-label="Edit email entry">&#9998; Edit</button><button type="button" class="emdel" data-emdel="'+esc(emId(m))+'" title="Delete this email entry" aria-label="Delete email entry">&times;</button>':'')+'</li>'}))));
  items.sort((a,b)=>b.t-a.t);
  return items.length?'<ul class="hist">'+items.map(i=>i.html).join('')+'</ul>':'<p class="mute" style="margin:0">No calls or emails logged yet. Account details are in the boxes above.</p>';
 }
 const FREEMAIL=/^(gmail|googlemail|outlook|hotmail|live|yahoo|icloud|me|msn|aol|proton|protonmail|ymail|minerva)\./i;
-let EMSEL=null,EMAUTO=true;
+let EMSEL=null,EMAUTO=true,EMEDIT=null;
 function emPick(id,auto){EMSEL=id;const r=byId(id);$('#emsel').hidden=!r;$('#emfindbox').hidden=!!r;if(r)$('#emco').textContent=title(r)+(val(r,cn('contact'))?' ('+val(r,cn('contact'))+')':'');$('#emhow').textContent=r&&auto?'Matched automatically from the email':'';}
 function emMatches(){
  const q=($('#emfind').value||'').toLowerCase().trim(),txt=($('#emtext').value||'').toLowerCase();
@@ -698,9 +702,11 @@ function emRender(){
  if(EMAUTO&&m.length){const s0=m[0].n,s1=m[1]?m[1].n:0;if(s0>=40&&s1<(s0>=100?100:40)){emPick(m[0].r.id,true);return}}
  el.innerHTML=m.length?m.map((x,i)=>'<button type="button" data-empick="'+x.r.id+'" class="'+(i===0&&x.n>=40?'best':'')+'"><b>'+esc(title(x.r))+'</b><span>'+esc([val(x.r,cn('contact')),val(x.r,cn('phone')),x.r.done?'called':'not called yet'].filter(Boolean).join(' \u00B7 '))+'</span></button>').join(''):(($('#emfind').value||$('#emtext').value)?'<p class="mute" style="margin:0">No matching lead yet. Try the company name.</p>':'');
 }
-function openEmail(id){
- const d=new Date(),loc=new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,16);
- EMAUTO=true;$('#emtype').value='rfq';$('#emdate').value=loc;$('#emtext').value='';$('#emfind').value='';$('#emres').innerHTML='';
+function openEmail(id,editT){
+ const r0=id&&byId(id),m0=editT!=null&&r0?(r0.em||[]).find(m=>emId(m)===editT):null;EMEDIT=m0?emId(m0):null;
+ const d=m0?new Date(m0.t):new Date(),loc=new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,16);
+ document.querySelector('#emp .srhd b').textContent=m0?'Edit email reply':'Log email reply';
+ EMAUTO=true;$('#emtype').value=m0?m0.k:'rfq';$('#emdate').value=loc;$('#emtext').value=m0?m0.note||'':'';$('#emfind').value='';$('#emres').innerHTML='';
  emPick(id&&byId(id)?id:null);$('#emp').hidden=false;setTimeout(()=>(EMSEL?$('#emtext'):$('#emfind')).focus(),50);
 }
 $('#emglobal').onclick=()=>openEmail(null);
@@ -713,8 +719,11 @@ $('#emsave').onclick=()=>{
  const r=byId(EMSEL);if(!r){toast('Pick which lead this email is from first');$('#emfind').focus();return}
  const t=$('#emdate').value?+new Date($('#emdate').value):Date.now();if(isNaN(t)){toast('That date is not valid');return}
  const k=$('#emtype').value,note=$('#emtext').value.trim();
- r.em=r.em||[];let tt=t;while(r.em.some(m=>m.t===tt))tt++;r.em.push({t:tt,k,note});r.em.sort((a,b)=>a.t-b.t);
- save();$('#emp').hidden=true;if(r.id===S.last)keepFocus(renderCard);toast('Saved: '+EMT[k]+' from '+title(r));
+ r.em=r.em||[];const old=EMEDIT!=null?r.em.find(m=>emId(m)===EMEDIT):null;if(old)r.em=r.em.filter(m=>m!==old);
+ const loc0=old?new Date(old.t-new Date(old.t).getTimezoneOffset()*6e4).toISOString().slice(0,16):'';
+ let tt=old&&$('#emdate').value===loc0?old.t:t;if(!old)while(r.em.some(m=>m.t===tt))tt++;
+ r.em.push({id:old?emId(old):'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:tt,k,note,mt:Date.now()});r.em.sort((a,b)=>a.t-b.t);const was=!!old;EMEDIT=null;
+ save();$('#emp').hidden=true;if(r.id===S.last)keepFocus(renderCard);toast((was?'Updated: ':'Saved: ')+EMT[k]+' from '+title(r));
 };
 function emStats(a,b){const list=S.rows.flatMap(r=>(r.em||[]).map(m=>({r,m}))).filter(x=>x.m.t>=a&&x.m.t<b).sort((x,y)=>y.m.t-x.m.t);return{list,rfq:list.filter(x=>x.m.k==='rfq').length,later:list.filter(x=>x.m.k==='later').length}}
 function leadHistory(r){
@@ -782,8 +791,9 @@ function logCall(o){
 $('#list').onclick=e=>{const i=e.target.closest('.it');if(i)select(+i.dataset.id,'card')};
 $('#card').onclick=async e=>{
  if(e.target.closest('[data-em]')){openEmail(S.last);return}
+ const eme=e.target.closest('[data-emedit]');if(eme){openEmail(S.last,eme.dataset.emedit);return}
  const emd=e.target.closest('[data-emdel]');
- if(emd){const r=byId(S.last);if(!r)return;const t=+emd.dataset.emdel;if(!(await ask('Delete this email entry for '+title(r)+'?','Delete',true)))return;r.em=(r.em||[]).filter(m=>m.t!==t);save();renderCard();toast('Email entry deleted');return}
+ if(emd){const r=byId(S.last);if(!r)return;const t=emd.dataset.emdel;if(!(await ask('Delete this email entry for '+title(r)+'?','Delete',true)))return;r.em=(r.em||[]).filter(m=>emId(m)!==t);save();renderCard();toast('Email entry deleted');return}
  const pkb=e.target.closest('[data-pick]');
  if(pkb){e.preventDefault();const n=pkb.dataset.pick;S.pick=S.pick||[];const i=S.pick.indexOf(n);if(i<0)S.pick.push(n);else S.pick.splice(i,1);save();keepFocus(renderCard);return}
  if(e.target.closest('[data-cpall]')){const r=byId(S.last);if(!r)return;const cs=pickedCols();if(!cs.length){toast('Tick the boxes you want first (\u2610 next to each box)');return}
@@ -1549,13 +1559,13 @@ function gUids(rows){
   const b=u;let i=2;while(seen.has(u))u=b+'#'+(i++);seen.add(u);r.u=u});
 }
 const lkey=l=>l.t+'|'+l.o;
-const gSig=rows=>JSON.stringify(rows.map(r=>[r.u,r.f,!!r.done,r.fu||null,r.log.length,(r.em||[]).length]));
+const gSig=rows=>JSON.stringify(rows.map(r=>[r.u,r.f,!!r.done,r.fu||null,r.log.length,emSig(r)]));
 function gHash(){const t=gSig(S.rows)+JSON.stringify(S.cols.map(c=>c.n));let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return h}
 function gCounts(st){st=st||S;return{leads:st.rows.length,calls:st.rows.reduce((n,r)=>n+((r.log||[]).length),0)}}
-const snapRow=r=>({f:Object.assign({},r.f),d:!!r.done,fu:r.fu||null,n:(r.log||[]).length,e:(r.em||[]).length});
+const snapRow=r=>({f:Object.assign({},r.f),d:!!r.done,fu:r.fu||null,n:(r.log||[]).length,e:emSig(r),emt:Object.fromEntries((r.em||[]).map(m=>[emId(m),m.mt||0]))});
 function setBase(rows){BASE={};rows.forEach(r=>{if(r.u)BASE[r.u]=snapRow(r)});baseSave()}
 const same=(a,b)=>(a==null?'':String(a))===(b==null?'':String(b));
-function rowChanged(r,b){if(!b)return true;if(!same(!!r.done,b.d)||!same(r.fu,b.fu)||(r.log||[]).length!==b.n||(r.em||[]).length!==(b.e||0))return true;const ks=new Set(Object.keys(r.f||{}).concat(Object.keys(b.f)));for(const k of ks)if(!same((r.f||{})[k],b.f[k]))return true;return false}
+function rowChanged(r,b){if(!b)return true;if(!same(!!r.done,b.d)||!same(r.fu,b.fu)||(r.log||[]).length!==b.n||emSig(r)!==(b.e||''))return true;const ks=new Set(Object.keys(r.f||{}).concat(Object.keys(b.f)));for(const k of ks)if(!same((r.f||{})[k],b.f[k]))return true;return false}
 // 3-way merge: local (this device) + remote (sheet) against BASE (what both agreed on last time)
 function gMerge(L,R){
  const rr=(R&&R.rows)||[];gUids(rr);gUids(L.rows);
@@ -1568,8 +1578,11 @@ function gMerge(L,R){
   const lw=lastT(l)>=lastT(r),pick=(lv,rv,bv)=>same(lv,rv)?lv:b&&same(lv,bv)?rv:b&&same(rv,bv)?lv:(lw?lv:rv);
   const f={};new Set(Object.keys(l.f||{}).concat(Object.keys(r.f||{}))).forEach(k=>{f[k]=pick((l.f||{})[k],(r.f||{})[k],b&&b.f[k]);if(f[k]==null)f[k]=''});
   const logs=new Map();(r.log||[]).concat(l.log||[]).forEach(x=>logs.set(lkey(x),x));
-  const ems=new Map();(r.em||[]).concat(l.em||[]).forEach(x=>ems.set(x.t+'|'+x.k,x));
-  const m=Object.assign({},l,{f,log:[...logs.values()].sort((a,c)=>a.t-c.t),em:[...ems.values()].sort((a,c)=>a.t-c.t),done:!!pick(!!l.done,!!r.done,b&&b.d),fu:pick(l.fu||null,r.fu||null,b&&b.fu)||null});
+  const bem=(b&&b.emt)||{},lE=new Map((l.em||[]).map(m=>[emId(m),m])),rE=new Map((r.em||[]).map(m=>[emId(m),m])),ems=[];
+  new Set([...lE.keys(),...rE.keys()]).forEach(id=>{const a=lE.get(id),c=rE.get(id),inB=id in bem;
+   if(a&&c)ems.push((c.mt||0)>(a.mt||0)?c:a);
+   else{const x=a||c;if(!inB||(x.mt||0)>bem[id])ems.push(x)}});
+  const m=Object.assign({},l,{f,log:[...logs.values()].sort((a,c)=>a.t-c.t),em:ems.sort((a,c)=>a.t-c.t),done:!!pick(!!l.done,!!r.done,b&&b.d),fu:pick(l.fu||null,r.fu||null,b&&b.fu)||null});
   if(m.fu==='')m.fu=null;if(m.fu)m.fu=+m.fu;
   out.push(m);usedIds.add(l.id);
  });
