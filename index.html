@@ -240,6 +240,18 @@ aside{box-shadow:1px 0 0 var(--line)}
 .fields .cpy:hover{color:var(--accent);background:var(--sel)}
 .fields .cpy.ok{color:var(--ok)}
 .fields .cpy.ok svg{transform:scale(1.15)}
+.fields .pbtn{right:48px;top:-2px;display:flex;align-items:center;color:var(--mute)}
+.fields label .grip{padding-right:74px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.fields .pbtn:hover{color:var(--accent)}
+.fields .pbtn.on{color:var(--accent)}
+.fields label.picked input,.fields label.picked textarea{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.fields label.picked .grip{color:var(--accent);font-weight:600}
+.chr{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cpall{display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:15px;padding:10px 14px;border:2px solid var(--accent);color:var(--accent);background:var(--panel);border-radius:8px}
+.cpall:hover{background:var(--sel)}
+.cpall[disabled]{opacity:.55;border-style:dashed;cursor:help}
+.cpall.ok{border-color:var(--ok);color:var(--ok)}
+@media (max-width:760px) and (hover:none) and (pointer:coarse){.chr{width:100%}.chr .cpall{flex:1;justify-content:center;min-height:46px}.chr .dial{flex:2}}
 /* ===== Phone-friendly layout ===== */
 #morebtn,.ss{display:none}
 #msheet{position:fixed;inset:0;background:rgba(0,20,35,.5);z-index:14;display:flex;align-items:flex-end;justify-content:center}
@@ -657,14 +669,16 @@ function addBoxHtml(){
  const hid=S.cols.map((c,i)=>[c,i]).filter(x=>!x[0].show);
  return '<div class="addbox"><button type="button" data-addtoggle>'+(ADDOPEN?'Close':'+ Add box')+'</button>'+(ADDOPEN?'<div class="chips">'+(hid.length?hid.map(x=>'<button type="button" data-showf="'+x[1]+'">+ '+esc(x[0].n)+'</button>').join(''):'<span class="mute">All your fields are already shown. Create a new box below.</span>')+'</div><div class="newbox"><input id="newbox" placeholder="New box name, e.g. Last order date"><button type="button" data-newbox>Create box</button></div>':'')+'</div>';
 }
+function cpAllBtn(){const n=pickedCols().length;return '<button type="button" class="cpall" data-cpall'+(n?'':' disabled')+' title="'+(n?'Copy all ticked boxes, one per line':'Tick the boxes you want (\u2610 next to each box), then copy them all here in one click')+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> '+(n?'Copy '+n+' selected':'Copy selected')+'</button>'}
+function pickedCols(){const p=S.pick||[];return S.cols.filter(c=>c.show&&p.includes(c.n))}
 function renderCard(){
  const r=byId(S.last),c=$('#card'),m=$('#main');
  m.dataset.view=S.view;
  if(!r){c.innerHTML='<div class="empty"><h2>'+(S.rows.length?'All leads logged':'Import your leads')+'</h2><p>'+(S.rows.length?'Switch to Logged or All to review them, or import a new sheet.':'Choose a CSV or Excel file with your accounts and contacts. Every column comes in, and you pick which ones show here.')+'</p>'+(S.rows.length?'':'<p><button class="primary" data-impl>Import list</button></p>')+'</div>';return}
  const ph=val(r,cn('phone')),tel=String(ph).replace(/[^\d+]/g,'');
  c.innerHTML='<div class="ctop"><button class="back" data-back>&lsaquo; Leads</button>'+(cn('company')?'':'<p class="warnb">No column is set as Company, so exports show the contact name instead. <button data-fields>Choose Company column</button></p>')+
- '<div class="ch"><div><h2 id="hd">'+esc(title(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p></div>'+(tel?'<a class="dial" href="tel:'+esc(tel)+'">Call '+esc(ph)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div>'+
- '<div class="fields">'+S.cols.filter(x=>x.show).map(x=>{const v=val(r,x.n),wd=isWide(x),long=wd||String(v).length>60;return '<label'+(wd?' class="wide"':'')+' data-ci="'+S.cols.indexOf(x)+'"><button type="button" class="hide wbtn" data-wide="'+S.cols.indexOf(x)+'" title="'+(wd?'Make this box narrower':'Make this box full width')+'" aria-label="Toggle width of '+esc(x.n)+'">'+(wd?'&#8689;':'&#10530;')+'</button><button type="button" class="hide" data-hide="'+S.cols.indexOf(x)+'" title="Hide this field (also removes it from the Excel export)" aria-label="Hide '+esc(x.n)+'">&times;</button><span class="grip" title="Drag to move this box">&#8942;&#8942; '+esc(x.n)+'</span>'+'<div class="fw'+(long?' ta':'')+'">'+(long?'<textarea rows="3" data-f="'+esc(x.n)+'">'+esc(v)+'</textarea>':'<input data-f="'+esc(x.n)+'" value="'+esc(v)+'">')+'<button type="button" class="cpy" data-copy title="Copy '+esc(x.n)+'" aria-label="Copy '+esc(x.n)+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>'+'</label>'}).join('')+'</div>'+
+ '<div class="ch"><div><h2 id="hd">'+esc(title(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p></div><div class="chr">'+cpAllBtn()+(tel?'<a class="dial" href="tel:'+esc(tel)+'">Call '+esc(ph)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+
+ '<div class="fields">'+S.cols.filter(x=>x.show).map(x=>{const v=val(r,x.n),wd=isWide(x),long=wd||String(v).length>60,pk=(S.pick||[]).includes(x.n);return '<label class="'+(wd?'wide':'')+(pk?' picked':'')+'" data-ci="'+S.cols.indexOf(x)+'"><button type="button" class="hide pbtn'+(pk?' on':'')+'" data-pick="'+esc(x.n)+'" aria-pressed="'+pk+'" title="'+(pk?'Remove from Copy selected':'Add to Copy selected')+'" aria-label="Select '+esc(x.n)+' for Copy selected">'+(pk?'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>')+'</button><button type="button" class="hide wbtn" data-wide="'+S.cols.indexOf(x)+'" title="'+(wd?'Make this box narrower':'Make this box full width')+'" aria-label="Toggle width of '+esc(x.n)+'">'+(wd?'&#8689;':'&#10530;')+'</button><button type="button" class="hide" data-hide="'+S.cols.indexOf(x)+'" title="Hide this field (also removes it from the Excel export)" aria-label="Hide '+esc(x.n)+'">&times;</button><span class="grip" title="Drag to move this box">&#8942;&#8942; '+esc(x.n)+'</span>'+'<div class="fw'+(long?' ta':'')+'">'+(long?'<textarea rows="3" data-f="'+esc(x.n)+'">'+esc(v)+'</textarea>':'<input data-f="'+esc(x.n)+'" value="'+esc(v)+'">')+'<button type="button" class="cpy" data-copy title="Copy '+esc(x.n)+'" aria-label="Copy '+esc(x.n)+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>'+'</label>'}).join('')+'</div>'+
  addBoxHtml()+'<div class="log"><h3>Previous dealings with '+esc(title(r))+'</h3>'+(function(){const h=leadHistory(r);return h.length?'<ul class="hist">'+h.map(y=>'<li>'+fmt(y.l.t)+' - <b class="co">'+esc(y.l.o)+'</b>'+(y.x!==r&&val(y.x,cn('contact'))?' ('+esc(val(y.x,cn('contact')))+')':'')+(y.l.note?': '+esc(y.l.note):'')+'</li>').join('')+'</ul>':'<p class="mute" style="margin:0">No calls logged yet. Account details are in the boxes above.</p>'})()+
 '<h3 style="margin-top:16px">'+(r.done?'Logged. Add notes or call again':'Live call notes')+'</h3><textarea id="note" rows="6" placeholder="Type what is said, names, numbers, quantities, extensions...">'+esc(r.draft||'')+'</textarea><p class="draftmsg">Saved as you type. Pressing an outcome logs these notes to the report and loads the next lead.</p>'+fuHtml(r)+
 '<div class="oc">'+OUT.map(o=>'<button data-o="'+o+'">'+o+'</button>').join('')+(r.done?'<button data-reopen>Put back in To call</button>':'')+'<button class="del" data-delete>Delete lead</button></div></div>';
@@ -691,6 +705,12 @@ function logCall(o){
 }
 $('#list').onclick=e=>{const i=e.target.closest('.it');if(i)select(+i.dataset.id,'card')};
 $('#card').onclick=async e=>{
+ const pkb=e.target.closest('[data-pick]');
+ if(pkb){e.preventDefault();const n=pkb.dataset.pick;S.pick=S.pick||[];const i=S.pick.indexOf(n);if(i<0)S.pick.push(n);else S.pick.splice(i,1);save();keepFocus(renderCard);return}
+ if(e.target.closest('[data-cpall]')){const r=byId(S.last);if(!r)return;const cs=pickedCols();if(!cs.length){toast('Tick the boxes you want first (\u2610 next to each box)');return}
+  const vals=cs.map(c=>String(val(r,c.n)).trim()).filter(Boolean);if(!vals.length){toast('The ticked boxes are empty for this lead');return}
+  const t=vals.join('\n');try{await navigator.clipboard.writeText(t)}catch(x){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(y){}a.remove();if(!ok){toast('Copy blocked by the browser');return}}
+  const b=e.target.closest('[data-cpall]');b.classList.add('ok');setTimeout(()=>b.classList.remove('ok'),1200);toast('Copied '+vals.length+' box'+(vals.length===1?'':'es')+': '+cs.filter(c=>String(val(r,c.n)).trim()).map(c=>c.n).join(', '));return}
  const cpb=e.target.closest('[data-copy]');
  if(cpb){const f=cpb.parentElement.querySelector('[data-f]'),v=f?String(f.value):'';if(!v.trim()){toast('That box is empty');return}
   const name=f.dataset.f;try{await navigator.clipboard.writeText(v)}catch(x){f.focus();f.select();let ok=false;try{ok=document.execCommand('copy')}catch(y){}if(!ok){toast('Copy blocked. Press Ctrl+C');return}}
