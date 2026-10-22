@@ -397,7 +397,7 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
  <div class="srhd"><img src="logo-white.png" alt="Minerva"><b>Log email reply</b></div>
  <div class="srbd">
   <div id="emfindbox"><label>Which lead is this from?<input id="emfind" placeholder="Type company, contact or email, or paste the email below" autocomplete="off"></label><div id="emres" class="emres"></div></div>
-  <div id="emsel" class="emsel" hidden><span>Lead: <b id="emco"></b></span><button type="button" id="emchg">Change</button></div>
+  <div id="emsel" class="emsel" hidden><span>Lead: <b id="emco"></b><small id="emhow" class="mute" style="display:block"></small></span><button type="button" id="emchg">Change</button></div>
   <label>What did the client say?<select id="emtype"><option value="rfq">Sent a request (RFQ / enquiry)</option><option value="later">Will send a request later</option><option value="other">Other reply</option></select></label>
   <label>Date received<input type="datetime-local" id="emdate"></label>
   <label>Email or short summary<textarea id="emtext" rows="7" placeholder="Paste the client's email here, or write a short summary (what they need, quantities, when)..."></textarea></label>
@@ -679,8 +679,8 @@ function histHtml(r){
  return items.length?'<ul class="hist">'+items.map(i=>i.html).join('')+'</ul>':'<p class="mute" style="margin:0">No calls or emails logged yet. Account details are in the boxes above.</p>';
 }
 const FREEMAIL=/^(gmail|googlemail|outlook|hotmail|live|yahoo|icloud|me|msn|aol|proton|protonmail|ymail|minerva)\./i;
-let EMSEL=null;
-function emPick(id){EMSEL=id;const r=byId(id);$('#emsel').hidden=!r;$('#emfindbox').hidden=!!r;if(r)$('#emco').textContent=title(r)+(val(r,cn('contact'))?' ('+val(r,cn('contact'))+')':'')}
+let EMSEL=null,EMAUTO=true;
+function emPick(id,auto){EMSEL=id;const r=byId(id);$('#emsel').hidden=!r;$('#emfindbox').hidden=!!r;if(r)$('#emco').textContent=title(r)+(val(r,cn('contact'))?' ('+val(r,cn('contact'))+')':'');$('#emhow').textContent=r&&auto?'Matched automatically from the email address':'';}
 function emMatches(){
  const q=($('#emfind').value||'').toLowerCase().trim(),txt=($('#emtext').value||'').toLowerCase();
  const mails=[...new Set((q+' '+txt).match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g)||[])].filter(m=>!/@minerva/.test(m));
@@ -694,17 +694,18 @@ function emMatches(){
 }
 function emRender(){
  if(EMSEL)return;const m=emMatches(),el=$('#emres');
+ if(EMAUTO&&m.length){const s0=m[0].n,s1=m[1]?m[1].n:0;if(s0>=40&&s1<(s0>=100?100:40)){emPick(m[0].r.id,true);return}}
  el.innerHTML=m.length?m.map((x,i)=>'<button type="button" data-empick="'+x.r.id+'" class="'+(i===0&&x.n>=40?'best':'')+'"><b>'+esc(title(x.r))+'</b><span>'+esc([val(x.r,cn('contact')),val(x.r,cn('phone')),x.r.done?'called':'not called yet'].filter(Boolean).join(' \u00B7 '))+'</span></button>').join(''):(($('#emfind').value||$('#emtext').value)?'<p class="mute" style="margin:0">No matching lead yet. Try the company name.</p>':'');
 }
 function openEmail(id){
  const d=new Date(),loc=new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,16);
- $('#emtype').value='rfq';$('#emdate').value=loc;$('#emtext').value='';$('#emfind').value='';$('#emres').innerHTML='';
+ EMAUTO=true;$('#emtype').value='rfq';$('#emdate').value=loc;$('#emtext').value='';$('#emfind').value='';$('#emres').innerHTML='';
  emPick(id&&byId(id)?id:null);$('#emp').hidden=false;setTimeout(()=>(EMSEL?$('#emtext'):$('#emfind')).focus(),50);
 }
 $('#emglobal').onclick=()=>openEmail(null);
 $('#emfind').oninput=emRender;$('#emtext').addEventListener('input',emRender);
 $('#emres').onclick=e=>{const b=e.target.closest('[data-empick]');if(b)emPick(+b.dataset.empick)};
-$('#emchg').onclick=()=>{EMSEL=null;$('#emsel').hidden=true;$('#emfindbox').hidden=false;emRender();$('#emfind').focus()};
+$('#emchg').onclick=()=>{EMSEL=null;EMAUTO=false;$('#emsel').hidden=true;$('#emfindbox').hidden=false;emRender();$('#emfind').focus()};
 $('#emclose').onclick=()=>$('#emp').hidden=true;
 $('#emp').onclick=e=>{if(e.target.id==='emp')$('#emp').hidden=true};
 $('#emsave').onclick=()=>{
