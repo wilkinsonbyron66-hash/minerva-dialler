@@ -7,7 +7,8 @@
 <meta name="format-detection" content="telephone=no">
 <title>Minerva Dialler</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#004679">
+<meta name="theme-color" content="#F5F5F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -354,6 +355,125 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
  .dbox{padding:16px}
  #toast{left:12px;right:12px;transform:none;text-align:center}
 }
+/* =====================================================================
+   Apple-style minimal theme (overrides everything above)
+   ===================================================================== */
+:root{--bg:#F5F5F7;--panel:#FFFFFF;--ink:#1D1D1F;--mute:#6E6E73;--line:#E3E3E8;--sel:#EBF3FA;--accent:#004679;--onacc:#fff;--call:#F05322;--calltx:#fff;--fill:#EDEDF0;--fill2:#E4E4E9;--sh:0 1px 2px rgba(0,0,0,.04),0 2px 10px rgba(0,0,0,.05);--bgimg:none}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--panel:#1C1C1E;--ink:#F5F5F7;--mute:#98989D;--line:#2E2E31;--sel:#16283A;--accent:#5AC8F5;--onacc:#00263F;--fill:#2C2C2E;--fill2:#3A3A3C;--sh:0 1px 2px rgba(0,0,0,.5);--bgimg:none}}
+:root[data-theme="dark"]{--bg:#000;--panel:#1C1C1E;--ink:#F5F5F7;--mute:#98989D;--line:#2E2E31;--sel:#16283A;--accent:#5AC8F5;--onacc:#00263F;--fill:#2C2C2E;--fill2:#3A3A3C;--sh:0 1px 2px rgba(0,0,0,.5);--bgimg:none}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Inter,system-ui,sans-serif;font-weight:400;letter-spacing:-.005em;background:var(--bg);background-image:none;-webkit-font-smoothing:antialiased}
+button{border:0;background:var(--fill);border-radius:9px;padding:7px 13px;font-weight:500;transition:background .15s,color .15s,box-shadow .15s}
+button:hover{border-color:transparent;background:var(--fill2)}
+.primary,header .primary{background:var(--accent);color:var(--onacc)}
+.primary:hover{background:var(--accent);filter:brightness(1.08)}
+.danger{background:transparent;color:var(--bad);box-shadow:inset 0 0 0 1px currentColor}
+.danger:hover{background:rgba(180,35,24,.07)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* the old navy header is replaced by the slim top bar + menu */
+header,header[hidden]{display:none!important}
+#tabs{display:flex;align-items:center;gap:14px;padding:9px 16px;background:color-mix(in srgb,var(--panel) 88%,transparent);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid var(--line);position:relative;z-index:4}
+.navlogo{height:24px;width:auto;display:block;content:url(logo-navy.png)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .navlogo,:root:not([data-theme="light"]) .srhd img{content:url(logo-white.png)}}
+:root[data-theme="dark"] .navlogo,:root[data-theme="dark"] .srhd img{content:url(logo-white.png)}
+.segtabs{display:inline-flex;background:var(--fill);border-radius:9px;padding:2px;gap:2px}
+#tabs .segtabs button{background:transparent;border:0;border-radius:7px;padding:5px 16px;font-size:14px;font-weight:500;color:var(--ink)}
+#tabs .segtabs button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
+#tabs .segtabs button:hover:not(.on){background:var(--fill2)}
+.nprog{display:flex;flex-direction:column;gap:4px;min-width:150px;max-width:280px;flex:1}
+.nprog #tstat{display:block!important;color:var(--mute);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nprog .bar{height:3px;background:var(--fill);border-radius:2px;margin:0}.nprog .bar i{background:var(--accent);border-radius:2px}
+#tabs .tright{margin-left:auto;gap:8px;padding:0}
+#tabs .tright button{border:0;border-radius:8px;font-size:13px;font-weight:500;padding:6px 11px;background:var(--fill);color:var(--ink)}
+#tabs .tright #resume2{display:inline-block!important;background:var(--accent);color:var(--onacc)}
+#tabs .tright #gsync{background:transparent;box-shadow:inset 0 0 0 1px currentColor}
+#tabs .tright #fudue{background:rgba(180,35,24,.08);color:var(--bad);box-shadow:none}
+#tabs .tright #navmenu{font-size:14px;padding:6px 12px}
+#hdrtoggle{display:none!important}
+/* layout surfaces */
+main{background:var(--bg)}
+aside{background:var(--panel);border-right:1px solid var(--line);box-shadow:none}
+.filt{border-bottom:1px solid var(--line);padding:10px}
+.filt input,#q{border:0;background:var(--fill);border-radius:9px;padding:8px 11px}
+.seg{background:var(--fill);border-radius:9px;padding:2px;gap:2px}
+.seg button{background:transparent;border:0;border-radius:7px;padding:6px 4px;font-size:13px;white-space:nowrap}
+.seg .on{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12);border-color:transparent}
+#list .it{border-bottom:0;margin:2px 8px;border-radius:10px;padding:9px 12px;position:relative}
+#list .it::after{content:"";position:absolute;left:12px;right:12px;bottom:-2px;height:1px;background:var(--line)}
+#list .it:hover{background:var(--fill)}
+#list .it.on{background:var(--sel);box-shadow:none}
+#list .it b{font-weight:600}
+#card{padding:22px 26px}
+.ch h2{font-weight:700;letter-spacing:-.02em}
+.dial{border-radius:999px;font-weight:600;font-size:19px;padding:10px 22px;box-shadow:0 4px 14px rgba(240,83,34,.25)}
+.cpall{border-radius:999px;border:0;background:var(--sel);color:var(--accent);box-shadow:none}
+.cpall:hover{background:var(--sel);filter:brightness(.97)}
+.cpall[disabled]{background:var(--fill);color:var(--mute);opacity:1}
+.fields label{color:var(--mute);font-size:12px;font-weight:500}
+.fields input,.fields textarea,#note{border:1px solid var(--line);border-radius:10px;background:var(--panel);box-shadow:var(--sh)}
+.fields input:focus,.fields textarea:focus,#note:focus{border-color:var(--accent);outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.fields .hide{background:transparent;padding:0 6px}
+.fields .cpy{background:transparent}
+.fields .cpy:hover{background:var(--fill)}
+.addbox>button,.embtn{background:var(--panel);box-shadow:var(--sh)}
+.log{border-top:1px solid var(--line)}
+.log h3{font-weight:600}
+.oc button{background:var(--panel);box-shadow:var(--sh);border-radius:10px;font-weight:500}
+.oc button:hover{background:var(--fill)}
+.oc .del{background:transparent;box-shadow:inset 0 0 0 1px var(--bad)}
+.fu{border:0;border-radius:12px;background:var(--panel);box-shadow:var(--sh)}
+.fur input{border:0;background:var(--fill);border-radius:8px}
+.btnlink{border:0;background:var(--fill);border-radius:8px}
+.warnb{border-radius:10px}
+/* dashboard */
+#dash{background:var(--bg)}
+.tile{border:0;border-top:0;border-radius:14px;box-shadow:var(--sh);padding:14px 16px}
+.tile b{font-weight:700;letter-spacing:-.02em}
+.dc{border:0;border-radius:14px;box-shadow:var(--sh)}
+.dc h3{font-weight:600}
+.dli{border:0;border-left:3px solid var(--lc,var(--accent));border-radius:10px;background:var(--bg)}
+/* panels, sheets and dialogs */
+#det,#rep,#cols,#txt,#elog{border-left:0;box-shadow:-10px 0 40px rgba(0,0,0,.12)}
+#srp,#gsp,#emp,#dlg{background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.srbox,.dbox{border:0;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.srhd{background:var(--panel);color:var(--ink);border-bottom:1px solid var(--line);padding:14px 18px}
+.srhd img{height:22px;content:url(logo-navy.png)}
+.srhd b{font-weight:600}
+.srbd select,.srbd input,#emtext{border:0;background:var(--fill);border-radius:9px}
+.sales,header .sales,.srbd .drow .sales{background:var(--accent);color:var(--onacc);border:0}
+.gstat{border-left-width:3px}
+#toast{border-radius:12px;padding:10px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);background:rgba(29,29,31,.92);color:#fff}
+.ecard{border:0;border-left:4px solid var(--ec,var(--line));box-shadow:var(--sh);border-radius:12px}
+/* menu: popover on computer, bottom sheet on phone */
+#msheet{background:transparent;align-items:flex-start;justify-content:flex-end}
+.mbox{width:290px;max-width:calc(100vw - 24px);margin:56px 14px 0 0;border-radius:14px;padding:6px;max-height:calc(100vh - 72px);background:color-mix(in srgb,var(--panel) 94%,transparent);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);box-shadow:0 12px 40px rgba(0,0,0,.18),0 0 0 .5px rgba(0,0,0,.08)}
+.mgrid{display:block;margin:0}
+.mgrid .mh{font-size:11.5px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;padding:10px 12px 4px}
+.mgrid .mh:first-child{padding-top:6px}
+.mgrid button{display:block;width:100%;text-align:left;background:transparent;border:0;border-radius:8px;padding:8px 12px;min-height:0;font-size:14px;font-weight:500;color:var(--ink);box-shadow:none}
+.mgrid button:hover{background:var(--accent);color:var(--onacc)}
+.mgrid button.danger{color:var(--bad)}
+.mgrid button.danger:hover{background:var(--bad);color:#fff}
+#mclose{display:none}
+@media (max-width:760px) and (hover:none) and (pointer:coarse){
+ #tabs{flex-wrap:wrap;gap:8px 10px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px}
+ .navlogo{height:22px}
+ #tabs .tright{order:2;gap:6px}
+ .segtabs{order:3;flex:1}
+ #tabs .segtabs button{flex:1;padding:7px 8px;font-size:14px}
+ .nprog{order:4;flex-basis:100%;max-width:none;min-width:0}
+ #tabs .tright button{padding:6px 10px}
+ #gsync .ss,#navmenu .ml{display:none}
+ #tabs .tright #gsync{font-size:15px;padding:5px 9px}
+ #tabs .tright #navmenu{font-size:17px;padding:4px 11px}
+ .seg button{font-size:13.5px;padding:8px 2px}
+ #msheet{background:rgba(0,0,0,.3);align-items:flex-end;justify-content:center}
+ .mbox{width:100%;max-width:none;margin:0;border-radius:16px 16px 0 0;padding:8px 10px calc(10px + env(safe-area-inset-bottom));max-height:85vh}
+ .mgrid button{padding:12px 12px;font-size:16px}
+ #mclose{display:block;width:100%;margin-top:6px;min-height:46px;background:var(--fill)}
+ .ctop{background:color-mix(in srgb,var(--bg) 92%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 1px 0 var(--line)}
+ #card{padding:0 12px 28px}
+}
+
 </style>
 </head>
 <body>
@@ -383,7 +503,7 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
  <input type="file" id="file2" accept=".csv,.xlsx,.xls" hidden>
  <input type="file" id="file4" accept=".json,application/json" hidden>
 </header>
-<nav id="tabs"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button><div class="tright"><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="fudue" hidden></button><span id="tstat" hidden></span><button id="resume2" hidden>Resume</button><button id="hdrtoggle" title="Collapse or expand the top bar">&#9650; Hide bar</button></div></nav>
+<nav id="tabs"><img class="navlogo" src="logo-navy.png" alt="Minerva Technologies"><div class="segtabs" role="tablist"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button></div><div class="nprog"><span id="tstat"></span><div class="bar"><i id="prog2" style="width:0"></i></div></div><div class="tright"><button id="resume2" title="Go to the next lead to call">Resume</button><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="fudue" hidden></button><button id="navmenu" aria-label="Menu">&#9776;<span class="ml"> Menu</span></button><button id="hdrtoggle" hidden></button></div></nav>
 <main id="main" data-view="list">
  <aside>
   <div class="filt">
@@ -767,7 +887,7 @@ function renderList(){
  const done=S.rows.filter(r=>r.done).length,n=S.rows.length;
  $('#stat').textContent=n?done+' logged, '+(n-done)+' left to call':'No leads yet';
  {const nfu=S.rows.filter(r=>r.fu).length,ndue=S.rows.filter(r=>r.fu&&r.fu<=Date.now()).length,fb=document.querySelector('#seg [data-f=fu]'),fd=$('#fudue');if(fb)fb.textContent='Follow-ups'+(nfu?' ('+nfu+')':'');fd.hidden=!ndue;fd.innerHTML='\u23F0 '+ndue+'<span class="ll"> follow-up'+(ndue===1?'':'s')+' due</span>'}
- $('#prog').style.width=n?(100*done/n)+'%':'0';$('#tstat').textContent=$('#stat').textContent;
+ $('#prog').style.width=n?(100*done/n)+'%':'0';$('#prog2').style.width=$('#prog').style.width;$('#tstat').textContent=$('#stat').textContent;
  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.f===S.filter));
  const v=visible();
  $('#list').innerHTML=v.map(r=>'<div class="it'+(r.id===S.last?' on':'')+'" data-id="'+r.id+'">'+(r.done?'<span class="tag">'+esc(r.log.length?r.log[r.log.length-1].o:'Logged')+'</span>':'')+'<b>'+esc(title(r))+'</b><span>'+esc(sub(r))+'</span>'+(r.fu?'<span class="fub'+(r.fu<=Date.now()?' od':'')+'">&#9200; '+esc(fuFmt(r.fu))+'</span>':'')+'</div>').join('')||'<p class="mute" style="padding:12px">'+(n?'Nothing here. Switch the filter above.':'Use Import list to start.')+'</p>';
@@ -1061,7 +1181,6 @@ function readSheet(wb){
 function applyHdr(){
  const off=!!S.hdrOff;
  document.querySelector('header').hidden=off;
- $('#tstat').hidden=!off;$('#resume2').hidden=!off;
  $('#hdrtoggle').innerHTML=off?'&#9660; Show bar':'&#9650; Hide bar';
 }
 $('#hdrtoggle').onclick=()=>{S.hdrOff=!S.hdrOff;save();applyHdr()};
@@ -1313,11 +1432,13 @@ $('#addf').onclick=()=>{
  S.cols.push({n,show:true,role:''});S.rows.forEach(r=>r.f[n]='');$('#newf').value='';save();renderCols();render();
 };
 // ---- Phone layout: menu sheet, no pinch zoom ----
-const MENU=['emglobal','elogbtn','addlead','impl','imp','addcols','colbtn','repbtn','srbtn','exp','bkp','rst','inst','reset'];
-$('#morebtn').onclick=()=>{
- $('#mgrid').innerHTML=MENU.map(id=>{const b=document.getElementById(id);if(!b||b.hidden)return '';return '<button data-m="'+id+'" class="'+esc(b.className)+'">'+esc(b.textContent.trim())+'</button>'}).join('');
+const MENU=[['Leads',['addlead','impl','imp','addcols','colbtn']],['Emails',['emglobal','elogbtn']],['Reports',['srbtn','repbtn','exp']],['Data',['bkp','rst','inst','reset']]];
+function openMenu(){
+ $('#mgrid').innerHTML=MENU.map(([h,ids])=>{const bs=ids.map(id=>{const b=document.getElementById(id);if(!b||b.hidden)return '';return '<button data-m="'+id+'" class="'+(b.classList.contains('danger')?'danger':'')+'">'+esc(b.textContent.trim().replace(/^\+\s*Lead$/,'+ New lead'))+'</button>'}).join('');return bs?'<div class="mh">'+h+'</div>'+bs:''}).join('');
  $('#msheet').hidden=false;
-};
+}
+$('#morebtn').onclick=openMenu;$('#navmenu').onclick=openMenu;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#msheet').hidden)$('#msheet').hidden=true});
 $('#msheet').onclick=e=>{if(e.target.id==='msheet'||e.target.id==='mclose'){$('#msheet').hidden=true;return}const m=e.target.closest('[data-m]');if(m){$('#msheet').hidden=true;document.getElementById(m.dataset.m).click()}};
 ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
 document.addEventListener('touchmove',e=>{if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
