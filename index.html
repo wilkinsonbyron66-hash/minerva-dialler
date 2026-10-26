@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
 <title>Minerva Dialler</title>
+<script>try{var _t=localStorage.getItem("minerva-dialler-theme");if(_t==="light"||_t==="dark")document.documentElement.setAttribute("data-theme",_t)}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#004679">
 <link rel="icon" href="icon-192.png">
@@ -202,7 +203,7 @@ main[data-view=card] aside{display:none}main[data-view=list] #card{display:none}
  --bgimg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMaxYMax slice'%3E%3Cg fill='none' stroke='%2300B7ED'%3E%3Ccircle cx='1600' cy='1000' r='180' stroke-opacity='.22' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='320' stroke-opacity='.18' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='470' stroke-opacity='.15' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='630' stroke-opacity='.12' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='800' stroke-opacity='.09' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='980' stroke-opacity='.07' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='1170' stroke-opacity='.05' stroke-width='2'/%3E%3C/g%3E%3Cg fill='none' stroke='%23004679'%3E%3Ccircle cx='0' cy='0' r='260' stroke-opacity='.06' stroke-width='2'/%3E%3Ccircle cx='0' cy='0' r='420' stroke-opacity='.045' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(160deg,#EEF4F9 0%,#E6EFF6 50%,#DCEAF4 100%)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#081722;--panel:#0F2433;--ink:#E5EEF5;--mute:#93A6B6;--line:#203A4E;--sel:#123247;--call:#F26A3E;--calltx:#fff;--accent:#3FC8F2;--onacc:#062033;--c-blue:#4FA8E8;--c-teal:#3FC8F2;
  --bgimg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMaxYMax slice'%3E%3Cg fill='none' stroke='%2300B7ED'%3E%3Ccircle cx='1600' cy='1000' r='180' stroke-opacity='.16' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='320' stroke-opacity='.13' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='470' stroke-opacity='.1' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='630' stroke-opacity='.08' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='800' stroke-opacity='.06' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='980' stroke-opacity='.045' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(160deg,#071521 0%,#0A1D2C 55%,#0C2538 100%)}}
-:root[data-theme="dark"]{--bg:#081722;--panel:#0F2433;--ink:#E5EEF5;--mute:#93A6B6;--line:#203A4E;--sel:#123247;--call:#F26A3E;--calltx:#fff;--accent:#3FC8F2;--onacc:#062033;--c-blue:#4FA8E8;--c-teal:#3FC8F2;--bgimg:linear-gradient(160deg,#071521 0%,#0A1D2C 55%,#0C2538 100%)}
+:root[data-theme="dark"]{--bg:#081722;--panel:#0F2433;--ink:#E5EEF5;--mute:#93A6B6;--line:#203A4E;--sel:#123247;--call:#F26A3E;--calltx:#fff;--accent:#3FC8F2;--onacc:#062033;--c-blue:#4FA8E8;--c-teal:#3FC8F2;--bgimg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMaxYMax slice'%3E%3Cg fill='none' stroke='%2300B7ED'%3E%3Ccircle cx='1600' cy='1000' r='180' stroke-opacity='.16' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='320' stroke-opacity='.13' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='470' stroke-opacity='.1' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='630' stroke-opacity='.08' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='800' stroke-opacity='.06' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='980' stroke-opacity='.045' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(160deg,#071521 0%,#0A1D2C 55%,#0C2538 100%)}
 body{font-family:"Barlow","Segoe UI",system-ui,sans-serif;background-color:var(--bg);background-image:var(--bgimg);background-size:cover;background-position:right bottom;background-attachment:fixed}
 .primary{background:var(--accent);color:var(--onacc);border-color:var(--accent)}
 .seg .on{background:var(--accent);color:var(--onacc);border-color:var(--accent)}
@@ -390,6 +391,8 @@ header,header[hidden]{display:none!important}
 #tabs .tright #fudue{display:none!important}
 #tabs .tright #navmenu{font-size:14px;padding:6px 12px}
 #hdrtoggle{display:none!important}
+#tabs .tright #thbtn{font-size:15px;padding:5px 10px;line-height:1.2}
+:root{color-scheme:light dark}:root[data-theme="light"]{color-scheme:light}:root[data-theme="dark"]{color-scheme:dark}
 /* layout surfaces */
 main{background:var(--bg)}
 aside{background:var(--panel);border-right:1px solid var(--line);box-shadow:none}
@@ -502,7 +505,7 @@ aside{background:var(--panel);border-right:1px solid var(--line);box-shadow:none
  <input type="file" id="file2" accept=".csv,.xlsx,.xls" hidden>
  <input type="file" id="file4" accept=".json,application/json" hidden>
 </header>
-<nav id="tabs"><img class="navlogo" src="logo-navy.png" alt="Minerva Technologies"><div class="segtabs" role="tablist"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button></div><div class="nprog"><span id="tstat"></span><div class="bar"><i id="prog2" style="width:0"></i></div></div><div class="tright"><button id="resume2" title="Go to the next lead to call">Resume</button><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="fudue" hidden></button><button id="navmenu" aria-label="Menu">&#9776;<span class="ml"> Menu</span></button><button id="hdrtoggle" hidden></button></div></nav>
+<nav id="tabs"><img class="navlogo" src="logo-navy.png" alt="Minerva Technologies"><div class="segtabs" role="tablist"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button></div><div class="nprog"><span id="tstat"></span><div class="bar"><i id="prog2" style="width:0"></i></div></div><div class="tright"><button id="resume2" title="Go to the next lead to call">Resume</button><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="fudue" hidden></button><button id="thbtn" title="Theme: Auto (follows your browser)" aria-label="Switch light or dark mode">&#9680;</button><button id="navmenu" aria-label="Menu">&#9776;<span class="ml"> Menu</span></button><button id="hdrtoggle" hidden></button></div></nav>
 <main id="main" data-view="list">
  <aside>
   <div class="filt">
@@ -1430,6 +1433,13 @@ $('#addf').onclick=()=>{
  if(S.cols.some(c=>c.n===n)){toast('That field already exists');return}
  S.cols.push({n,show:true,role:''});S.rows.forEach(r=>r.f[n]='');$('#newf').value='';save();renderCols();render();
 };
+// ---- Light / dark mode switch ----
+const THK='minerva-dialler-theme',THS=['auto','light','dark'],THI={auto:'\u25D0',light:'\u2600',dark:'\u263E'},THL={auto:'Auto (follows your browser)',light:'Light',dark:'Dark'};
+function applyTheme(t){if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme');const b=$('#thbtn');if(b){b.textContent=THI[t]||THI.auto;b.title='Theme: '+(THL[t]||THL.auto)+'. Click to change'}}
+let THEME='auto';try{THEME=localStorage.getItem(THK)||'auto'}catch(e){}
+applyTheme(THEME);
+$('#thbtn').onclick=()=>{THEME=THS[(THS.indexOf(THEME)+1)%3];try{localStorage.setItem(THK,THEME)}catch(e){}applyTheme(THEME);toast('Theme: '+THL[THEME])};
+
 // ---- Phone layout: menu sheet, no pinch zoom ----
 const MENU=[['Leads',['addlead','impl','imp','addcols','colbtn']],['Emails',['emglobal','elogbtn']],['Reports',['srbtn','repbtn','exp']],['Data',['bkp','rst','inst','reset']]];
 function openMenu(){
