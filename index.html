@@ -476,6 +476,16 @@ aside{background:var(--panel);border-right:1px solid var(--line);box-shadow:none
  #card{padding:0 12px 28px}
 }
 
+/* ===== Softer contrast ===== */
+:root{--ink:#2F3B46;--mute:#6C7B88;--line:#DCE4EB;--panel:#FBFCFD;--fill:#E9EFF4;--fill2:#DFE7EE;--sh:0 1px 2px rgba(0,40,70,.04),0 2px 8px rgba(0,40,70,.045)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E2030;--panel:#132B3D;--ink:#CFD9E2;--mute:#8C9DAC;--line:#25415A;--sel:#183A55;--fill:#1A3650;--fill2:#21425F;--sh:0 1px 3px rgba(0,0,0,.25);--bgimg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMaxYMax slice'%3E%3Cg fill='none' stroke='%2300B7ED'%3E%3Ccircle cx='1600' cy='1000' r='180' stroke-opacity='.16' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='320' stroke-opacity='.13' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='470' stroke-opacity='.1' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='630' stroke-opacity='.08' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='800' stroke-opacity='.06' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='980' stroke-opacity='.045' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(160deg,#0C1D2B 0%,#0F2232 55%,#122839 100%)}}
+:root[data-theme="dark"]{--bg:#0E2030;--panel:#132B3D;--ink:#CFD9E2;--mute:#8C9DAC;--line:#25415A;--sel:#183A55;--fill:#1A3650;--fill2:#21425F;--sh:0 1px 3px rgba(0,0,0,.25);--bgimg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1000' preserveAspectRatio='xMaxYMax slice'%3E%3Cg fill='none' stroke='%2300B7ED'%3E%3Ccircle cx='1600' cy='1000' r='180' stroke-opacity='.16' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='320' stroke-opacity='.13' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='470' stroke-opacity='.1' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='630' stroke-opacity='.08' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='800' stroke-opacity='.06' stroke-width='2'/%3E%3Ccircle cx='1600' cy='1000' r='980' stroke-opacity='.045' stroke-width='2'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(160deg,#0C1D2B 0%,#0F2232 55%,#122839 100%)}
+#tabs{background:linear-gradient(100deg,#0F426A 0%,#155180 55%,#1A5F93 100%);border-bottom-color:#38BFE8}
+.ch h2,.it b,.tile b{color:var(--ink)}
+.dial{box-shadow:0 3px 10px rgba(240,83,34,.18)}
+#list .it::after{opacity:.7}
+.fields input,.fields textarea,#note{box-shadow:none}
+
 </style>
 </head>
 <body>
