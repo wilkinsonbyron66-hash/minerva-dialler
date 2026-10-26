@@ -7,8 +7,7 @@
 <meta name="format-detection" content="telephone=no">
 <title>Minerva Dialler</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#F5F5F7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#004679">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -358,10 +357,10 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 /* =====================================================================
    Apple-style minimal theme (overrides everything above)
    ===================================================================== */
-:root{--bg:#F5F5F7;--panel:#FFFFFF;--ink:#1D1D1F;--mute:#6E6E73;--line:#E3E3E8;--sel:#EBF3FA;--accent:#004679;--onacc:#fff;--call:#F05322;--calltx:#fff;--fill:#EDEDF0;--fill2:#E4E4E9;--sh:0 1px 2px rgba(0,0,0,.04),0 2px 10px rgba(0,0,0,.05);--bgimg:none}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--panel:#1C1C1E;--ink:#F5F5F7;--mute:#98989D;--line:#2E2E31;--sel:#16283A;--accent:#5AC8F5;--onacc:#00263F;--fill:#2C2C2E;--fill2:#3A3A3C;--sh:0 1px 2px rgba(0,0,0,.5);--bgimg:none}}
-:root[data-theme="dark"]{--bg:#000;--panel:#1C1C1E;--ink:#F5F5F7;--mute:#98989D;--line:#2E2E31;--sel:#16283A;--accent:#5AC8F5;--onacc:#00263F;--fill:#2C2C2E;--fill2:#3A3A3C;--sh:0 1px 2px rgba(0,0,0,.5);--bgimg:none}
-body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Inter,system-ui,sans-serif;font-weight:400;letter-spacing:-.005em;background:var(--bg);background-image:none;-webkit-font-smoothing:antialiased}
+:root{--fill:#E7EEF4;--fill2:#DAE5EE;--sh:0 1px 2px rgba(0,40,70,.05),0 2px 10px rgba(0,40,70,.06)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--fill:#16324A;--fill2:#1D3F5D;--sh:0 1px 3px rgba(0,0,0,.35)}}
+:root[data-theme="dark"]{--fill:#16324A;--fill2:#1D3F5D;--sh:0 1px 3px rgba(0,0,0,.35)}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Inter,system-ui,sans-serif;font-weight:400;letter-spacing:-.005em;background-color:var(--bg);background-image:var(--bgimg);-webkit-font-smoothing:antialiased}
 button{border:0;background:var(--fill);border-radius:9px;padding:7px 13px;font-weight:500;transition:background .15s,color .15s,box-shadow .15s}
 button:hover{border-color:transparent;background:var(--fill2)}
 .primary,header .primary{background:var(--accent);color:var(--onacc)}
@@ -371,22 +370,24 @@ button:hover{border-color:transparent;background:var(--fill2)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* the old navy header is replaced by the slim top bar + menu */
 header,header[hidden]{display:none!important}
-#tabs{display:flex;align-items:center;gap:14px;padding:9px 16px;background:color-mix(in srgb,var(--panel) 88%,transparent);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);border-bottom:1px solid var(--line);position:relative;z-index:4}
-.navlogo{height:24px;width:auto;display:block;content:url(logo-navy.png)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .navlogo,:root:not([data-theme="light"]) .srhd img{content:url(logo-white.png)}}
-:root[data-theme="dark"] .navlogo,:root[data-theme="dark"] .srhd img{content:url(logo-white.png)}
-.segtabs{display:inline-flex;background:var(--fill);border-radius:9px;padding:2px;gap:2px}
-#tabs .segtabs button{background:transparent;border:0;border-radius:7px;padding:5px 16px;font-size:14px;font-weight:500;color:var(--ink)}
-#tabs .segtabs button.on{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
-#tabs .segtabs button:hover:not(.on){background:var(--fill2)}
-.nprog{display:flex;flex-direction:column;gap:4px;min-width:150px;max-width:280px;flex:1}
-.nprog #tstat{display:block!important;color:var(--mute);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nprog .bar{height:3px;background:var(--fill);border-radius:2px;margin:0}.nprog .bar i{background:var(--accent);border-radius:2px}
-#tabs .tright{margin-left:auto;gap:8px;padding:0}
-#tabs .tright button{border:0;border-radius:8px;font-size:13px;font-weight:500;padding:6px 11px;background:var(--fill);color:var(--ink)}
-#tabs .tright #resume2{display:inline-block!important;background:var(--accent);color:var(--onacc)}
-#tabs .tright #gsync{background:transparent;box-shadow:inset 0 0 0 1px currentColor}
-#tabs .tright #fudue{background:rgba(180,35,24,.08);color:var(--bad);box-shadow:none}
+#tabs{display:flex;align-items:center;gap:14px;padding:9px 16px;background:linear-gradient(100deg,#003660 0%,#004679 55%,#005a92 100%);border-bottom:3px solid var(--cy);position:relative;z-index:4;color:#fff}
+.navlogo{height:26px;width:auto;display:block;content:url(logo-white.png)}
+.segtabs{display:inline-flex;background:rgba(255,255,255,.14);border-radius:9px;padding:2px;gap:2px}
+#tabs .segtabs button{background:transparent;border:0;border-radius:7px;padding:5px 16px;font-size:14px;font-weight:500;color:#fff}
+#tabs .segtabs button.on{background:#fff;color:#004679;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+#tabs .segtabs button:hover:not(.on){background:rgba(255,255,255,.12)}
+.nprog{display:flex;flex-direction:column;gap:4px;min-width:0;max-width:280px;flex:1 1 120px}
+.nprog #tstat{display:block!important;color:rgba(255,255,255,.85);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nprog .bar{height:3px;background:rgba(255,255,255,.2);border-radius:2px;margin:0}.nprog .bar i{background:var(--cy);border-radius:2px}
+#tabs .tright{margin-left:auto;gap:8px;padding:0;flex:0 0 auto}
+#tabs .segtabs,.navlogo{flex:0 0 auto}
+@media (max-width:820px){#tabs{gap:10px;padding:8px 10px}#tabs .segtabs button{padding:5px 10px}#gsync .sl,#navmenu .ml{display:none}#gsync .ss{display:inline}}
+@media (max-width:560px){#tabs{flex-wrap:wrap;row-gap:8px}.nprog{display:none}#tabs .tright{order:2}#tabs .segtabs{order:3;flex:1 1 100%}#tabs .segtabs button{flex:1}}
+#tabs .tright button{border:0;border-radius:8px;font-size:13px;font-weight:500;padding:6px 11px;background:rgba(255,255,255,.12);color:#fff}
+#tabs .tright button:hover{background:rgba(255,255,255,.22)}
+#tabs .tright #resume2{display:inline-block!important;background:var(--cy);color:#00304F;font-weight:700}
+#tabs .tright #gsync{background:rgba(255,255,255,.1);color:#fff!important;border:1.5px solid;box-shadow:none}
+#tabs .tright #fudue{display:none!important}
 #tabs .tright #navmenu{font-size:14px;padding:6px 12px}
 #hdrtoggle{display:none!important}
 /* layout surfaces */
@@ -400,7 +401,7 @@ aside{background:var(--panel);border-right:1px solid var(--line);box-shadow:none
 #list .it{border-bottom:0;margin:2px 8px;border-radius:10px;padding:9px 12px;position:relative}
 #list .it::after{content:"";position:absolute;left:12px;right:12px;bottom:-2px;height:1px;background:var(--line)}
 #list .it:hover{background:var(--fill)}
-#list .it.on{background:var(--sel);box-shadow:none}
+#list .it.on{background:var(--sel);box-shadow:inset 3px 0 0 var(--cy)}
 #list .it b{font-weight:600}
 #card{padding:22px 26px}
 .ch h2{font-weight:700;letter-spacing:-.02em}
@@ -435,11 +436,9 @@ aside{background:var(--panel);border-right:1px solid var(--line);box-shadow:none
 #det,#rep,#cols,#txt,#elog{border-left:0;box-shadow:-10px 0 40px rgba(0,0,0,.12)}
 #srp,#gsp,#emp,#dlg{background:rgba(0,0,0,.28);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 .srbox,.dbox{border:0;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-.srhd{background:var(--panel);color:var(--ink);border-bottom:1px solid var(--line);padding:14px 18px}
-.srhd img{height:22px;content:url(logo-navy.png)}
-.srhd b{font-weight:600}
 .srbd select,.srbd input,#emtext{border:0;background:var(--fill);border-radius:9px}
-.sales,header .sales,.srbd .drow .sales{background:var(--accent);color:var(--onacc);border:0}
+.sales,header .sales,.srbd .drow .sales{background:var(--or);color:#fff;border:0}
+.sales:hover{background:#F46A3F}
 .gstat{border-left-width:3px}
 #toast{border-radius:12px;padding:10px 16px;box-shadow:0 10px 30px rgba(0,0,0,.25);background:rgba(29,29,31,.92);color:#fff}
 .ecard{border:0;border-left:4px solid var(--ec,var(--line));box-shadow:var(--sh);border-radius:12px}
