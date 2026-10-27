@@ -486,6 +486,32 @@ aside{background:var(--panel);border-right:1px solid var(--line);box-shadow:none
 #list .it::after{opacity:.7}
 .fields input,.fields textarea,#note{box-shadow:none}
 
+/* ===== Minimal motion ===== */
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:none}}
+@keyframes slideL{from{opacity:.4;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes sheetUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,10px) scale(.97)}to{opacity:1;transform:translate(-50%,0)}}
+button,.dial,.btnlink,.it,.ecard,.tile,.dc{transition:transform .12s ease,background-color .15s ease,box-shadow .15s ease,color .15s ease,filter .15s ease}
+button:active:not([disabled]),.dial:active,.btnlink:active{transform:scale(.95)}
+#list .it:active{transform:scale(.985)}
+.fields .cpy:active{transform:translateY(-50%) scale(.88)}
+.fields .fw.ta .cpy:active{transform:scale(.88)}
+.tile[data-det]:hover,.dc[data-det]:hover{transform:translateY(-2px)}
+#card.anim-in>*{animation:fadeUp .24s ease both}
+#card.anim-in>*:nth-child(2){animation-delay:.03s}#card.anim-in>*:nth-child(3){animation-delay:.06s}#card.anim-in>*:nth-child(n+4){animation-delay:.08s}
+#dash.anim-in{animation:fadeIn .22s ease both}
+#msheet:not([hidden]) .mbox{animation:popIn .16s ease both;transform-origin:top right}
+#srp:not([hidden]),#gsp:not([hidden]),#emp:not([hidden]),#dlg:not([hidden]){animation:fadeIn .15s ease both}
+#srp:not([hidden]) .srbox,#gsp:not([hidden]) .srbox,#emp:not([hidden]) .srbox,#dlg:not([hidden]) .dbox{animation:popIn .2s cubic-bezier(.2,.8,.3,1) both}
+#det:not([hidden]),#rep:not([hidden]),#cols:not([hidden]),#txt:not([hidden]),#elog:not([hidden]){animation:slideL .22s cubic-bezier(.2,.8,.3,1) both}
+#toast:not([hidden]){animation:toastIn .18s ease both}
+.cpy.ok svg,.cpall.ok{animation:popIn .25s ease}
+.fields .pbtn.on svg{animation:popIn .18s ease}
+@media (max-width:760px) and (hover:none) and (pointer:coarse){#msheet:not([hidden]) .mbox{animation:sheetUp .22s cubic-bezier(.2,.8,.3,1) both}#toast:not([hidden]){animation:fadeUp .18s ease both}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
 </style>
 </head>
 <body>
@@ -937,7 +963,9 @@ function renderCard(){
 '<div class="oc">'+OUT.map(o=>'<button data-o="'+o+'">'+o+'</button>').join('')+(r.done?'<button data-reopen>Put back in To call</button>':'')+'<button class="del" data-delete>Delete lead</button></div></div>';
  fitAll();
 }
-function render(){renderList();renderCard();if(S.tab==='dash')renderDash()}
+let _lastCard=null;
+function animIn(el,cls){if(!el)return;cls=cls||'anim-in';el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls);clearTimeout(el._at);el._at=setTimeout(()=>el.classList.remove(cls),400)}
+function render(){renderList();renderCard();if(S.tab==='dash')renderDash();if(S.last!==_lastCard){_lastCard=S.last;animIn($('#card'))}}
 function select(id,view){S.last=id;if(view)S.view=view;save();render();const e=document.querySelector('.it.on');if(e)e.scrollIntoView({block:'nearest'})}
 function nextTodo(from){
  const i=S.rows.findIndex(r=>r.id===from),a=S.rows.slice(i+1).concat(S.rows.slice(0,i+1));
@@ -1077,7 +1105,7 @@ function setTab(t){
  S.tab=t==='dash'?'dash':'dial';save();
  $('#main').hidden=S.tab==='dash';$('#dash').hidden=S.tab!=='dash';
  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===S.tab));
- if(S.tab==='dash')renderDash();else fitAll();
+ if(S.tab==='dash'){renderDash();animIn($('#dash'))}else{fitAll();animIn($('#card'))}
 }
 const OCOL={Spoke:'var(--c-ok)','No answer':'var(--c-na)','Call back':'var(--c-cb)','Not interested':'var(--c-ni)','Wrong number':'var(--c-wn)','No number':'var(--c-nn)'};
 function ago(t){const m=Math.round((Date.now()-t)/60000);if(m<1)return 'just now';if(m<60)return m+'m ago';const h=Math.round(m/60);if(h<24)return h+'h ago';return Math.round(h/24)+'d ago'}
