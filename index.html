@@ -604,9 +604,97 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
  #tplp,#dupp{align-items:flex-end;padding:0}#tplp .srbox,#dupp .srbox{max-width:none;width:100%;border-radius:16px 16px 0 0;max-height:92vh;padding-bottom:env(safe-area-inset-bottom)}
  .embar .embtn{flex:1}
 }
+
+/* ===== Look & feel round 2: grouped card, sticky outcomes, richer list, empty states, milestones, splash ===== */
+/* Initials circles */
+.av{--h:205;flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;letter-spacing:.02em;background:hsl(var(--h) 55% 92%);color:hsl(var(--h) 50% 30%)}
+.av-lg{width:46px;height:46px;font-size:16px}
+:root[data-theme="dark"] .av{background:hsl(var(--h) 30% 24%);color:hsl(var(--h) 65% 82%)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .av{background:hsl(var(--h) 30% 24%);color:hsl(var(--h) 65% 82%)}}
+/* List rows */
+#list .it{display:flex;gap:11px;align-items:flex-start;padding:9px 10px}
+#list .it .av{margin-top:2px}
+.itx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.itr{display:flex;align-items:baseline;gap:8px}
+.itr b{flex:1;min-width:0;line-height:1.3}
+#list .it .tag{float:none;flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--mute);white-space:nowrap}
+#list .it .tag u{width:7px;height:7px;border-radius:50%;background:var(--oc,var(--ok));display:inline-block}
+#list .it .tag em{font-style:normal;opacity:.75}
+.itm{display:block;color:var(--mute);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cty{font-style:normal;display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.03em;padding:1px 6px;border-radius:5px;background:var(--fill,rgba(0,0,0,.06));color:var(--mute);margin-right:6px;vertical-align:1px}
+#list .it.isdone b{color:var(--mute)}
+#list .it.on.isdone b{color:var(--ink)}
+/* Card header */
+.chl{display:flex;gap:14px;align-items:flex-start;min-width:0}
+.chl .av-lg{margin-top:4px}
+/* Field groups */
+.fgrp{margin:6px 0 10px}
+.fgh{margin:10px 0 4px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.fgrp.g-r{opacity:.85}
+.fgrp.g-r .fields label{font-size:11.5px}
+.fgrp.g-r .fields input,.fgrp.g-r .fields textarea{font-size:13.5px;color:var(--mute);background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.fgrp.g-r .fields input:focus,.fgrp.g-r .fields textarea:focus{color:var(--ink)}
+/* Quick note buttons */
+.qnb{display:inline-flex;align-items:center;gap:4px;background:var(--panel)!important;border:1px solid var(--line)!important;color:var(--ink)!important;box-shadow:0 1px 2px rgba(0,0,0,.05);padding:5px 12px!important;cursor:pointer;transition:border-color .15s,background .15s,transform .1s}
+.qnb:hover{border-color:var(--accent)!important;color:var(--accent)!important}
+.qnb:active{transform:scale(.96)}
+.qnb.ok{background:color-mix(in srgb,var(--ok) 14%,var(--panel))!important;border-color:var(--ok)!important}
+.qnb.qne{color:var(--mute)!important;border-style:dashed!important}
+/* Secondary lead actions */
+.ocx{display:flex;gap:6px;justify-content:flex-end;margin-top:12px}
+.btnl{display:inline-flex;align-items:center;gap:6px;background:transparent!important;border:0!important;box-shadow:none!important;color:var(--mute);font-size:13px;padding:6px 8px;border-radius:8px}
+.btnl:hover{background:var(--fill)!important;color:var(--ink)}
+.btnl.del:hover{color:var(--bad)}
+/* Sticky outcome bar */
+.ocbar{position:sticky;bottom:-22px;z-index:5;margin:18px -26px -22px;padding:10px 26px 12px;display:flex;align-items:center;gap:12px;background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(14px);backdrop-filter:saturate(1.4) blur(14px);border-top:1px solid var(--line)}
+.ocbar .ocl{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+.ocbar .oc{margin:0;flex:1;display:flex;flex-wrap:wrap;gap:6px}
+.ocbar .oc button{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;font-size:13.5px;border-radius:10px;font-weight:500}
+.ocbar .oc button u{width:8px;height:8px;border-radius:50%;background:var(--oc);display:inline-block;flex:0 0 auto}
+.ocbar .oc button kbd{font-size:10.5px;padding:0 5px;margin-left:2px;opacity:.6}
+.ocbar .oc button:hover{box-shadow:inset 0 0 0 1.5px var(--oc),var(--sh)}
+@media (hover:none){.ocbar .oc button kbd{display:none}}
+/* Empty states */
+.empty2{max-width:340px;margin:10vh auto;padding:20px;text-align:center;color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:6px}
+#list .empty2{margin:28px auto}
+.empty2 .eic{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--accent) 10%,var(--panel));color:var(--accent);margin-bottom:6px}
+.empty2 b{color:var(--ink);font-size:16px;font-weight:600}
+.empty2 p{margin:0 0 8px;font-size:13.5px;line-height:1.45}
+/* Milestone */
+#cele{position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:60;pointer-events:none}
+#cele[hidden]{display:none}
+#cele .cbox{position:relative;display:flex;align-items:center;gap:12px;background:var(--panel);color:var(--ink);padding:12px 18px 12px 12px;border-radius:16px;box-shadow:0 12px 34px rgba(0,30,60,.22);border:1px solid var(--line)}
+#cele .cic{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#F5B544,#F05322);color:#fff}
+#cele .cic svg{fill:currentColor}
+#cele b{display:block;font-size:15px;font-weight:600}#cele span span,#cele div>span{font-size:13px;color:var(--mute)}
+#cele i{position:absolute;left:32px;top:32px;width:6px;height:6px;border-radius:50%;background:var(--c);opacity:0}
+#cele.show .cbox{animation:celeIn .5s cubic-bezier(.2,1.3,.4,1) both}
+#cele.show i{animation:burst .9s ease-out .1s both}
+@keyframes celeIn{from{opacity:0;transform:translateY(-14px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes burst{0%{opacity:1;transform:rotate(var(--a)) translateX(0) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d)) scale(.4)}}
+/* Splash (only when opened from the home screen) */
+#splash{display:none}
+@media (display-mode:standalone){#splash{display:flex;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;background:linear-gradient(160deg,#003660,#004679 60%,#005a92);transition:opacity .4s ease}#splash img{width:180px;animation:fadeUp .5s ease both}}
+#splash.out{opacity:0;pointer-events:none}
+/* Navy behind the iPhone status bar */
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#003660;z-index:30}
+@media (prefers-reduced-motion:reduce){#cele.show .cbox,#cele.show i,#splash img{animation:none}#cele i{display:none}}
+/* Phone */
+@media (max-width:760px) and (hover:none) and (pointer:coarse){
+ .ocbar{bottom:0;margin:16px -12px -28px;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));flex-direction:column;align-items:stretch;gap:6px}
+ .ocbar .ocl{display:none}
+ .ocbar .oc{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:0 -12px;padding:0 12px}
+ .ocbar .oc::-webkit-scrollbar{display:none}
+ .ocbar .oc button{flex:0 0 auto;min-height:44px;justify-content:center;font-size:14px;padding:6px 14px;gap:6px;white-space:nowrap}
+ .av-lg{width:40px;height:40px;font-size:14px}
+ #list .it{padding:11px 12px}
+ .ocx{justify-content:space-between}
+ #cele{top:calc(70px + env(safe-area-inset-top,0px));width:calc(100% - 32px);display:flex;justify-content:center}
+}
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><img src="logo-white.png" alt=""></div>
 <header>
  <h1 class="brand"><img src="logo-white.png" alt="Minerva Technologies"><span class="app">Dialler</span></h1>
  <div class="stat"><span id="stat">No leads yet</span><div class="bar"><i id="prog" style="width:0"></i></div></div>
@@ -751,6 +839,7 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
  <div class="drow"><button class="primary" id="kbok">Got it</button></div>
 </div>
 <div id="toast" hidden></div>
+<div id="cele" hidden role="status" aria-live="polite"></div>
 <script type="text/plain" id="gscode">
 /* Minerva Dialler - Google Sheet sync (version 3)
    1. Paste into the Google Sheet: Extensions > Apps Script (replace everything) and Save.
@@ -1000,6 +1089,7 @@ trash:'<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 
 keyboard:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/>',
 edit:'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
 undo:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>',
+star:'<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>',
 chat:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
 tpl:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
 flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'
@@ -1114,7 +1204,16 @@ function renderList(){
  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.f===S.filter));
  {const hc={};S.rows.forEach(r=>{if(r.h)hc[r.h]=(hc[r.h]||0)+1});document.querySelectorAll('#heatf button').forEach(b=>{const h=b.dataset.hf;b.classList.toggle('on',(S.hf||'')===h);if(h)b.innerHTML='<i></i>'+HEAT[h]+(hc[h]?' <em>'+hc[h]+'</em>':'')})}
  const v=visible();
- $('#list').innerHTML=v.map(r=>'<div class="it'+(r.id===S.last?' on':'')+'" data-id="'+r.id+'">'+(r.done?'<span class="tag">'+esc(r.log.length?r.log[r.log.length-1].o:'Logged')+'</span>':'')+'<b>'+(r.h?'<i class="hdot h-'+r.h+'" title="'+HEAT[r.h]+'"></i>':'')+esc(title(r))+'</b><span>'+esc(sub(r))+'</span>'+(r.fu?'<span class="fub'+(r.fu<=Date.now()?' od':'')+'">'+ic('clock',12)+' '+esc(fuFmt(r.fu))+'</span>':'')+'</div>').join('')||'<p class="mute" style="padding:12px">'+(n?'Nothing here. Switch the filter above.':'Use Import list to start.')+'</p>';
+ const qq=S.q.trim(),hfN=S.hf?HEAT[S.hf]+' ':'',fN={todo:'to call',done:'logged',fu:'with a follow-up',all:''}[S.filter];
+ $('#list').innerHTML=v.map(r=>{const lg=r.log.length?r.log[r.log.length-1]:null,c=ctry(r),ph=val(r,cn('phone')),ct=val(r,cn('contact'));
+  return '<div class="it'+(r.id===S.last?' on':'')+(r.done?' isdone':'')+'" data-id="'+r.id+'">'+avHtml(r)+'<div class="itx"><div class="itr"><b>'+(r.h?'<i class="hdot h-'+r.h+'" title="'+HEAT[r.h]+'"></i>':'')+esc(dispTitle(r))+'</b>'+(lg?'<span class="tag" style="--oc:'+(OCOL[lg.o]||'var(--mute)')+'" title="Last call: '+esc(lg.o)+', '+esc(fmtT(lg.t))+'"><u></u>'+esc(lg.o)+' <em>'+esc(ago(lg.t).replace(' ago',''))+'</em></span>':r.done?'<span class="tag"><u></u>Logged</span>':'')+'</div>'+
+  '<span class="itm">'+(c?'<em class="cty">'+esc(c)+'</em>':'')+esc([ct,ph].filter(Boolean).join(' · '))+'</span>'+(r.fu?'<span class="fub'+(r.fu<=Date.now()?' od':'')+'">'+ic('clock',12)+' '+esc(fuFmt(r.fu))+'</span>':'')+'</div></div>'}).join('')||
+  (!n?emptyHtml('upload','No leads yet','Import your list of accounts to start calling.','<button class="primary" data-impl>Import list</button>')
+  :qq?emptyHtml('search','No leads match “'+esc(qq)+'”','Try part of the company name, a contact or a few digits of the phone number.')
+  :S.hf?emptyHtml('flame','No '+hfN+'leads '+(fN||'here'),'Tag a lead with Hot, Warm or Cold (or press H), or choose <b>Any</b> above.')
+  :S.filter==='todo'?emptyHtml('check','All caught up','Every lead is logged. Check Follow-ups, or import a new list.')
+  :S.filter==='fu'?emptyHtml('clock','No follow-ups scheduled','Set a follow-up date on a lead and it will appear here, soonest first.')
+  :S.filter==='done'?emptyHtml('phone','Nothing logged yet','Calls you log show up here.'):emptyHtml('list','Nothing here','Switch the filter above.'));
 }
 const WIDE_RE=/detail|note|comment|remark|description|discuss|history/i;
 function isWide(c){return c.wide!==undefined?!!c.wide:WIDE_RE.test(c.n)}
@@ -1154,24 +1253,61 @@ function tplList(){return Array.isArray(S.tpl)&&S.tpl.length?S.tpl:TPL_DEFAULT}
 function tplFill(t,r){
  const nc=S.cols.find(c=>c.role!=='company'&&/first\s*name/i.test(c.n))||S.cols.find(c=>c.role!=='company'&&/contact|person|^name$|full\s*name/i.test(c.n));
  const ct=String(val(r,cn('contact'))||(nc?val(r,nc.n):'')||'').trim(),first=ct.replace(/^(mr|mrs|ms|miss|dr|eng|engr)\.?\s+/i,'').split(/\s+/)[0]||'';
- const m={first:first||'Sir/Madam',contact:ct||'Sir/Madam',company:title(r),name:first||'Sir/Madam'};
+ const m={first:first||'Sir/Madam',contact:ct||'Sir/Madam',company:dispTitle(r),name:first||'Sir/Madam'};
  return String(t||'').replace(/\{([^{}]{1,60})\}/g,(x,k)=>{const kk=k.trim().toLowerCase();if(kk in m)return m[kk];const c=S.cols.find(c=>c.n.toLowerCase()===kk);return c?String(val(r,c.n)||''):x});
 }
 function emailOf(r){const c=S.cols.find(c=>/e-?mail/i.test(c.n)&&/@/.test(String(val(r,c.n))))||S.cols.find(c=>/@\S+\.\w/.test(String(val(r,c.n))));return c?(String(val(r,c.n)).match(/[^\s,;<>]+@[^\s,;<>]+\.\w+/)||[''])[0]:''}
 async function copyText(t){try{await navigator.clipboard.writeText(t);return true}catch(x){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(y){}a.remove();return ok}}
+// ---- Display helpers: tidy names, initials, country, field groups ----
+const KEEPUP=new Set('LLC FZE FZCO FZ FZC WLL DMCC JLT JAFZA UAE KSA USA UK GCC MENA EU SPC SAOG SAOC PJSC PSC BSC QSC KSC SAL LLP PLC IT ICT ME HVAC MEP CCTV PTT DMR TETRA LTE RF ABB GE HP IBM DHL ADNOC ENOC DEWA SEWA FEWA ADDC RTA EPC AV PA'.split(' '));
+const SMALLW=new Set(['and','of','the','for','in','on','at','to','by','de','la']);
+function niceName(t){
+ t=String(t||'').trim();const L=t.replace(/[^A-Za-z]/g,'');
+ if(L.length<4||L!==L.toUpperCase())return t;
+ return t.split(/(\s+|[-\/&().,]+)/).map((w,i)=>{if(!/[A-Za-z]/.test(w))return w;const u=w.toUpperCase();
+  if(KEEPUP.has(u))return u;
+  if(i>0&&SMALLW.has(w.toLowerCase()))return w.toLowerCase();
+  if(!/[AEIOUY]/.test(u)&&w.length<=5)return u;
+  if(w.length<=2&&!/^(CO|AL|EL)$/.test(u))return u;
+  return u.charAt(0)+u.slice(1).toLowerCase()}).join('').replace(/\bAl-([a-z])/g,(m,c)=>'Al-'+c.toUpperCase());
+}
+const dispTitle=r=>niceName(title(r));
+const AVSKIP=/^(the|al|el|and|&|co|est|llc|fze|fzco|fzc|wll|ltd|limited|inc|plc|for|of|l\.?l\.?c\.?)$/i;
+function initials(t){const w=String(t||'').replace(/[^\p{L}\p{N}\s&-]/gu,' ').split(/[\s-]+/).filter(x=>x&&!AVSKIP.test(x));const a=w.length?w:String(t||'?').split(/\s+/);return ((a[0]||'?').charAt(0)+(a[1]?a[1].charAt(0):'')).toUpperCase()}
+function hueOf(t){let h=0;t=String(t||'').toLowerCase();for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))>>>0;return [205,190,165,28,350,265,140,220,10,300][h%10]}
+const avHtml=(r,sz)=>{const t=title(r);return '<span class="av'+(sz?' av-'+sz:'')+'" style="--h:'+hueOf(t)+'" aria-hidden="true">'+esc(initials(niceName(t)))+'</span>'};
+const CC=[['971','UAE'],['966','KSA'],['968','Oman'],['974','Qatar'],['973','Bahrain'],['965','Kuwait'],['962','Jordan'],['961','Lebanon'],['964','Iraq'],['967','Yemen'],['963','Syria'],['970','Palestine'],['20','Egypt'],['212','Morocco'],['213','Algeria'],['216','Tunisia'],['218','Libya'],['249','Sudan'],['211','S. Sudan'],['90','Turkey'],['91','India'],['92','Pakistan'],['93','Afghanistan'],['98','Iran'],['94','Sri Lanka'],['880','Bangladesh'],['977','Nepal'],['44','UK'],['1','USA'],['254','Kenya'],['255','Tanzania'],['256','Uganda'],['250','Rwanda'],['260','Zambia'],['263','Zimbabwe'],['258','Mozambique'],['27','S. Africa'],['234','Nigeria'],['233','Ghana'],['251','Ethiopia'],['252','Somalia'],['253','Djibouti'],['291','Eritrea'],['244','Angola'],['243','DR Congo'],['86','China'],['852','Hong Kong'],['65','Singapore'],['60','Malaysia'],['62','Indonesia'],['63','Philippines'],['66','Thailand'],['84','Vietnam'],['82','S. Korea'],['81','Japan'],['61','Australia'],['49','Germany'],['33','France'],['39','Italy'],['34','Spain'],['31','Netherlands'],['32','Belgium'],['41','Switzerland'],['46','Sweden'],['47','Norway'],['45','Denmark'],['48','Poland'],['30','Greece'],['357','Cyprus'],['7','Russia'],['380','Ukraine'],['994','Azerbaijan'],['995','Georgia'],['374','Armenia'],['998','Uzbekistan'],['993','Turkmenistan'],['992','Tajikistan'],['996','Kyrgyzstan'],['76','Kazakhstan'],['77','Kazakhstan']].sort((a,b)=>b[0].length-a[0].length);
+const CNAME={'united arab emirates':'UAE','u a e':'UAE','uae':'UAE','the united arab emirates':'UAE','emirates':'UAE','dubai':'UAE','abu dhabi':'UAE','sharjah':'UAE','sultanate of oman':'Oman','state of qatar':'Qatar','kingdom of bahrain':'Bahrain','state of kuwait':'Kuwait','democratic republic of the congo':'DR Congo','saudi':'KSA','saudi arabia':'KSA','kingdom of saudi arabia':'KSA','ksa':'KSA','united kingdom':'UK','united states':'USA','united states of america':'USA','south africa':'S. Africa'};
+function ctry(r){
+ const cc=S.cols.find(c=>/country/i.test(c.n)&&String(val(r,c.n)).trim());
+ if(cc){const v=String(val(r,cc.n)).trim();const k=v.toLowerCase().replace(/[^a-z]+/g,' ').trim();return CNAME[k]||CNAME[k.replace(/ /g,'')]||(v.length>12?v.slice(0,11)+'.':v)}
+ let t=String(val(r,cn('phone'))||'').split(/[\/,;]| or /i)[0].replace(/\(\s*0\s*\)/g,'').trim();
+ if(!/\d/.test(t))return '';const plus=/^\s*(\+|00)/.test(t);let d=t.replace(/\D/g,'');
+ if(plus){if(d.startsWith('00'))d=d.slice(2);const m=CC.find(x=>d.startsWith(x[0]));return m?m[1]:''}
+ if(/^0\d{8,9}$/.test(d)||/^5\d{8}$/.test(d))return 'UAE';
+ if(/^9715|^9714|^9712|^9716|^9717|^9719|^9713/.test(d)&&d.length>=11)return 'UAE';
+ return '';
+}
+const FGROUPS=[['c','Contact'],['e','Enquiry'],['r','Record']];
+const GRP_R=/updated|modified|created|owner|assigned|^id$|lead\s*id|record|source|stage|closure|closed|deal\s*id|quot(e|ation)\s*(no|number|id|#)/i;
+const GRP_C=/e-?mail|phone|mobile|\btel\b|whatsapp|contact|person|first\s*name|last\s*name|full\s*name|^name$|designation|position|job|^title$|web|site|url|linkedin|city|country|location|address|company|account|organi[sz]ation|customer|client/i;
+function grpOf(c){if(c.grp)return c.grp;if(c.role)return 'c';if(GRP_R.test(c.n))return 'r';if(isWide(c))return 'e';if(GRP_C.test(c.n))return 'c';return 'e'}
+const EMPTY_IC={check:'<path d="M20 6 9 17l-5-5"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'};
+function emptyHtml(icon,head,text,btn){return '<div class="empty2"><span class="eic">'+(EMPTY_IC[icon]?'<svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+EMPTY_IC[icon]+'</svg>':ic(icon,26))+'</span><b>'+head+'</b><p>'+text+'</p>'+(btn||'')+'</div>'}
 const QN_DEFAULT=['GK answered','Email sent','No requirement now','Asked for a quote','Call back later','Sent brochure','Not the decision maker','Wrong contact'];
 function qnList(){return Array.isArray(S.qn)&&S.qn.length?S.qn:QN_DEFAULT}
 function renderCard(){
  const r=byId(S.last),c=$('#card'),m=$('#main');
  m.dataset.view=S.view;
- if(!r){c.innerHTML='<div class="empty"><h2>'+(S.rows.length?'All leads logged':'Import your leads')+'</h2><p>'+(S.rows.length?'Switch to Logged or All to review them, or import a new sheet.':'Choose a CSV or Excel file with your accounts and contacts. Every column comes in, and you pick which ones show here.')+'</p>'+(S.rows.length?'':'<p><button class="primary" data-impl>Import list</button></p>')+'</div>';return}
+ if(!r){c.innerHTML=S.rows.length?emptyHtml('check','All leads logged','Nice work. Switch to Logged or All to review them, or import a new list.','<button class="primary" data-impl>Import list</button>'):emptyHtml('upload','Import your leads','Choose a CSV or Excel file with your accounts and contacts. Every column comes in, and you pick which ones show.','<button class="primary" data-impl>Import list</button>');return}
  const ph=val(r,cn('phone')),tel=dialNum(ph),wa=waNum(ph);
  c.innerHTML='<div class="ctop"><button class="back" data-back>'+ic('back',16)+' Leads</button>'+(cn('company')?'':'<p class="warnb">No column is set as Company, so exports show the contact name instead. <button data-fields>Choose Company column</button></p>')+
- '<div class="ch"><div><h2 id="hd">'+esc(title(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p><div class="heat" role="group" aria-label="Lead temperature">'+Object.keys(HEAT).map(h=>'<button type="button" class="h-'+h+(r.h===h?' on':'')+'" data-heat="'+h+'" aria-pressed="'+(r.h===h)+'" title="'+(r.h===h?'Clear the tag':'Mark as '+HEAT[h])+' (shortcut: H)"><i></i>'+HEAT[h]+'</button>').join('')+'</div></div><div class="chr">'+cpAllBtn()+(wa?'<a class="wa" href="'+(FINE.matches?'whatsapp://send?phone='+wa:'https://wa.me/'+wa)+'"'+(FINE.matches?'':' target="_blank" rel="noopener"')+' title="Open a WhatsApp chat with +'+wa+' (shortcut: W)">'+ic('chat',17)+' WhatsApp</a>':'')+(tel?'<a class="dial" href="tel:'+esc(tel)+'" title="Dials '+esc(tel)+' (shortcut: C)">'+ic('phone',18)+' Call '+esc(tel)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+
- '<div class="fields">'+S.cols.filter(x=>x.show).map(x=>{const v=val(r,x.n),wd=isWide(x),long=wd||String(v).length>60,pk=(S.pick||[]).includes(x.n);return '<label class="'+(wd?'wide':'')+(pk?' picked':'')+'" data-ci="'+S.cols.indexOf(x)+'"><button type="button" class="hide pbtn'+(pk?' on':'')+'" data-pick="'+esc(x.n)+'" aria-pressed="'+pk+'" title="'+(pk?'Remove from Copy selected':'Add to Copy selected')+'" aria-label="Select '+esc(x.n)+' for Copy selected">'+(pk?'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>')+'</button><button type="button" class="hide wbtn" data-wide="'+S.cols.indexOf(x)+'" title="'+(wd?'Make this box narrower':'Make this box full width')+'" aria-label="Toggle width of '+esc(x.n)+'">'+(wd?ic('shrink',14):ic('expand',14))+'</button><button type="button" class="hide" data-hide="'+S.cols.indexOf(x)+'" title="Hide this field (also removes it from the Excel export)" aria-label="Hide '+esc(x.n)+'">'+ic('x',14)+'</button><span class="grip" title="Drag to move this box"><span class="gd">'+ic('grip',12)+'</span>'+esc(x.n)+'</span>'+'<div class="fw'+(long?' ta':'')+'">'+(long?'<textarea rows="3" data-f="'+esc(x.n)+'">'+esc(v)+'</textarea>':'<input data-f="'+esc(x.n)+'" value="'+esc(v)+'">')+'<button type="button" class="cpy" data-copy title="Copy '+esc(x.n)+'" aria-label="Copy '+esc(x.n)+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>'+'</label>'}).join('')+'</div>'+
+ '<div class="ch"><div class="chl">'+avHtml(r,'lg')+'<div><h2 id="hd" title="'+esc(title(r))+'">'+esc(dispTitle(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p><div class="heat" role="group" aria-label="Lead temperature">'+Object.keys(HEAT).map(h=>'<button type="button" class="h-'+h+(r.h===h?' on':'')+'" data-heat="'+h+'" aria-pressed="'+(r.h===h)+'" title="'+(r.h===h?'Clear the tag':'Mark as '+HEAT[h])+' (shortcut: H)"><i></i>'+HEAT[h]+'</button>').join('')+'</div></div></div><div class="chr">'+cpAllBtn()+(wa?'<a class="wa" href="'+(FINE.matches?'whatsapp://send?phone='+wa:'https://wa.me/'+wa)+'"'+(FINE.matches?'':' target="_blank" rel="noopener"')+' title="Open a WhatsApp chat with +'+wa+' (shortcut: W)">'+ic('chat',17)+' WhatsApp</a>':'')+(tel?'<a class="dial" href="tel:'+esc(tel)+'" title="Dials '+esc(tel)+' (shortcut: C)">'+ic('phone',18)+' Call '+esc(tel)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+
+ FGROUPS.map(g=>{const cs=S.cols.filter(x=>x.show&&grpOf(x)===g[0]);return cs.length?'<section class="fgrp g-'+g[0]+'"><h4 class="fgh">'+g[1]+'</h4><div class="fields">'+cs.map(x=>{const v=val(r,x.n),wd=isWide(x),long=wd||String(v).length>60,pk=(S.pick||[]).includes(x.n);return '<label class="'+(wd?'wide':'')+(pk?' picked':'')+'" data-ci="'+S.cols.indexOf(x)+'"><button type="button" class="hide pbtn'+(pk?' on':'')+'" data-pick="'+esc(x.n)+'" aria-pressed="'+pk+'" title="'+(pk?'Remove from Copy selected':'Add to Copy selected')+'" aria-label="Select '+esc(x.n)+' for Copy selected">'+(pk?'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>')+'</button><button type="button" class="hide wbtn" data-wide="'+S.cols.indexOf(x)+'" title="'+(wd?'Make this box narrower':'Make this box full width')+'" aria-label="Toggle width of '+esc(x.n)+'">'+(wd?ic('shrink',14):ic('expand',14))+'</button><button type="button" class="hide" data-hide="'+S.cols.indexOf(x)+'" title="Hide this field (also removes it from the Excel export)" aria-label="Hide '+esc(x.n)+'">'+ic('x',14)+'</button><span class="grip" title="Drag to move this box"><span class="gd">'+ic('grip',12)+'</span>'+esc(x.n)+'</span>'+'<div class="fw'+(long?' ta':'')+'">'+(long?'<textarea rows="3" data-f="'+esc(x.n)+'">'+esc(v)+'</textarea>':'<input data-f="'+esc(x.n)+'" value="'+esc(v)+'">')+'<button type="button" class="cpy" data-copy title="Copy '+esc(x.n)+'" aria-label="Copy '+esc(x.n)+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>'+'</label>'}).join('')+'</div></section>':''}).join('')+
  addBoxHtml()+'<div class="log"><h3>Previous dealings with '+esc(title(r))+'</h3>'+histHtml(r)+'<div class="embar"><button type="button" class="embtn" data-em>'+ic('mail',15)+' Log email reply</button><button type="button" class="embtn" data-tpl title="Copy a ready-made email for this lead (shortcut: M)">'+ic('tpl',15)+' Email templates</button></div>'+
 '<h3 style="margin-top:16px">'+(r.done?'Logged. Add notes or call again':'Live call notes')+'</h3><textarea id="note" rows="6" placeholder="Type what is said, names, numbers, quantities, extensions...">'+esc(r.draft||'')+'</textarea><div class="qn">'+qnList().map((p,i)=>'<button type="button" class="qnb" data-qn="'+i+'">'+esc(p)+'</button>').join('')+'<button type="button" class="qnb qne" data-qnedit title="Edit quick notes" aria-label="Edit quick notes">'+ic('edit',13)+'</button></div><p class="draftmsg">Saved as you type. Pressing an outcome logs these notes to the report and loads the next lead.</p>'+fuHtml(r)+
-'<div class="oc">'+OUT.map(o=>'<button data-o="'+o+'">'+o+'</button>').join('')+(r.done?'<button data-reopen>Put back in To call</button>':'')+'<button class="del" data-delete>Delete lead</button></div></div>';
+'<div class="ocx">'+(r.done?'<button type="button" class="btnl" data-reopen>'+ic('undo',14)+' Put back in To call</button>':'')+'<button type="button" class="btnl del" data-delete>'+ic('trash',14)+' Delete lead</button></div></div>'+
+'<div class="ocbar"><span class="ocl">Log outcome</span><div class="oc">'+OUT.map((o,i)=>'<button data-o="'+o+'" style="--oc:'+OCOL[o]+'" title="'+o+' (shortcut: '+(i+1)+')"><u></u>'+o+'<kbd>'+(i+1)+'</kbd></button>').join('')+'</div></div>';
  fitAll();
 }
 let _lastCard=null;
@@ -1198,8 +1334,25 @@ function logCall(o){
  toast('Logged "'+o+'" for '+title(r)+(nx?'':'. That was the last one'),{fn:()=>{const x=byId(r.id);if(!x)return;
   x.log=x.log.filter(l=>l!==entry);x.dl=(x.dl||[]).concat(entry.t+'|'+entry.o);x.done=prev.done;x.fu=prev.fu;x.fun=prev.fun;x.draft=noteNow;
   S.last=x.id;S.view='card';save();render();toast('Undone. Back on '+title(x))}});
+ milestone(nx);
 }
-$('#list').onclick=e=>{const i=e.target.closest('.it');if(i)select(+i.dataset.id,'card')};
+(function(){const sp=$('#splash');if(!sp)return;const go=()=>{sp.classList.add('out');setTimeout(()=>sp.remove(),450)};if(document.readyState==='complete')setTimeout(go,250);else addEventListener('load',()=>setTimeout(go,250));setTimeout(go,2500)})();
+const MSK='minerva-dialler-ms',MS_AT=[10,25,50,75,100,150,200,300];
+function milestone(nx){
+ let st={};try{st=JSON.parse(localStorage.getItem(MSK)||'{}')}catch(e){}
+ const day=new Date().toDateString();if(st.day!==day)st={day,hit:[]};
+ const t0=new Date();t0.setHours(0,0,0,0);const n=S.rows.reduce((a,r)=>a+r.log.filter(l=>l.t>=+t0).length,0);
+ let msg=null;
+ if(!nx&&S.rows.length&&!st.done){st.done=1;msg=['List done!','Every lead is logged. Great work.']}
+ else{const m=MS_AT.filter(x=>n>=x&&!st.hit.includes(x)).pop();if(m){MS_AT.filter(x=>x<=m).forEach(x=>{if(!st.hit.includes(x))st.hit.push(x)});const sp=S.rows.reduce((a,r)=>a+r.log.filter(l=>l.t>=+t0&&l.o==='Spoke').length,0);msg=[m+' calls today',sp+' conversation'+(sp===1?'':'s')+' so far. Keep going!']}}
+ try{localStorage.setItem(MSK,JSON.stringify(st))}catch(e){}
+ if(msg)celebrate(msg[0],msg[1]);
+}
+function celebrate(h,t){
+ const el=$('#cele');el.innerHTML='<div class="cbox"><span class="cic">'+ic('star',22)+'</span><div><b>'+esc(h)+'</b><span>'+esc(t)+'</span></div>'+Array.from({length:14},(_,i)=>'<i style="--a:'+(i*360/14)+'deg;--d:'+(40+(i%3)*14)+'px;--c:'+['var(--c-ok)','var(--cy,#00B7ED)','#F05322','var(--c-cb)'][i%4]+'"></i>').join('')+'</div>';
+ el.hidden=false;animIn(el,'show');clearTimeout(el._t);el._t=setTimeout(()=>{el.hidden=true},3600);
+}
+$('#list').onclick=e=>{if(e.target.closest('[data-impl]')){$('#file3').click();return}const i=e.target.closest('.it');if(i)select(+i.dataset.id,'card')};
 $('#card').onclick=async e=>{
  if(e.target.closest('[data-em]')){openEmail(S.last);return}
  if(e.target.closest('[data-tpl]')){openTpl();return}
@@ -1252,7 +1405,7 @@ $('#card').oninput=e=>{
  if(e.target.id==='note'){const rr=byId(S.last);if(rr){rr.draft=e.target.value;save()}return}
  const f=e.target.dataset.f,r=byId(S.last);if(!f||!r)return;
  r.f[f]=e.target.value;save();if(e.target.tagName==='TEXTAREA')fit(e.target);
- $('#hd').textContent=title(r);$('#hs').textContent=val(r,cn('contact'));
+ $('#hd').textContent=dispTitle(r);$('#hs').textContent=val(r,cn('contact'));
 };
 $('#card').onchange=e=>{if(e.target.id==='fud'||e.target.id==='fut'){if($('#fud').value)fuFromInputs();return}renderList()};
 $('#q').oninput=e=>{S.q=e.target.value;renderList()};
@@ -1332,7 +1485,7 @@ const OCOL={Spoke:'var(--c-ok)','No answer':'var(--c-na)','Call back':'var(--c-c
 function ago(t){const m=Math.round((Date.now()-t)/60000);if(m<1)return 'just now';if(m<60)return m+'m ago';const h=Math.round(m/60);if(h<24)return h+'h ago';return Math.round(h/24)+'d ago'}
 function renderDash(){
  const el=$('#dash');
- if(!S.rows.length){el.innerHTML='<div class="empty"><h2>No data yet</h2><p>Import your leads and log some calls. Your dashboard fills in as you go.</p></div>';return}
+ if(!S.rows.length){el.innerHTML=emptyHtml('report','No data yet','Import your leads and log some calls. Your dashboard fills in as you go.');return}
  const all=S.rows.flatMap(r=>r.log.map(l=>({r,l}))).sort((a,b)=>b.l.t-a.l.t);
  const n=S.rows.length,logged=S.rows.filter(r=>r.done).length,left=n-logged,pct=Math.round(100*logged/n);
  const by={};OUT.forEach(o=>by[o]=0);all.forEach(x=>by[x.l.o]=(by[x.l.o]||0)+1);
@@ -1715,7 +1868,7 @@ cd.addEventListener('mousedown',e=>{const g=e.target.closest('.grip');if(g)g.clo
 cd.addEventListener('dragstart',e=>{const l=e.target.closest&&e.target.closest('label[data-ci]');if(!l)return;DRAG=+l.dataset.ci;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(DRAG));l.classList.add('drag')});
 cd.addEventListener('dragover',e=>{const l=e.target.closest('label[data-ci]');if(l&&DRAG!=null){e.preventDefault();document.querySelectorAll('.over').forEach(x=>x.classList.remove('over'));l.classList.add('over')}});
 cd.addEventListener('drop',e=>{const l=e.target.closest('label[data-ci]');if(!l||DRAG==null)return;e.preventDefault();
- const a=S.cols[DRAG],b=S.cols[+l.dataset.ci];if(a!==b){S.cols.splice(DRAG,1);S.cols.splice(S.cols.indexOf(b)+(DRAG<+l.dataset.ci?1:0),0,a);save()}DRAG=null;renderCard()});
+ const a=S.cols[DRAG],b=S.cols[+l.dataset.ci];if(a!==b&&grpOf(a)!==grpOf(b))a.grp=grpOf(b);if(a!==b){S.cols.splice(DRAG,1);S.cols.splice(S.cols.indexOf(b)+(DRAG<+l.dataset.ci?1:0),0,a);save()}DRAG=null;renderCard()});
 cd.addEventListener('dragend',()=>{DRAG=null;renderCard()});
 function renderCols(){
  $('#colist').innerHTML=S.cols.map((c,i)=>'<div class="cr"><label><input type="checkbox" data-show="'+i+'"'+(c.show?' checked':'')+'> '+esc(c.n)+'</label><select data-role="'+i+'">'+[['','Other'],['company','Company'],['contact','Contact'],['phone','Phone']].map(o=>'<option value="'+o[0]+'"'+((c.role||'')===o[0]?' selected':'')+'>'+o[1]+'</option>').join('')+'</select><button data-del="'+i+'" title="Delete field" aria-label="Delete field">&times;</button></div>').join('')||'<p class="mute">Import a sheet to see its fields.</p>';
