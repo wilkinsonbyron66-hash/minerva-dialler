@@ -674,7 +674,7 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
 @keyframes burst{0%{opacity:1;transform:rotate(var(--a)) translateX(0) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d)) scale(.4)}}
 /* Splash (only when opened from the home screen) */
 #splash{display:none}
-@media (display-mode:standalone){#splash{display:flex;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;background:linear-gradient(160deg,#003660,#004679 60%,#005a92);transition:opacity .4s ease}#splash img{width:180px;animation:fadeUp .5s ease both}}
+@media (display-mode:standalone){#splash{display:flex;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;background:linear-gradient(160deg,#003660,#004679 60%,#005a92);transition:opacity .6s ease}#splash img{width:200px;animation:fadeUp .7s ease both}}
 #splash.out{opacity:0;pointer-events:none}
 /* Navy behind the iPhone status bar */
 body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#003660;z-index:30}
@@ -1336,7 +1336,7 @@ function logCall(o){
   S.last=x.id;S.view='card';save();render();toast('Undone. Back on '+title(x))}});
  milestone(nx);
 }
-(function(){const sp=$('#splash');if(!sp)return;const go=()=>{sp.classList.add('out');setTimeout(()=>sp.remove(),450)};if(document.readyState==='complete')setTimeout(go,250);else addEventListener('load',()=>setTimeout(go,250));setTimeout(go,2500)})();
+(function(){const sp=$('#splash');if(!sp)return;let done=false;const go=()=>{if(done)return;done=true;sp.classList.add('out');setTimeout(()=>sp.remove(),700)};const wait=()=>setTimeout(go,Math.max(0,1600-performance.now()));if(document.readyState==='complete')wait();else addEventListener('load',wait);setTimeout(go,4000)})();
 const MSK='minerva-dialler-ms',MS_AT=[10,25,50,75,100,150,200,300];
 function milestone(nx){
  let st={};try{st=JSON.parse(localStorage.getItem(MSK)||'{}')}catch(e){}
