@@ -698,6 +698,72 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
  .ocx{justify-content:space-between}
  #cele{top:calc(70px + env(safe-area-inset-top,0px));width:calc(100% - 32px);display:flex;justify-content:center}
 }
+
+/* ===== Phone redesign: native-app layout ===== */
+#resume2 .rico{display:none}
+@media (max-width:760px) and (hover:none) and (pointer:coarse){
+ /* Top bar: one slim row */
+ #tabs{flex-wrap:nowrap!important;gap:8px!important;padding:calc(6px + env(safe-area-inset-top)) 12px 8px!important;align-items:center}
+ #tabs .navlogo{height:17px;flex:0 0 auto;order:0}
+ #tabs .segtabs{order:1!important;flex:1 1 auto!important;max-width:200px;margin:0 auto;padding:2px}
+ #tabs .segtabs button{padding:6px 4px!important;font-size:13.5px!important;min-width:0}
+ #tabs .nprog{display:none!important}
+ #tabs .tright{order:2!important;gap:5px!important;margin:0;padding:0!important;flex:0 0 auto}
+ #tabs .tright button{width:36px;height:36px;padding:0!important;display:inline-flex!important;align-items:center;justify-content:center;border-radius:10px;font-size:15px!important}
+ #tabs .tright #resume2{display:inline-flex!important;width:36px}
+ #resume2 .rl{display:none}#resume2 .rico{display:inline-flex}
+ #tabs .tright #thbtn,#tabs .tright #hdrtoggle,#tabs .tright #fudue,#navmenu .ml{display:none!important}
+ #tabs .segtabs{min-width:0;overflow:hidden}
+ #tabs .segtabs button{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ /* Lead header */
+ #card{padding:0 14px calc(128px + env(safe-area-inset-bottom))!important}
+ .ctop{display:flex;flex-wrap:wrap;align-items:flex-start;gap:8px 10px;margin:0 -14px!important;padding:10px 14px 12px!important}
+ .ctop .ch{display:contents}
+ .ctop .back{order:0;width:34px;height:34px;padding:0!important;margin:2px 0 0!important;display:inline-flex!important;align-items:center;justify-content:center;font-size:0!important;border-radius:50%;flex:0 0 auto}
+ .ctop .back svg{width:20px;height:20px}
+ .chl{order:1;flex:1 1 0;min-width:0;gap:10px;align-items:flex-start}
+ .chl .av-lg{width:34px;height:34px;font-size:12.5px;margin-top:2px}
+ .chl h2{font-size:17px!important;line-height:1.25;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+ .chl #hs{display:none}
+ .chl .heat{margin-top:6px;gap:5px}
+ .chl .heat button{padding:3px 10px!important;font-size:12px!important}
+ .ctop .warnb{order:3;flex-basis:100%}
+ .chr{order:2;flex:1 1 100%;display:flex;gap:8px;flex-wrap:nowrap!important;width:100%}
+ .chr .cpall{display:none!important}
+ .chr .dial{order:1;flex:1;min-width:0;min-height:48px;display:flex!important;align-items:center;justify-content:center;gap:8px;font-size:17px!important;padding:0 12px!important;border-radius:14px!important;white-space:nowrap}
+ .chr .wa{order:2;flex:0 0 52px!important;width:52px;min-height:48px;padding:0!important;justify-content:center;font-size:0!important;border-radius:14px!important}
+ .chr .wa svg{width:22px;height:22px}
+ .chr .nophone{order:1;flex:1;text-align:center;padding:12px}
+ /* Order: enquiry, then notes, then contact & record details */
+ .fgrp.g-e{order:1}.log{order:2}.fgrp.g-c{order:3}.fgrp.g-r{order:4}.addbox{order:5}
+ /* Boxes as an iOS grouped list */
+ .fgrp{margin:14px 0 0!important;opacity:1!important}
+ .fgh{margin:0 4px 6px!important;font-size:12px!important}
+ #card .fields{display:block!important;margin:0!important;background:var(--panel);border-radius:14px;overflow:hidden;box-shadow:var(--sh);border:1px solid var(--line)}
+ #card .fields label{display:flex!important;flex-direction:column;gap:1px!important;padding:9px 14px 9px!important;margin:0!important;border-bottom:1px solid var(--line);font-size:12px!important;outline:0!important}
+ #card .fields label:last-child{border-bottom:0}
+ #card .fields label .hide,#card .fields label .gd{display:none!important}
+ #card .fields label .grip{padding-right:0!important;color:var(--mute)}
+ #card .fields input,#card .fields textarea{border:0!important;background:transparent!important;box-shadow:none!important;padding:2px 40px 2px 0!important;border-radius:0!important;color:var(--ink)!important;font-size:16px!important;min-height:0}
+ #card .fields textarea{line-height:1.4}
+ #card .fields .cpy{right:-6px!important;opacity:.7!important}
+ #card .fields .fw.ta .cpy{top:0!important}
+ .fgrp.g-r .fields input,.fgrp.g-r .fields textarea{color:var(--mute)!important;font-size:15px!important}
+ .addbox{margin-top:12px}
+ /* Notes area */
+ .log{margin-top:16px!important}
+ .log h3{font-size:15px}
+ #note{border-radius:14px!important;min-height:110px}
+ .qn{gap:6px}
+ .ocx{margin-top:10px}
+ /* Outcome bar pinned to the bottom of the screen */
+ .ocbar{position:fixed!important;left:0;right:0;bottom:0!important;margin:0!important;z-index:12;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px))!important;background:color-mix(in srgb,var(--panel) 94%,transparent)!important;border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(0,30,60,.06)}
+ .ocbar .oc{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px!important;margin:0!important;padding:0!important;overflow:visible!important}
+ .ocbar .oc button{min-height:42px!important;font-size:13.5px!important;padding:4px 5px!important;justify-content:center;gap:5px;border-radius:12px!important;white-space:nowrap;overflow:hidden;min-width:0}
+ #toast{bottom:calc(122px + env(safe-area-inset-bottom,0px))!important}
+ main[data-view=list] ~ #toast{bottom:calc(16px + env(safe-area-inset-bottom,0px))!important}
+}
+@media (max-width:380px) and (hover:none) and (pointer:coarse){.ocbar .oc button{font-size:12px!important;gap:4px!important}.ocbar .oc button u{width:6px!important;height:6px!important}#tabs .navlogo{height:14px}#tabs .segtabs button{font-size:12.5px!important}#tabs .tright button{width:33px!important}}
 </style>
 </head>
 <body>
@@ -1097,6 +1163,7 @@ trash:'<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 
 keyboard:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/>',
 edit:'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
 undo:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>',
+play:'<path d="M7 4.5v15l12.5-7.5z"/>',
 star:'<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>',
 chat:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
 tpl:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
@@ -1943,13 +2010,13 @@ const THK='minerva-dialler-theme',THS=['auto','light','dark'],THI={auto:ic('auto
 function applyTheme(t){if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme');const b=$('#thbtn');if(b){b.innerHTML=THI[t]||THI.auto;b.title='Theme: '+(THL[t]||THL.auto)+'. Click to change'}}
 let THEME='auto';try{THEME=localStorage.getItem(THK)||'auto'}catch(e){}
 applyTheme(THEME);
-$('#navmenu').innerHTML=ic('menu',17)+'<span class="ml"> Menu</span>';$('#elnew').innerHTML=ic('mail',15)+' Log new reply';$('#kbic').innerHTML=ic('keyboard',18);
+$('#navmenu').innerHTML=ic('menu',17)+'<span class="ml"> Menu</span>';$('#resume2').innerHTML='<span class="rico">'+ic('play',15)+'</span><span class="rl">Resume</span>';$('#elnew').innerHTML=ic('mail',15)+' Log new reply';$('#kbic').innerHTML=ic('keyboard',18);
 (function(){let seen=false;try{seen=!!localStorage.getItem(KBK)}catch(e){}if(!seen&&FINE.matches)setTimeout(()=>{if(S.rows.length&&!OVL.some(id=>{const el=$(id);return el&&!el.hidden}))showKb()},1500)})();
 $('#thbtn').onclick=()=>{THEME=THS[(THS.indexOf(THEME)+1)%3];try{localStorage.setItem(THK,THEME)}catch(e){}applyTheme(THEME);toast('Theme: '+THL[THEME])};
 
 // ---- Phone layout: menu sheet, no pinch zoom ----
-const MENU=[['Leads',['addlead','impl','imp','addcols','colbtn']],['Emails',['emglobal','elogbtn']],['Reports',['srbtn','repbtn','exp']],['Data',['bkp','rst','inst','reset']],['Help',['kbbtn']]];
-const MENUIC={addlead:'plus',impl:'upload',imp:'refresh',addcols:'columns',colbtn:'sliders',emglobal:'mail',elogbtn:'inbox',srbtn:'report',repbtn:'list',exp:'sheet',bkp:'save',rst:'restore',inst:'install',reset:'trash',kbbtn:'keyboard'};
+const MENU=[['Leads',['addlead','impl','imp','addcols','colbtn']],['Emails',['emglobal','elogbtn']],['Reports',['srbtn','repbtn','exp']],['Data',['bkp','rst','inst','reset']],['Help',['thbtn','kbbtn']]];
+const MENUIC={addlead:'plus',impl:'upload',imp:'refresh',addcols:'columns',colbtn:'sliders',emglobal:'mail',elogbtn:'inbox',srbtn:'report',repbtn:'list',exp:'sheet',bkp:'save',rst:'restore',inst:'install',reset:'trash',kbbtn:'keyboard',thbtn:'sun'};
 function syncCard(){
  if(!G.url)return '<button class="msync bad" data-m="gsync">'+ic('alert',18)+'<span><b>Not backed up to Google</b><em>Your data is only on this device. Tap to set up backup.</em></span></button>';
  const old=G.last&&Date.now()-G.last>864e5,cls=gState==='err'?'bad':(gState==='wait'||gState==='busy'||old)?'warn':'ok';
@@ -1958,7 +2025,7 @@ function syncCard(){
  return '<button class="msync '+cls+'" data-m="gsync">'+ic(cls==='ok'?'cloud':'alert',18)+'<span><b>'+head+'</b><em>'+sub+'</em></span></button>';
 }
 function openMenu(){
- $('#mgrid').innerHTML=syncCard()+MENU.map(([h,ids])=>{const bs=ids.map(id=>{const b=document.getElementById(id);if(!b||b.hidden||(id==='kbbtn'&&!FINE.matches))return '';return '<button data-m="'+id+'" class="'+(b.classList.contains('danger')?'danger':'')+'">'+ic(MENUIC[id]||'list',16)+'<span>'+esc(b.textContent.trim().replace(/^\+\s*Lead$/,'New lead'))+'</span></button>'}).join('');return bs?'<div class="mh">'+h+'</div>'+bs:''}).join('');
+ $('#mgrid').innerHTML=syncCard()+MENU.map(([h,ids])=>{const bs=ids.map(id=>{const b=document.getElementById(id);if(!b||b.hidden||(id==='kbbtn'&&!FINE.matches)||(id==='thbtn'&&FINE.matches))return '';return '<button data-m="'+id+'" class="'+(b.classList.contains('danger')?'danger':'')+'">'+ic(MENUIC[id]||'list',16)+'<span>'+esc(id==='thbtn'?'Theme: '+(THL[THEME]||'Auto').replace(' (follows your browser)',''):b.textContent.trim().replace(/^\+\s*Lead$/,'New lead'))+'</span></button>'}).join('');return bs?'<div class="mh">'+h+'</div>'+bs:''}).join('');
  $('#msheet').hidden=false;
 }
 $('#morebtn').onclick=openMenu;$('#navmenu').onclick=openMenu;
