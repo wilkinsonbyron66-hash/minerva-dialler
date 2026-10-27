@@ -512,6 +512,46 @@ button:active:not([disabled]),.dial:active,.btnlink:active{transform:scale(.95)}
 @media (max-width:760px) and (hover:none) and (pointer:coarse){#msheet:not([hidden]) .mbox{animation:sheetUp .22s cubic-bezier(.2,.8,.3,1) both}#toast:not([hidden]){animation:fadeUp .18s ease both}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
+/* ===== Icons, calmer boxes, undo, quick notes, shortcuts ===== */
+.ic{display:inline-block;vertical-align:-3px;flex:0 0 auto}
+button:has(>.ic),.dial,.btnlink,.back{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+#tabs .tright #gsync,#tabs .tright #thbtn,#tabs .tright #navmenu{display:inline-flex;align-items:center;gap:6px}
+.mgrid button{display:flex;align-items:center;gap:11px;justify-content:flex-start}
+.mgrid button .ic{opacity:.75}
+.mgrid button:hover .ic{opacity:1}
+.hist b.co .ic{vertical-align:-2px}
+.fields label .grip{display:flex;align-items:center;gap:4px}
+.fields label .gd{display:inline-flex;opacity:0;transition:opacity .15s;cursor:grab}
+.fields label .hide{opacity:0;transition:opacity .15s,color .15s;display:inline-flex;align-items:center}
+.fields label .cpy{opacity:.4;transition:opacity .15s,background .15s}
+.fields label:hover .hide,.fields label:hover .gd,.fields label:focus-within .hide,.fields label:focus-within .gd,.fields .pbtn.on{opacity:1}
+.fields label:hover .cpy,.fields label:focus-within .cpy{opacity:1}
+@media (hover:none){.fields label .hide,.fields label .gd{opacity:.5}.fields .pbtn.on{opacity:1}.fields label .cpy{opacity:.85}}
+#toast{display:flex;align-items:center;gap:12px}
+#toast[hidden]{display:none}
+#toast .tact{background:rgba(255,255,255,.16);color:#fff;border:0;border-radius:8px;padding:5px 10px;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:5px}
+#toast .tact:hover{background:rgba(255,255,255,.28)}
+.qn{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.qnb{font-size:12.5px;padding:5px 10px;border-radius:999px;background:var(--fill);color:var(--ink);font-weight:500}
+.qnb:hover{background:var(--fill2)}
+.qnb.ok{background:var(--sel);color:var(--accent)}
+.qne{padding:5px 8px;color:var(--mute);background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+#qnp{position:fixed;inset:0;background:rgba(0,20,35,.4);z-index:15;display:flex;align-items:center;justify-content:center;padding:16px}
+#qnp[hidden]{display:none}
+#qnp .srbox{max-width:460px}
+#qntext{width:100%;min-height:200px;font:inherit;padding:8px 10px;border:0;border-radius:9px;background:var(--fill);color:var(--ink);resize:vertical}
+#qnp:not([hidden]) .srbox{animation:popIn .2s cubic-bezier(.2,.8,.3,1) both}
+#kbtip{position:fixed;right:18px;bottom:18px;z-index:13;width:min(420px,calc(100vw - 36px));background:var(--panel);color:var(--ink);border-radius:16px;padding:16px 18px;box-shadow:0 18px 50px rgba(0,0,0,.25),0 0 0 1px var(--line);animation:popIn .25s cubic-bezier(.2,.8,.3,1) both}
+#kbtip[hidden]{display:none}
+#kbtip .kbh{display:flex;align-items:center;gap:9px;font-size:16px;margin-bottom:12px;color:var(--accent)}
+#kbtip .kbh b{color:var(--ink)}
+#kbtip .kbg{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;font-size:13.5px}
+#kbtip .kbo{font-size:12px;color:var(--mute);margin:12px 0 10px}
+kbd{display:inline-block;min-width:20px;text-align:center;padding:1px 6px;border-radius:6px;background:var(--fill);box-shadow:inset 0 -1px 0 var(--line);font:600 12px/1.6 ui-monospace,Consolas,monospace;color:var(--ink)}
+.kbflash{animation:popIn .25s ease}
+#card .back{display:none}
+@media (max-width:760px){#card .back{display:inline-flex}}
+
 </style>
 </head>
 <body>
@@ -522,8 +562,9 @@ button:active:not([disabled]),.dial:active,.btnlink:active{transform:scale(.95)}
   <button class="primary" id="resume">Resume<span class="ll"> where I left off</span></button>
   <button id="morebtn" aria-label="More actions">&#9776; Menu</button>
   <button id="addlead">+ Lead</button>
-  <button id="emglobal" title="Log a client email reply: find the lead by pasting the email">&#9993; Email reply</button>
-  <button id="elogbtn" title="See, check and edit every email reply you have logged">&#9993; Email log</button>
+  <button id="kbbtn" title="Keyboard shortcuts">Keyboard shortcuts</button>
+  <button id="emglobal" title="Log a client email reply: find the lead by pasting the email">Email reply</button>
+  <button id="elogbtn" title="See, check and edit every email reply you have logged">Email log</button>
   <button id="colbtn">Fields</button>
   <button id="impl" class="primary" title="Add leads from an Excel or CSV list to the ones you already have">Import list</button>
   <button id="imp" title="Throw away the current leads and call log and load this file instead">Replace list</button>
@@ -607,6 +648,25 @@ button:active:not([disabled]),.dial:active,.btnlink:active{transform:scale(.95)}
 </div></div>
 <div id="dlg" hidden><div class="dbox"><p id="dmsg"></p><div class="drow"><button id="dno">Cancel</button><button id="dyes">OK</button></div></div></div>
 <div id="msheet" hidden><div class="mbox" role="dialog" aria-label="Menu"><div class="mgrid" id="mgrid"></div><button id="mclose">Close</button></div></div>
+<div id="qnp" hidden><div class="srbox" role="dialog" aria-label="Edit quick notes">
+ <div class="srhd"><img src="logo-white.png" alt="Minerva"><b>Quick notes</b></div>
+ <div class="srbd">
+  <label>One phrase per line. They appear as buttons under Live call notes.<textarea id="qntext" rows="9"></textarea></label>
+  <div class="drow"><button id="qnreset" title="Go back to the original phrases">Reset to default</button><button id="qnclose">Cancel</button><button class="sales" id="qnsave">Save</button></div>
+ </div>
+</div></div>
+<div id="kbtip" hidden role="dialog" aria-label="Keyboard shortcuts"><div class="kbh"><span id="kbic"></span><b>Work faster with shortcuts</b></div>
+ <div class="kbg">
+  <span><kbd>C</kbd> Call</span><span><kbd>1</kbd>–<kbd>6</kbd> Log outcome</span>
+  <span><kbd>N</kbd> Next lead</span><span><kbd>P</kbd> Previous lead</span>
+  <span><kbd>T</kbd> Type notes</span><span><kbd>Esc</kbd> Leave notes</span>
+  <span><kbd>S</kbd> Copy selected</span><span><kbd>E</kbd> Log email reply</span>
+  <span><kbd>/</kbd> Search leads</span><span><kbd>R</kbd> Resume</span>
+  <span><kbd>Ctrl</kbd>+<kbd>Z</kbd> Undo</span><span><kbd>?</kbd> Show this again</span>
+ </div>
+ <p class="kbo">Outcomes: 1 Spoke · 2 No answer · 3 Call back · 4 Not interested · 5 Wrong number · 6 No number</p>
+ <div class="drow"><button class="primary" id="kbok">Got it</button></div>
+</div>
 <div id="toast" hidden></div>
 <script type="text/plain" id="gscode">
 /* Minerva Dialler - Google Sheet sync (version 3)
@@ -825,12 +885,51 @@ function write_(name, head, data, dateCols, widths) {
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// ---- Icon set (line icons) ----
+const IC={
+cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
+alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
+mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+moon:'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+auto:'<circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18Z" fill="currentColor"/>',
+phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"/>',
+back:'<path d="m15 18-6-6 6-6"/>',
+grip:'<g fill="currentColor" stroke="none"><circle cx="9" cy="5" r="1.7"/><circle cx="15" cy="5" r="1.7"/><circle cx="9" cy="12" r="1.7"/><circle cx="15" cy="12" r="1.7"/><circle cx="9" cy="19" r="1.7"/><circle cx="15" cy="19" r="1.7"/></g>',
+expand:'<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>',
+shrink:'<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>',
+x:'<path d="M18 6 6 18M6 6l12 12"/>',
+clock:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3 2 6M22 6l-3-3"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',
+upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/>',
+refresh:'<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5"/>',
+columns:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/>',
+sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+report:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 18v-2M12 18v-5M16 18v-3"/>',
+list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+sheet:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/>',
+save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+restore:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+install:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>',
+trash:'<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+keyboard:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/>',
+edit:'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
+undo:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>'
+};
+const ic=(n,z)=>'<svg class="ic" viewBox="0 0 24 24" width="'+(z||16)+'" height="'+(z||16)+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(IC[n]||'')+'</svg>';
+const FINE=matchMedia('(hover:hover) and (pointer:fine)');
 const KEY='minerva-dialler-v1';
 let S={rows:[],cols:[],last:null,filter:'todo',q:'',nid:1,view:'list'};
 try{Object.assign(S,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){}
 if(!S.mig){if(S.cols.length)[2,3,4,12,14,16,17,18,19,20,21,22,23,24,25,26,27].forEach(i=>{if(S.cols[i])S.cols[i].show=false});S.mig=1}
 let tt;
-const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600)};
+let UNDO=null;
+const toast=(m,act)=>{const t=$('#toast');t.innerHTML='';const sp=document.createElement('span');sp.textContent=m;t.appendChild(sp);
+ if(act){UNDO={fn:act.fn,until:Date.now()+(act.ms||8000)};const b=document.createElement('button');b.type='button';b.className='tact';b.innerHTML=ic('undo',14)+' Undo';b.onclick=()=>runUndo();t.appendChild(b)}
+ t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>{t.hidden=true},act?(act.ms||8000):2600)};
+function runUndo(){if(!UNDO||Date.now()>UNDO.until){toast('Nothing to undo');return}const f=UNDO.fn;UNDO=null;$('#toast').hidden=true;f()}
 function ask(msg,ok,danger){return new Promise(res=>{
  const y=$('#dyes'),n=$('#dno');$('#dmsg').textContent=msg;y.textContent=ok||'OK';y.className=danger?'danger':'primary';
  $('#dlg').hidden=false;
@@ -863,7 +962,7 @@ const emSig=r=>(r.em||[]).map(m=>emId(m)+':'+(m.mt||0)).join(',');
 function histHtml(r){
  const k=title(r).toLowerCase(),same=S.rows.filter(x=>title(x).toLowerCase()===k);
  const items=same.flatMap(x=>x.log.map(l=>({x,t:l.t,html:'<li>'+fmt(l.t)+' - <b class="co">'+esc(l.o)+'</b>'+(x!==r&&val(x,cn('contact'))?' ('+esc(val(x,cn('contact')))+')':'')+(l.note?': '+esc(l.note):'')+'</li>'}))
-  .concat((x.em||[]).map(m=>({x,t:m.t,html:'<li class="em '+esc(m.k)+'">'+fmt(m.t)+' - <b class="co">\u2709 '+esc(EMT[m.k]||'Email reply')+'</b>'+(x!==r&&val(x,cn('contact'))?' ('+esc(val(x,cn('contact')))+')':'')+(m.note?': <span class="emtxt">'+esc(m.note.length>400?m.note.slice(0,400)+'...':m.note)+'</span>':'')+(x===r?' <button type="button" class="emdel emed" data-emedit="'+esc(emId(m))+'" title="Edit this email entry" aria-label="Edit email entry">&#9998; Edit</button><button type="button" class="emdel" data-emdel="'+esc(emId(m))+'" title="Delete this email entry" aria-label="Delete email entry">&times;</button>':'')+'</li>'}))));
+  .concat((x.em||[]).map(m=>({x,t:m.t,html:'<li class="em '+esc(m.k)+'">'+fmt(m.t)+' - <b class="co">'+ic('mail',13)+' '+esc(EMT[m.k]||'Email reply')+'</b>'+(x!==r&&val(x,cn('contact'))?' ('+esc(val(x,cn('contact')))+')':'')+(m.note?': <span class="emtxt">'+esc(m.note.length>400?m.note.slice(0,400)+'...':m.note)+'</span>':'')+(x===r?' <button type="button" class="emdel emed" data-emedit="'+esc(emId(m))+'" title="Edit this email entry" aria-label="Edit email entry">'+ic('edit',13)+' Edit</button><button type="button" class="emdel" data-emdel="'+esc(emId(m))+'" title="Delete this email entry" aria-label="Delete email entry">&times;</button>':'')+'</li>'}))));
  items.sort((a,b)=>b.t-a.t);
  return items.length?'<ul class="hist">'+items.map(i=>i.html).join('')+'</ul>':'<p class="mute" style="margin:0">No calls or emails logged yet. Account details are in the boxes above.</p>';
 }
@@ -924,11 +1023,11 @@ function visible(){
 function renderList(){
  const done=S.rows.filter(r=>r.done).length,n=S.rows.length;
  $('#stat').textContent=n?done+' logged, '+(n-done)+' left to call':'No leads yet';
- {const nfu=S.rows.filter(r=>r.fu).length,ndue=S.rows.filter(r=>r.fu&&r.fu<=Date.now()).length,fb=document.querySelector('#seg [data-f=fu]'),fd=$('#fudue');if(fb)fb.textContent='Follow-ups'+(nfu?' ('+nfu+')':'');fd.hidden=!ndue;fd.innerHTML='\u23F0 '+ndue+'<span class="ll"> follow-up'+(ndue===1?'':'s')+' due</span>'}
+ {const nfu=S.rows.filter(r=>r.fu).length,ndue=S.rows.filter(r=>r.fu&&r.fu<=Date.now()).length,fb=document.querySelector('#seg [data-f=fu]'),fd=$('#fudue');if(fb)fb.textContent='Follow-ups'+(nfu?' ('+nfu+')':'');fd.hidden=!ndue;fd.innerHTML=ic('clock',14)+' '+ndue+'<span class="ll"> follow-up'+(ndue===1?'':'s')+' due</span>'}
  $('#prog').style.width=n?(100*done/n)+'%':'0';$('#prog2').style.width=$('#prog').style.width;$('#tstat').textContent=$('#stat').textContent;
  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.f===S.filter));
  const v=visible();
- $('#list').innerHTML=v.map(r=>'<div class="it'+(r.id===S.last?' on':'')+'" data-id="'+r.id+'">'+(r.done?'<span class="tag">'+esc(r.log.length?r.log[r.log.length-1].o:'Logged')+'</span>':'')+'<b>'+esc(title(r))+'</b><span>'+esc(sub(r))+'</span>'+(r.fu?'<span class="fub'+(r.fu<=Date.now()?' od':'')+'">&#9200; '+esc(fuFmt(r.fu))+'</span>':'')+'</div>').join('')||'<p class="mute" style="padding:12px">'+(n?'Nothing here. Switch the filter above.':'Use Import list to start.')+'</p>';
+ $('#list').innerHTML=v.map(r=>'<div class="it'+(r.id===S.last?' on':'')+'" data-id="'+r.id+'">'+(r.done?'<span class="tag">'+esc(r.log.length?r.log[r.log.length-1].o:'Logged')+'</span>':'')+'<b>'+esc(title(r))+'</b><span>'+esc(sub(r))+'</span>'+(r.fu?'<span class="fub'+(r.fu<=Date.now()?' od':'')+'">'+ic('clock',12)+' '+esc(fuFmt(r.fu))+'</span>':'')+'</div>').join('')||'<p class="mute" style="padding:12px">'+(n?'Nothing here. Switch the filter above.':'Use Import list to start.')+'</p>';
 }
 const WIDE_RE=/detail|note|comment|remark|description|discuss|history/i;
 function isWide(c){return c.wide!==undefined?!!c.wide:WIDE_RE.test(c.n)}
@@ -950,16 +1049,18 @@ function dialNum(ph){
  else if(/^9710?\d{8,9}$/.test(t))t=loc(t.slice(3));
  return t;
 }
+const QN_DEFAULT=['GK answered','Email sent','No requirement now','Asked for a quote','Call back later','Sent brochure','Not the decision maker','Wrong contact'];
+function qnList(){return Array.isArray(S.qn)&&S.qn.length?S.qn:QN_DEFAULT}
 function renderCard(){
  const r=byId(S.last),c=$('#card'),m=$('#main');
  m.dataset.view=S.view;
  if(!r){c.innerHTML='<div class="empty"><h2>'+(S.rows.length?'All leads logged':'Import your leads')+'</h2><p>'+(S.rows.length?'Switch to Logged or All to review them, or import a new sheet.':'Choose a CSV or Excel file with your accounts and contacts. Every column comes in, and you pick which ones show here.')+'</p>'+(S.rows.length?'':'<p><button class="primary" data-impl>Import list</button></p>')+'</div>';return}
  const ph=val(r,cn('phone')),tel=dialNum(ph);
- c.innerHTML='<div class="ctop"><button class="back" data-back>&lsaquo; Leads</button>'+(cn('company')?'':'<p class="warnb">No column is set as Company, so exports show the contact name instead. <button data-fields>Choose Company column</button></p>')+
- '<div class="ch"><div><h2 id="hd">'+esc(title(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p></div><div class="chr">'+cpAllBtn()+(tel?'<a class="dial" href="tel:'+esc(tel)+'" title="Dials '+esc(tel)+'">Call '+esc(tel)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+
- '<div class="fields">'+S.cols.filter(x=>x.show).map(x=>{const v=val(r,x.n),wd=isWide(x),long=wd||String(v).length>60,pk=(S.pick||[]).includes(x.n);return '<label class="'+(wd?'wide':'')+(pk?' picked':'')+'" data-ci="'+S.cols.indexOf(x)+'"><button type="button" class="hide pbtn'+(pk?' on':'')+'" data-pick="'+esc(x.n)+'" aria-pressed="'+pk+'" title="'+(pk?'Remove from Copy selected':'Add to Copy selected')+'" aria-label="Select '+esc(x.n)+' for Copy selected">'+(pk?'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>')+'</button><button type="button" class="hide wbtn" data-wide="'+S.cols.indexOf(x)+'" title="'+(wd?'Make this box narrower':'Make this box full width')+'" aria-label="Toggle width of '+esc(x.n)+'">'+(wd?'&#8689;':'&#10530;')+'</button><button type="button" class="hide" data-hide="'+S.cols.indexOf(x)+'" title="Hide this field (also removes it from the Excel export)" aria-label="Hide '+esc(x.n)+'">&times;</button><span class="grip" title="Drag to move this box">&#8942;&#8942; '+esc(x.n)+'</span>'+'<div class="fw'+(long?' ta':'')+'">'+(long?'<textarea rows="3" data-f="'+esc(x.n)+'">'+esc(v)+'</textarea>':'<input data-f="'+esc(x.n)+'" value="'+esc(v)+'">')+'<button type="button" class="cpy" data-copy title="Copy '+esc(x.n)+'" aria-label="Copy '+esc(x.n)+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>'+'</label>'}).join('')+'</div>'+
- addBoxHtml()+'<div class="log"><h3>Previous dealings with '+esc(title(r))+'</h3>'+histHtml(r)+'<button type="button" class="embtn" data-em>\u2709 Log email reply</button>'+
-'<h3 style="margin-top:16px">'+(r.done?'Logged. Add notes or call again':'Live call notes')+'</h3><textarea id="note" rows="6" placeholder="Type what is said, names, numbers, quantities, extensions...">'+esc(r.draft||'')+'</textarea><p class="draftmsg">Saved as you type. Pressing an outcome logs these notes to the report and loads the next lead.</p>'+fuHtml(r)+
+ c.innerHTML='<div class="ctop"><button class="back" data-back>'+ic('back',16)+' Leads</button>'+(cn('company')?'':'<p class="warnb">No column is set as Company, so exports show the contact name instead. <button data-fields>Choose Company column</button></p>')+
+ '<div class="ch"><div><h2 id="hd">'+esc(title(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p></div><div class="chr">'+cpAllBtn()+(tel?'<a class="dial" href="tel:'+esc(tel)+'" title="Dials '+esc(tel)+' (shortcut: C)">'+ic('phone',18)+' Call '+esc(tel)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+
+ '<div class="fields">'+S.cols.filter(x=>x.show).map(x=>{const v=val(r,x.n),wd=isWide(x),long=wd||String(v).length>60,pk=(S.pick||[]).includes(x.n);return '<label class="'+(wd?'wide':'')+(pk?' picked':'')+'" data-ci="'+S.cols.indexOf(x)+'"><button type="button" class="hide pbtn'+(pk?' on':'')+'" data-pick="'+esc(x.n)+'" aria-pressed="'+pk+'" title="'+(pk?'Remove from Copy selected':'Add to Copy selected')+'" aria-label="Select '+esc(x.n)+' for Copy selected">'+(pk?'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>')+'</button><button type="button" class="hide wbtn" data-wide="'+S.cols.indexOf(x)+'" title="'+(wd?'Make this box narrower':'Make this box full width')+'" aria-label="Toggle width of '+esc(x.n)+'">'+(wd?ic('shrink',14):ic('expand',14))+'</button><button type="button" class="hide" data-hide="'+S.cols.indexOf(x)+'" title="Hide this field (also removes it from the Excel export)" aria-label="Hide '+esc(x.n)+'">'+ic('x',14)+'</button><span class="grip" title="Drag to move this box"><span class="gd">'+ic('grip',12)+'</span>'+esc(x.n)+'</span>'+'<div class="fw'+(long?' ta':'')+'">'+(long?'<textarea rows="3" data-f="'+esc(x.n)+'">'+esc(v)+'</textarea>':'<input data-f="'+esc(x.n)+'" value="'+esc(v)+'">')+'<button type="button" class="cpy" data-copy title="Copy '+esc(x.n)+'" aria-label="Copy '+esc(x.n)+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>'+'</label>'}).join('')+'</div>'+
+ addBoxHtml()+'<div class="log"><h3>Previous dealings with '+esc(title(r))+'</h3>'+histHtml(r)+'<button type="button" class="embtn" data-em>'+ic('mail',15)+' Log email reply</button>'+
+'<h3 style="margin-top:16px">'+(r.done?'Logged. Add notes or call again':'Live call notes')+'</h3><textarea id="note" rows="6" placeholder="Type what is said, names, numbers, quantities, extensions...">'+esc(r.draft||'')+'</textarea><div class="qn">'+qnList().map((p,i)=>'<button type="button" class="qnb" data-qn="'+i+'">'+esc(p)+'</button>').join('')+'<button type="button" class="qnb qne" data-qnedit title="Edit quick notes" aria-label="Edit quick notes">'+ic('edit',13)+'</button></div><p class="draftmsg">Saved as you type. Pressing an outcome logs these notes to the report and loads the next lead.</p>'+fuHtml(r)+
 '<div class="oc">'+OUT.map(o=>'<button data-o="'+o+'">'+o+'</button>').join('')+(r.done?'<button data-reopen>Put back in To call</button>':'')+'<button class="del" data-delete>Delete lead</button></div></div>';
  fitAll();
 }
@@ -979,23 +1080,30 @@ function resume(){
 }
 function logCall(o){
  const r=byId(S.last);if(!r)return;
- r.log.push({t:Date.now(),o,note:($('#note').value||'').trim()});r.done=true;r.draft='';if(r.fu&&r.fu<=Date.now()){r.fu=null;r.fun=0}
+ const noteNow=($('#note').value||''),prev={done:r.done,fu:r.fu,fun:r.fun,view:S.view};
+ const entry={t:Date.now(),o,note:noteNow.trim()};
+ r.log.push(entry);r.done=true;r.draft='';if(r.fu&&r.fu<=Date.now()){r.fu=null;r.fun=0}
  const nx=nextTodo(r.id);
  S.last=nx?nx.id:null;save();render();
- toast(nx?'Logged. Next lead loaded':'Logged. That was the last one');
+ toast('Logged "'+o+'" for '+title(r)+(nx?'':'. That was the last one'),{fn:()=>{const x=byId(r.id);if(!x)return;
+  x.log=x.log.filter(l=>l!==entry);x.dl=(x.dl||[]).concat(entry.t+'|'+entry.o);x.done=prev.done;x.fu=prev.fu;x.fun=prev.fun;x.draft=noteNow;
+  S.last=x.id;S.view='card';save();render();toast('Undone. Back on '+title(x))}});
 }
 $('#list').onclick=e=>{const i=e.target.closest('.it');if(i)select(+i.dataset.id,'card')};
 $('#card').onclick=async e=>{
  if(e.target.closest('[data-em]')){openEmail(S.last);return}
  const eme=e.target.closest('[data-emedit]');if(eme){openEmail(S.last,eme.dataset.emedit);return}
  const emd=e.target.closest('[data-emdel]');
- if(emd){const r=byId(S.last);if(!r)return;const t=emd.dataset.emdel;if(!(await ask('Delete this email entry for '+title(r)+'?','Delete',true)))return;r.em=(r.em||[]).filter(m=>emId(m)!==t);save();renderCard();if(!$('#elog').hidden)renderElog();toast('Email entry deleted');return}
+ if(emd){const r=byId(S.last);if(!r)return;const t=emd.dataset.emdel;const gone=(r.em||[]).find(m=>emId(m)===t);r.em=(r.em||[]).filter(m=>emId(m)!==t);save();renderCard();if(!$('#elog').hidden)renderElog();toast('Email entry deleted',{fn:()=>{if(!gone)return;r.em=(r.em||[]).concat(gone).sort((a,b)=>a.t-b.t);save();if(r.id===S.last)renderCard();if(!$('#elog').hidden)renderElog();toast('Email entry restored')}});return}
  const pkb=e.target.closest('[data-pick]');
  if(pkb){e.preventDefault();const n=pkb.dataset.pick;S.pick=S.pick||[];const i=S.pick.indexOf(n);if(i<0)S.pick.push(n);else S.pick.splice(i,1);save();keepFocus(renderCard);return}
  if(e.target.closest('[data-cpall]')){const r=byId(S.last);if(!r)return;const cs=pickedCols();if(!cs.length){toast('Tick the boxes you want first (\u2610 next to each box)');return}
   const vals=cs.map(c=>String(val(r,c.n)).trim()).filter(Boolean);if(!vals.length){toast('The ticked boxes are empty for this lead');return}
   const t=vals.join('\n');try{await navigator.clipboard.writeText(t)}catch(x){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(y){}a.remove();if(!ok){toast('Copy blocked by the browser');return}}
   const b=e.target.closest('[data-cpall]');b.classList.add('ok');setTimeout(()=>b.classList.remove('ok'),1200);toast('Copied '+vals.length+' box'+(vals.length===1?'':'es')+': '+cs.filter(c=>String(val(r,c.n)).trim()).map(c=>c.n).join(', '));return}
+ const qb=e.target.closest('[data-qn]');
+ if(qb){const p=qnList()[+qb.dataset.qn],n=$('#note'),rr=byId(S.last);if(!p||!n||!rr)return;const v=n.value.replace(/\s+$/,'');n.value=v?v.replace(/[,.;]$/,'')+', '+p:p;rr.draft=n.value;save();n.focus();n.setSelectionRange(n.value.length,n.value.length);qb.classList.add('ok');setTimeout(()=>qb.classList.remove('ok'),500);return}
+ if(e.target.closest('[data-qnedit]')){$('#qntext').value=qnList().join('\n');$('#qnp').hidden=false;setTimeout(()=>$('#qntext').focus(),50);return}
  const cpb=e.target.closest('[data-copy]');
  if(cpb){const f=cpb.parentElement.querySelector('[data-f]'),v=f?String(f.value):'';if(!v.trim()){toast('That box is empty');return}
   const name=f.dataset.f;try{await navigator.clipboard.writeText(v)}catch(x){f.focus();f.select();let ok=false;try{ok=document.execCommand('copy')}catch(y){}if(!ok){toast('Copy blocked. Press Ctrl+C');return}}
@@ -1009,12 +1117,11 @@ $('#card').onclick=async e=>{
  const b=e.target.closest('[data-o]');if(b)return logCall(b.dataset.o);
  if(e.target.closest('[data-delete]')){
   const r=byId(S.last);if(!r)return;
-  if(!(await ask('Delete "'+title(r)+'"'+(r.log.length?' and its '+r.log.length+' logged call'+(r.log.length>1?'s':''):'')+'? This cannot be undone.','Delete lead',true)))return;
-  const nx=nextTodo(r.id);
+  const nx=nextTodo(r.id),idx=S.rows.indexOf(r);
   S.rows=S.rows.filter(x=>x.id!==r.id);
   S.last=nx?nx.id:(S.rows[0]?S.rows[0].id:null);
   if(!S.last)S.view='list';
-  save();render();toast('Lead deleted');return}
+  save();render();toast('Deleted '+title(r),{fn:()=>{if(byId(r.id))return;S.rows.splice(Math.min(idx,S.rows.length),0,r);S.last=r.id;S.view='card';save();render();toast('Lead restored')}});return}
  if(e.target.closest('[data-addtoggle]')){ADDOPEN=!ADDOPEN;renderCard();return}
  const sf=e.target.closest('[data-showf]');
  if(sf){S.cols[+sf.dataset.showf].show=true;save();render();renderCols();return}
@@ -1303,7 +1410,7 @@ function renderElog(){
   return '<div class="ecard '+esc(x.m.k)+'" data-row="'+x.r.id+'" data-eid="'+esc(id)+'"><div class="ehead"><span class="edate">'+esc(new Date(x.m.t).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}))+'</span><button type="button" class="eco" data-elopen title="Open this lead">'+esc(title(x.r))+'</button>'+(val(x.r,cn('contact'))?'<span class="ect">'+esc(val(x.r,cn('contact')))+'</span>':'')+'<select data-eltype aria-label="Disposition">'+emOpt(x.m.k)+'</select></div>'+
   (dupT?'<span class="edup">Possible duplicate of the entry from '+esc(new Date(dupT).toLocaleDateString('en-GB',{day:'numeric',month:'short'}))+' (left out of reports)</span>':'')+
   '<div class="ebody'+(n?'':' empty')+(long&&!open?' clamp':'')+'">'+(n?esc(n):'No email text saved')+'</div>'+(long?'<button type="button" class="emore" data-elmore>'+(open?'Show less':'Show full email')+'</button>':'')+
-  '<div class="eact"><button type="button" data-eledit>&#9998; Edit</button><button type="button" data-elopen>Open lead</button><button type="button" class="danger" data-eldel>Delete</button></div></div>'}).join(''):'<p class="mute">'+(all.length?'Nothing matches. Clear the search or pick All.':'No email replies logged yet. Use \u2709 Log new reply to add one.')+'</p>';
+  '<div class="eact"><button type="button" data-eledit>'+ic('edit',13)+' Edit</button><button type="button" data-elopen>Open lead</button><button type="button" class="danger" data-eldel>Delete</button></div></div>'}).join(''):'<p class="mute">'+(all.length?'Nothing matches. Clear the search or pick All.':'No email replies logged yet. Use \u2709 Log new reply to add one.')+'</p>';
 }
 function openElog(){$('#elog').hidden=false;renderElog();$('#elog').scrollTop=0}
 $('#elogbtn').onclick=openElog;
@@ -1317,7 +1424,7 @@ $('#ellist').onclick=async e=>{const {c,r,m}=elFind(e.target);if(!m)return;
  if(e.target.closest('[data-elmore]')){const id=c.dataset.eid;ELOPEN.has(id)?ELOPEN.delete(id):ELOPEN.add(id);renderElog();return}
  if(e.target.closest('[data-eledit]')){openEmail(r.id,emId(m));return}
  if(e.target.closest('[data-elopen]')){$('#elog').hidden=true;openLead(r.id);return}
- if(e.target.closest('[data-eldel]')){if(!(await ask('Delete this email entry from '+title(r)+'?','Delete',true)))return;r.em=r.em.filter(x=>x!==m);save();renderElog();if(r.id===S.last)renderCard();toast('Email entry deleted')}
+ if(e.target.closest('[data-eldel]')){r.em=r.em.filter(x=>x!==m);save();renderElog();if(r.id===S.last)renderCard();toast('Email entry deleted',{fn:()=>{r.em=(r.em||[]).concat(m).sort((a,b)=>a.t-b.t);save();renderElog();if(r.id===S.last)renderCard();toast('Email entry restored')}})}
 };
 function openLead(id){closeDet();S.filter='all';S.q='';$('#q').value='';setTab('dial');select(id,'card')}
 $('#dash').onclick=e=>{
@@ -1382,7 +1489,7 @@ function stats(k){const s=rangeStart(k),c=S.rows.flatMap(r=>r.log.map(l=>({r,l})
  OUT.forEach(o=>by[o]=0);c.forEach(x=>by[x.l.o]=(by[x.l.o]||0)+1);return{c,by,leads:new Set(c.map(x=>x.r.id)).size}}
 function renderRep(){
  const k=$('#rrange').value,t=stats(k);
- const es=emStats(rangeStart(k),Date.now()+1);$('#rsum').innerHTML='<p><b>'+t.c.length+'</b> calls to <b>'+t.leads+'</b> leads. '+OUT.map(o=>t.by[o]+' '+o.toLowerCase()).join(', ')+'.</p>'+(es.list.length?'<p>\u2709 <b>'+es.list.length+'</b> email responses: <b>'+es.rfq+'</b> requests received, <b>'+es.later+'</b> will send requests later.</p>':'');
+ const es=emStats(rangeStart(k),Date.now()+1);$('#rsum').innerHTML='<p><b>'+t.c.length+'</b> calls to <b>'+t.leads+'</b> leads. '+OUT.map(o=>t.by[o]+' '+o.toLowerCase()).join(', ')+'.</p>'+(es.list.length?'<p>'+ic('mail',14)+' <b>'+es.list.length+'</b> email responses: <b>'+es.rfq+'</b> requests received, <b>'+es.later+'</b> will send requests later.</p>':'');
  $('#rtab').innerHTML=t.c.length?'<table><thead><tr><th>When</th><th>Company</th><th>Spoke to</th><th>Outcome</th><th>Discussed</th></tr></thead><tbody>'+t.c.map(x=>'<tr><td>'+fmt(x.l.t)+'</td><td>'+esc(title(x.r))+'</td><td>'+esc(val(x.r,cn('contact')))+(val(x.r,cn('phone'))?'<br><span class="mute">'+esc(val(x.r,cn('phone')))+'</span>':'')+'</td><td>'+esc(x.l.o)+'</td><td>'+esc(x.l.note)+'</td></tr>').join('')+'</tbody></table>':'<p class="mute">No calls logged in this period.</p>';
 }
 $('#repbtn').onclick=()=>{renderRep();$('#rep').hidden=false};
@@ -1471,17 +1578,56 @@ $('#addf').onclick=()=>{
  if(S.cols.some(c=>c.n===n)){toast('That field already exists');return}
  S.cols.push({n,show:true,role:''});S.rows.forEach(r=>r.f[n]='');$('#newf').value='';save();renderCols();render();
 };
+// ---- Quick notes editor ----
+$('#qnclose').onclick=()=>$('#qnp').hidden=true;
+$('#qnp').onclick=e=>{if(e.target.id==='qnp')$('#qnp').hidden=true};
+$('#qnreset').onclick=()=>{$('#qntext').value=QN_DEFAULT.join('\n')};
+$('#qnsave').onclick=()=>{const l=$('#qntext').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,20);S.qn=l.length?l:QN_DEFAULT.slice();save();$('#qnp').hidden=true;keepFocus(renderCard);toast('Quick notes saved')};
+
+// ---- Keyboard shortcuts ----
+const KBK='minerva-dialler-kbtip';
+function showKb(){$('#kbtip').hidden=false;setTimeout(()=>$('#kbok').focus(),50)}
+function hideKb(){$('#kbtip').hidden=true;try{localStorage.setItem(KBK,'1')}catch(e){}}
+$('#kbok').onclick=hideKb;$('#kbbtn').onclick=showKb;
+const OVL=['#dlg','#srp','#gsp','#emp','#qnp','#msheet','#det','#rep','#cols','#txt','#elog'];
+function moveLead(d){const v=visible();if(!v.length)return;let i=v.findIndex(r=>r.id===S.last);i=i<0?0:Math.max(0,Math.min(v.length-1,i+d));select(v[i].id,'card')}
+document.addEventListener('keydown',e=>{
+ const t=e.target,tag=(t.tagName||'').toLowerCase(),typing=tag==='input'||tag==='textarea'||tag==='select'||t.isContentEditable;
+ if(!$('#kbtip').hidden&&(e.key==='Escape'||e.key==='Enter')){e.preventDefault();hideKb();return}
+ if(e.key==='Escape'&&typing&&t.id==='note'){t.blur();return}
+ if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&!e.altKey&&e.key.toLowerCase()==='z'&&!typing){if(UNDO){e.preventDefault();runUndo()}return}
+ if(typing||e.ctrlKey||e.metaKey||e.altKey)return;
+ if(OVL.some(id=>{const el=$(id);return el&&!el.hidden}))return;
+ const k=e.key,r=byId(S.last);
+ if(k==='?'){e.preventDefault();showKb();return}
+ if(k==='/'){e.preventDefault();if(S.tab==='dash')setTab('dial');if(S.view==='card'&&!FINE.matches){S.view='list';renderCard()}$('#q').focus();$('#q').select();return}
+ if(S.tab==='dash')return;
+ const lk=k.toLowerCase();
+ if(lk==='r'){e.preventDefault();resume();return}
+ if(lk==='n'){e.preventDefault();moveLead(1);return}
+ if(lk==='p'){e.preventDefault();moveLead(-1);return}
+ if(!r)return;
+ if(lk==='c'){e.preventDefault();const d=document.querySelector('#card .dial');if(d){animIn(d,'kbflash');d.click()}else toast('No phone number on this lead');return}
+ if(/^[1-6]$/.test(k)){e.preventDefault();const b=document.querySelector('#card [data-o="'+OUT[+k-1]+'"]');if(b)animIn(b,'kbflash');logCall(OUT[+k-1]);return}
+ if(lk==='t'){e.preventDefault();const n=$('#note');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}return}
+ if(lk==='e'){e.preventDefault();openEmail(S.last);return}
+ if(lk==='s'){e.preventDefault();const b=document.querySelector('#card [data-cpall]');if(b&&!b.disabled)b.click();else toast('Tick the boxes you want to copy first');return}
+});
+
 // ---- Light / dark mode switch ----
-const THK='minerva-dialler-theme',THS=['auto','light','dark'],THI={auto:'\u25D0',light:'\u2600',dark:'\u263E'},THL={auto:'Auto (follows your browser)',light:'Light',dark:'Dark'};
-function applyTheme(t){if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme');const b=$('#thbtn');if(b){b.textContent=THI[t]||THI.auto;b.title='Theme: '+(THL[t]||THL.auto)+'. Click to change'}}
+const THK='minerva-dialler-theme',THS=['auto','light','dark'],THI={auto:ic('auto',16),light:ic('sun',16),dark:ic('moon',16)},THL={auto:'Auto (follows your browser)',light:'Light',dark:'Dark'};
+function applyTheme(t){if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme');const b=$('#thbtn');if(b){b.innerHTML=THI[t]||THI.auto;b.title='Theme: '+(THL[t]||THL.auto)+'. Click to change'}}
 let THEME='auto';try{THEME=localStorage.getItem(THK)||'auto'}catch(e){}
 applyTheme(THEME);
+$('#navmenu').innerHTML=ic('menu',17)+'<span class="ml"> Menu</span>';$('#elnew').innerHTML=ic('mail',15)+' Log new reply';$('#kbic').innerHTML=ic('keyboard',18);
+(function(){let seen=false;try{seen=!!localStorage.getItem(KBK)}catch(e){}if(!seen&&FINE.matches)setTimeout(()=>{if(S.rows.length&&!OVL.some(id=>{const el=$(id);return el&&!el.hidden}))showKb()},1500)})();
 $('#thbtn').onclick=()=>{THEME=THS[(THS.indexOf(THEME)+1)%3];try{localStorage.setItem(THK,THEME)}catch(e){}applyTheme(THEME);toast('Theme: '+THL[THEME])};
 
 // ---- Phone layout: menu sheet, no pinch zoom ----
-const MENU=[['Leads',['addlead','impl','imp','addcols','colbtn']],['Emails',['emglobal','elogbtn']],['Reports',['srbtn','repbtn','exp']],['Data',['bkp','rst','inst','reset']]];
+const MENU=[['Leads',['addlead','impl','imp','addcols','colbtn']],['Emails',['emglobal','elogbtn']],['Reports',['srbtn','repbtn','exp']],['Data',['bkp','rst','inst','reset']],['Help',['kbbtn']]];
+const MENUIC={addlead:'plus',impl:'upload',imp:'refresh',addcols:'columns',colbtn:'sliders',emglobal:'mail',elogbtn:'inbox',srbtn:'report',repbtn:'list',exp:'sheet',bkp:'save',rst:'restore',inst:'install',reset:'trash',kbbtn:'keyboard'};
 function openMenu(){
- $('#mgrid').innerHTML=MENU.map(([h,ids])=>{const bs=ids.map(id=>{const b=document.getElementById(id);if(!b||b.hidden)return '';return '<button data-m="'+id+'" class="'+(b.classList.contains('danger')?'danger':'')+'">'+esc(b.textContent.trim().replace(/^\+\s*Lead$/,'+ New lead'))+'</button>'}).join('');return bs?'<div class="mh">'+h+'</div>'+bs:''}).join('');
+ $('#mgrid').innerHTML=MENU.map(([h,ids])=>{const bs=ids.map(id=>{const b=document.getElementById(id);if(!b||b.hidden||(id==='kbbtn'&&!FINE.matches))return '';return '<button data-m="'+id+'" class="'+(b.classList.contains('danger')?'danger':'')+'">'+ic(MENUIC[id]||'list',16)+'<span>'+esc(b.textContent.trim().replace(/^\+\s*Lead$/,'New lead'))+'</span></button>'}).join('');return bs?'<div class="mh">'+h+'</div>'+bs:''}).join('');
  $('#msheet').hidden=false;
 }
 $('#morebtn').onclick=openMenu;$('#navmenu').onclick=openMenu;
@@ -1818,12 +1964,12 @@ function gMerge(L,R){
   if(!r){if(b&&!rowChanged(l,b))return;out.push(l);usedIds.add(l.id);return}
   const lw=lastT(l)>=lastT(r),pick=(lv,rv,bv)=>same(lv,rv)?lv:b&&same(lv,bv)?rv:b&&same(rv,bv)?lv:(lw?lv:rv);
   const f={};new Set(Object.keys(l.f||{}).concat(Object.keys(r.f||{}))).forEach(k=>{f[k]=pick((l.f||{})[k],(r.f||{})[k],b&&b.f[k]);if(f[k]==null)f[k]=''});
-  const logs=new Map();(r.log||[]).concat(l.log||[]).forEach(x=>logs.set(lkey(x),x));
+  const logs=new Map(),dls=new Set([...(r.dl||[]),...(l.dl||[])]);(r.log||[]).concat(l.log||[]).forEach(x=>{if(!dls.has(lkey(x)))logs.set(lkey(x),x)});
   const bem=(b&&b.emt)||{},lE=new Map((l.em||[]).map(m=>[emId(m),m])),rE=new Map((r.em||[]).map(m=>[emId(m),m])),ems=[];
   new Set([...lE.keys(),...rE.keys()]).forEach(id=>{const a=lE.get(id),c=rE.get(id),inB=id in bem;
    if(a&&c)ems.push((c.mt||0)>(a.mt||0)?c:a);
    else{const x=a||c;if(!inB||(x.mt||0)>bem[id])ems.push(x)}});
-  const m=Object.assign({},l,{f,log:[...logs.values()].sort((a,c)=>a.t-c.t),em:ems.sort((a,c)=>a.t-c.t),done:!!pick(!!l.done,!!r.done,b&&b.d),fu:pick(l.fu||null,r.fu||null,b&&b.fu)||null});
+  const m=Object.assign({},l,{f,dl:[...dls],log:[...logs.values()].sort((a,c)=>a.t-c.t),em:ems.sort((a,c)=>a.t-c.t),done:!!pick(!!l.done,!!r.done,b&&b.d),fu:pick(l.fu||null,r.fu||null,b&&b.fu)||null});
   if(m.fu==='')m.fu=null;if(m.fu)m.fu=+m.fu;
   out.push(m);usedIds.add(l.id);
  });
@@ -1842,7 +1988,7 @@ function gApply(M){
  if(S.last!=null&&!byId(S.last)){const r=S.rows.find(r=>!r.done);S.last=r?r.id:null}
  G.h=gHash();save();keepFocus(()=>{render();renderCols()});
 }
-const GST={off:['\u2601','Backup','Set up cloud backup','var(--mute)'],ok:['\u2601','Synced','Synced','var(--ok)'],busy:['\u2601','Syncing','Syncing...','var(--accent)'],wait:['\u2601','Waiting','Changes waiting','var(--warn)'],err:['\u26A0','Fix sync','Sync needs attention','var(--bad)']};
+const GST={off:[ic('cloud',15),'Backup','Set up cloud backup','var(--mute)'],ok:[ic('cloud',15),'Synced','Synced','var(--ok)'],busy:[ic('cloud',15),'Syncing','Syncing...','var(--accent)'],wait:[ic('cloud',15),'Waiting','Changes waiting','var(--warn)'],err:[ic('alert',15),'Fix sync','Sync needs attention','var(--bad)']};
 function gStatus(st,msg){
  gState=st;gMsg=msg||'';const b=$('#gsync'),m=GST[st];
  b.innerHTML=m[0]+' <span class="ss">'+m[1]+'</span><span class="sl">'+m[2]+(st==='ok'&&G.last?' '+fmtT(G.last):'')+'</span>';b.style.color=m[3];b.style.borderColor=m[3];b.title=gMsg||'Google Sheet sync';
