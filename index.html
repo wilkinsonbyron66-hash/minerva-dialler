@@ -676,13 +676,13 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
 #splash{display:none}
 @media (display-mode:standalone){#splash{display:flex;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;background:linear-gradient(160deg,#003660,#004679 60%,#005a92);overflow:hidden}#splash img{width:200px;opacity:0;transform:scale(.8);transition:opacity .7s ease,transform .9s cubic-bezier(.32,.72,0,1)}#splash.in img{opacity:1;transform:none}}
 #splash.out{background:transparent;pointer-events:none;transition:background .1s}
-#splash::before{content:'';position:absolute;inset:0;background:inherit;background-image:linear-gradient(160deg,#003660,#004679 60%,#005a92);transition:opacity .45s cubic-bezier(.32,.72,0,1) .05s}
+#splash::before{content:'';position:absolute;inset:0;background:inherit;background-image:linear-gradient(160deg,#003660,#004679 60%,#005a92);transition:opacity 1.3s cubic-bezier(.32,.72,0,1) .15s}
 #splash.out::before{opacity:0}
 #splash img{position:relative}
-#splash.out img{transform:scale(1.35);opacity:0;filter:blur(3px);transition:transform .5s cubic-bezier(.32,.72,0,1),opacity .3s ease,filter .4s ease}
+#splash.out img{transform:scale(1.35);opacity:0;filter:blur(3px);transition:transform 1.5s cubic-bezier(.32,.72,0,1),opacity .9s ease,filter 1.2s ease}
 @keyframes spIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
 html.spl body>*:not(#splash){transform:scale(.94);opacity:0}
-html.spl-go body>*:not(#splash){transition:transform .55s cubic-bezier(.32,.72,0,1) .08s,opacity .4s ease .08s}
+html.spl-go body>*:not(#splash){transition:transform 1.45s cubic-bezier(.32,.72,0,1) .05s,opacity 1.1s ease .05s}
 /* Navy behind the iPhone status bar */
 body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#003660;z-index:30}
 @media (prefers-reduced-motion:reduce){#cele.show .cbox,#cele.show i,#splash img{animation:none}#cele i{display:none}}
@@ -1411,7 +1411,7 @@ function logCall(o){
   S.last=x.id;S.view='card';save();render();toast('Undone. Back on '+title(x))}});
  milestone(nx);
 }
-(function(){const sp=$('#splash');if(!sp)return;let done=false;const H=document.documentElement;const go=()=>{if(done)return;done=true;H.classList.add('spl-go');void sp.offsetWidth;requestAnimationFrame(()=>{H.classList.remove('spl');sp.classList.add('out')});setTimeout(()=>{sp.remove();H.classList.remove('spl-go')},800)};const wait=()=>setTimeout(go,Math.max(0,2500-performance.now()));if(document.readyState==='complete')wait();else addEventListener('load',wait);setTimeout(go,5000)})();
+(function(){const sp=$('#splash');if(!sp)return;let done=false;const H=document.documentElement;const go=()=>{if(done)return;done=true;H.classList.add('spl-go');void sp.offsetWidth;requestAnimationFrame(()=>{H.classList.remove('spl');sp.classList.add('out')});setTimeout(()=>{sp.remove();H.classList.remove('spl-go')},1700)};const wait=()=>setTimeout(go,Math.max(0,2500-performance.now()));if(document.readyState==='complete')wait();else addEventListener('load',wait);setTimeout(go,5000)})();
 const MSK='minerva-dialler-ms',MS_AT=[10,25,50,75,100,150,200,300];
 function milestone(nx){
  let st={};try{st=JSON.parse(localStorage.getItem(MSK)||'{}')}catch(e){}
