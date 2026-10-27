@@ -1336,7 +1336,7 @@ function logCall(o){
   S.last=x.id;S.view='card';save();render();toast('Undone. Back on '+title(x))}});
  milestone(nx);
 }
-(function(){const sp=$('#splash');if(!sp)return;let done=false;const go=()=>{if(done)return;done=true;sp.classList.add('out');setTimeout(()=>sp.remove(),700)};const wait=()=>setTimeout(go,Math.max(0,1600-performance.now()));if(document.readyState==='complete')wait();else addEventListener('load',wait);setTimeout(go,4000)})();
+(function(){const sp=$('#splash');if(!sp)return;let done=false;const go=()=>{if(done)return;done=true;sp.classList.add('out');setTimeout(()=>sp.remove(),700)};const wait=()=>setTimeout(go,Math.max(0,2500-performance.now()));if(document.readyState==='complete')wait();else addEventListener('load',wait);setTimeout(go,5000)})();
 const MSK='minerva-dialler-ms',MS_AT=[10,25,50,75,100,150,200,300];
 function milestone(nx){
  let st={};try{st=JSON.parse(localStorage.getItem(MSK)||'{}')}catch(e){}
