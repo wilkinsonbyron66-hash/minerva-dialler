@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
 <title>Minerva Dialler</title>
-<script>try{var _t=localStorage.getItem("minerva-dialler-theme");if(_t==="light"||_t==="dark")document.documentElement.setAttribute("data-theme",_t)}catch(e){}</script>
+<script>try{if((matchMedia("(display-mode: standalone)").matches||navigator.standalone)&&!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("spl")}catch(e){}try{var _t=localStorage.getItem("minerva-dialler-theme");if(_t==="light"||_t==="dark")document.documentElement.setAttribute("data-theme",_t)}catch(e){}</script>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#004679">
 <link rel="icon" href="icon-192.png">
@@ -674,8 +674,12 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
 @keyframes burst{0%{opacity:1;transform:rotate(var(--a)) translateX(0) scale(1)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d)) scale(.4)}}
 /* Splash (only when opened from the home screen) */
 #splash{display:none}
-@media (display-mode:standalone){#splash{display:flex;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;background:linear-gradient(160deg,#003660,#004679 60%,#005a92);transition:opacity .6s ease}#splash img{width:200px;animation:fadeUp .7s ease both}}
-#splash.out{opacity:0;pointer-events:none}
+@media (display-mode:standalone){#splash{display:flex;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;background:linear-gradient(160deg,#003660,#004679 60%,#005a92);overflow:hidden}#splash img{width:200px;opacity:0;transform:scale(.8);transition:opacity .8s ease,transform 1s cubic-bezier(.2,.8,.2,1);will-change:transform,opacity}#splash.in img{opacity:1;transform:none}}
+#splash.out{opacity:0;pointer-events:none;transition:opacity .45s ease .35s}
+#splash.out img{transform:scale(10);opacity:0;transition:transform .8s cubic-bezier(.65,0,.3,1),opacity .3s ease .45s}
+@keyframes spIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:none}}
+html.spl body>*:not(#splash){transform:scale(1.08);opacity:0}
+html.spl-go body>*:not(#splash){transition:transform .8s cubic-bezier(.2,.8,.2,1) .2s,opacity .5s ease .25s}
 /* Navy behind the iPhone status bar */
 body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top,0px);background:#003660;z-index:30}
 @media (prefers-reduced-motion:reduce){#cele.show .cbox,#cele.show i,#splash img{animation:none}#cele i{display:none}}
@@ -695,6 +699,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
 </head>
 <body>
 <div id="splash" aria-hidden="true"><img src="logo-white.png" alt=""></div>
+<script>requestAnimationFrame(function(){requestAnimationFrame(function(){var s=document.getElementById("splash");if(s)s.classList.add("in")})})</script>
 <header>
  <h1 class="brand"><img src="logo-white.png" alt="Minerva Technologies"><span class="app">Dialler</span></h1>
  <div class="stat"><span id="stat">No leads yet</span><div class="bar"><i id="prog" style="width:0"></i></div></div>
@@ -1336,7 +1341,7 @@ function logCall(o){
   S.last=x.id;S.view='card';save();render();toast('Undone. Back on '+title(x))}});
  milestone(nx);
 }
-(function(){const sp=$('#splash');if(!sp)return;let done=false;const go=()=>{if(done)return;done=true;sp.classList.add('out');setTimeout(()=>sp.remove(),700)};const wait=()=>setTimeout(go,Math.max(0,2500-performance.now()));if(document.readyState==='complete')wait();else addEventListener('load',wait);setTimeout(go,5000)})();
+(function(){const sp=$('#splash');if(!sp)return;let done=false;const H=document.documentElement;const go=()=>{if(done)return;done=true;H.classList.add('spl-go');void sp.offsetWidth;requestAnimationFrame(()=>{H.classList.remove('spl');sp.classList.add('out')});setTimeout(()=>{sp.remove();H.classList.remove('spl-go')},1000)};const wait=()=>setTimeout(go,Math.max(0,2500-performance.now()));if(document.readyState==='complete')wait();else addEventListener('load',wait);setTimeout(go,5000)})();
 const MSK='minerva-dialler-ms',MS_AT=[10,25,50,75,100,150,200,300];
 function milestone(nx){
  let st={};try{st=JSON.parse(localStorage.getItem(MSK)||'{}')}catch(e){}
