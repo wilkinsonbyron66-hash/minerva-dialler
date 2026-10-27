@@ -558,6 +558,52 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
 .dial,#tabs .tright #resume2,.primary,.sales,.cpall,#kbok,.seg .on,#tabs .segtabs button.on,.hist b.co,.tile i{font-weight:600}
 .fields label .grip{font-weight:400}
 
+
+/* ===== WhatsApp, temperature tags, templates, duplicates, menu backup card ===== */
+:root{--h-hot:#E5484D;--h-warm:#E8A33D;--h-cold:#3E8ED0;--wa:#1DA851}
+.chr .wa{display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:var(--wa);border:1.5px solid color-mix(in srgb,var(--wa) 55%,transparent);background:color-mix(in srgb,var(--wa) 8%,var(--panel));border-radius:999px;padding:9px 16px;font-size:15px;font-weight:600;transition:background .15s,transform .1s}
+.chr .wa:hover{background:color-mix(in srgb,var(--wa) 16%,var(--panel))}.chr .wa:active{transform:scale(.97)}
+.heat{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.heat button,.heatf button{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px;font-size:12.5px;font-weight:400;background:transparent;border:1px solid var(--line);color:var(--mute);box-shadow:none;min-height:0}
+.heat button i,.heatf button i,.hdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--hc,var(--mute));flex:0 0 auto}
+.h-hot{--hc:var(--h-hot)}.h-warm{--hc:var(--h-warm)}.h-cold{--hc:var(--h-cold)}
+.heat button.on,.heatf button.on{background:color-mix(in srgb,var(--hc,var(--accent)) 14%,var(--panel));border-color:var(--hc,var(--accent));color:var(--ink);font-weight:600}
+.heatf{display:flex;gap:4px;margin-top:6px}.heatf button{flex:1;justify-content:center;padding:3px 4px;font-size:12px}
+.heatf button em{font-style:normal;color:var(--mute);font-size:11px}
+.hdot{margin-right:6px;vertical-align:1px}
+.embar{display:flex;gap:8px;flex-wrap:wrap}
+#tplp,#dupp{position:fixed;inset:0;background:rgba(0,20,35,.4);z-index:15;display:flex;align-items:center;justify-content:center;padding:16px}
+#tplp[hidden],#dupp[hidden],#tplview[hidden],#tplform[hidden]{display:none}
+#tplp .srbox{max-width:620px;max-height:calc(100vh - 32px);overflow:auto}#dupp .srbox{max-width:600px;max-height:calc(100vh - 32px);display:flex;flex-direction:column}
+#dupp .srbd{overflow:hidden;min-height:0;flex:1}
+#tplp:not([hidden]),#dupp:not([hidden]){animation:fadeIn .15s ease both}
+#tplp:not([hidden]) .srbox,#dupp:not([hidden]) .srbox{animation:popIn .2s cubic-bezier(.2,.8,.3,1) both}
+.tpls{display:flex;gap:6px;flex-wrap:wrap}
+.tpls button{border-radius:999px;padding:5px 13px;font-size:13px;min-height:0}
+.tpls button.on{background:var(--accent);color:var(--onacc,#fff);border-color:var(--accent)}
+.tpls .tadd{display:inline-flex;align-items:center;gap:4px;color:var(--accent)}
+.tplfor{margin:0;color:var(--mute);font-size:13px}
+.tplbox{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.tplh{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 6px 12px;background:var(--fill,rgba(0,0,0,.03));font-size:12px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.tplh button{text-transform:none;letter-spacing:0;font-size:13px;padding:4px 12px;min-height:0}
+.tplout{padding:10px 12px;font-size:14px;white-space:pre-wrap;user-select:text;line-height:1.45}
+.tplbody{max-height:300px;overflow:auto}
+#tplform{display:flex;flex-direction:column;gap:10px}#tplform label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute)}
+#tplform code{font-size:12px;background:var(--fill,rgba(0,0,0,.05));padding:1px 4px;border-radius:4px}
+.duplist{overflow:auto;max-height:50vh;border:1px solid var(--line);border-radius:10px}
+.duprow{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border-bottom:1px solid var(--line);font-size:13.5px;cursor:pointer}
+.duplist .duprow:last-child{border-bottom:0}.srbd .duprow,.srbd .dupall label{flex-direction:row;color:var(--ink);font-size:13.5px}.srbd .duprow input,.srbd .dupall input{width:16px;height:16px;padding:0;margin:2px 0 0;flex:0 0 auto;accent-color:var(--accent)}.dupall{border:0;padding:0 2px}.srbd .dupall label{display:flex;align-items:center;gap:8px;cursor:pointer}
+#dupmsg{margin:0;font-size:14px;line-height:1.45}
+.mgrid .msync{display:flex!important;align-items:flex-start;gap:11px;width:100%;text-align:left;border-radius:12px!important;padding:11px 13px!important;margin:4px 0 6px;background:color-mix(in srgb,var(--mc) 10%,var(--panel))!important;border:1px solid color-mix(in srgb,var(--mc) 35%,transparent)!important;color:var(--ink)}
+.msync.ok{--mc:var(--ok)}.msync.warn{--mc:var(--warn)}.msync.bad{--mc:var(--bad)}
+.msync>svg{color:var(--mc);margin-top:2px;flex:0 0 auto}
+.msync span{display:flex;flex-direction:column;gap:2px}.msync b{font-weight:600;font-size:14px}.msync em{font-style:normal;color:var(--mute);font-size:12.5px;line-height:1.35}
+@media (max-width:760px) and (hover:none) and (pointer:coarse){
+ .chr .wa{flex:1;justify-content:center;min-height:46px}
+ .heat button{padding:6px 13px;font-size:13.5px}.heatf button{padding:7px 4px;font-size:13px}
+ #tplp,#dupp{align-items:flex-end;padding:0}#tplp .srbox,#dupp .srbox{max-width:none;width:100%;border-radius:16px 16px 0 0;max-height:92vh;padding-bottom:env(safe-area-inset-bottom)}
+ .embar .embtn{flex:1}
+}
 </style>
 </head>
 <body>
@@ -594,6 +640,7 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
   <div class="filt">
    <input id="q" type="search" placeholder="Search company, contact, phone...">
    <div class="seg" id="seg"><button data-f="todo">To call</button><button data-f="done">Logged</button><button data-f="fu">Follow-ups</button><button data-f="all">All</button></div>
+   <div class="heatf" id="heatf" role="group" aria-label="Filter by temperature"><button data-hf="">Any</button><button data-hf="hot" class="h-hot">Hot</button><button data-hf="warm" class="h-warm">Warm</button><button data-hf="cold" class="h-cold">Cold</button></div>
   </div>
   <div id="list"></div>
  </aside>
@@ -661,12 +708,42 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
   <div class="drow"><button id="qnreset" title="Go back to the original phrases">Reset to default</button><button id="qnclose">Cancel</button><button class="sales" id="qnsave">Save</button></div>
  </div>
 </div></div>
+<div id="tplp" hidden><div class="srbox" role="dialog" aria-label="Email templates">
+ <div class="srhd"><img src="logo-white.png" alt="Minerva"><b>Email templates</b></div>
+ <div class="srbd">
+  <div class="tpls" id="tpls"></div>
+  <div id="tplview">
+   <p class="tplfor" id="tplfor"></p>
+   <div class="tplbox"><div class="tplh"><span>Subject</span><button type="button" id="tplcs">Copy subject</button></div><div class="tplout" id="tplsub"></div></div>
+   <div class="tplbox"><div class="tplh"><span>Email</span><button type="button" id="tplcb" class="sales">Copy email</button></div><div class="tplout tplbody" id="tplbody"></div></div>
+   <div class="drow"><button id="tpledit">Edit template</button><button id="tplmail" title="Opens a new email in Outlook (or your email app) with this filled in">Open in Outlook</button><button id="tplclose">Close</button></div>
+  </div>
+  <div id="tplform" hidden>
+   <label>Template name<input id="tpln" maxlength="40"></label>
+   <label>Subject<input id="tplsi"></label>
+   <label>Email<textarea id="tplbi" rows="10"></textarea></label>
+   <p class="mute">These fill in for each lead: <code>{first}</code> first name, <code>{contact}</code> full name, <code>{company}</code>, or any box name in curly brackets, e.g. <code>{Product}</code>.</p>
+   <div class="drow"><button class="danger" id="tpldel">Delete</button><button id="tplreset" title="Bring back the original templates">Reset all</button><button id="tplcancel">Cancel</button><button class="sales" id="tplsave">Save</button></div>
+  </div>
+ </div>
+</div></div>
+<div id="dupp" hidden><div class="srbox" role="dialog" aria-label="Possible duplicates">
+ <div class="srhd"><img src="logo-white.png" alt="Minerva"><b>Already in your leads?</b></div>
+ <div class="srbd">
+  <p id="dupmsg"></p>
+  <div class="duprow dupall"><label><input type="checkbox" id="dupall"> Add all of these anyway</label></div>
+  <div id="duplist" class="duplist"></div>
+  <div class="drow"><button id="dupcancel">Cancel import</button><button class="sales" id="dupok">Import</button></div>
+ </div>
+</div></div>
 <div id="kbtip" hidden role="dialog" aria-label="Keyboard shortcuts"><div class="kbh"><span id="kbic"></span><b>Work faster with shortcuts</b></div>
  <div class="kbg">
   <span><kbd>C</kbd> Call</span><span><kbd>1</kbd>–<kbd>6</kbd> Log outcome</span>
   <span><kbd>N</kbd> Next lead</span><span><kbd>P</kbd> Previous lead</span>
   <span><kbd>T</kbd> Type notes</span><span><kbd>Esc</kbd> Leave notes</span>
   <span><kbd>S</kbd> Copy selected</span><span><kbd>E</kbd> Log email reply</span>
+  <span><kbd>W</kbd> WhatsApp</span><span><kbd>M</kbd> Email templates</span>
+  <span><kbd>H</kbd> Hot / Warm / Cold</span><span></span>
   <span><kbd>/</kbd> Search leads</span><span><kbd>R</kbd> Resume</span>
   <span><kbd>Ctrl</kbd>+<kbd>Z</kbd> Undo</span><span><kbd>?</kbd> Show this again</span>
  </div>
@@ -922,7 +999,10 @@ install:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/>
 trash:'<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
 keyboard:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/>',
 edit:'<path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>',
-undo:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>'
+undo:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>',
+chat:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+tpl:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
+flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'
 };
 const ic=(n,z)=>'<svg class="ic" viewBox="0 0 24 24" width="'+(z||16)+'" height="'+(z||16)+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(IC[n]||'')+'</svg>';
 const FINE=matchMedia('(hover:hover) and (pointer:fine)');
@@ -1023,7 +1103,7 @@ function leadHistory(r){
 function visible(){
  const q=S.q.toLowerCase().trim(),dom=(q.match(/@([a-z0-9.-]+\.[a-z]{2,})/)||[])[1];
  const hit=r=>{const t=Object.values(r.f).join(' ').toLowerCase();return t.includes(q)||(dom&&!FREEMAIL.test(dom)&&t.includes(dom))};
- const v=S.rows.filter(r=>q?hit(r):(S.filter==='all'||(S.filter==='fu'?!!r.fu:(S.filter==='done')===!!r.done)));
+ const v=S.rows.filter(r=>q?hit(r):(S.filter==='all'||(S.filter==='fu'?!!r.fu:(S.filter==='done')===!!r.done))&&(!S.hf||r.h===S.hf));
  return S.filter==='fu'?v.slice().sort((a,b)=>a.fu-b.fu):v;
 }
 function renderList(){
@@ -1032,8 +1112,9 @@ function renderList(){
  {const nfu=S.rows.filter(r=>r.fu).length,ndue=S.rows.filter(r=>r.fu&&r.fu<=Date.now()).length,fb=document.querySelector('#seg [data-f=fu]'),fd=$('#fudue');if(fb)fb.textContent='Follow-ups'+(nfu?' ('+nfu+')':'');fd.hidden=!ndue;fd.innerHTML=ic('clock',14)+' '+ndue+'<span class="ll"> follow-up'+(ndue===1?'':'s')+' due</span>'}
  $('#prog').style.width=n?(100*done/n)+'%':'0';$('#prog2').style.width=$('#prog').style.width;$('#tstat').textContent=$('#stat').textContent;
  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.f===S.filter));
+ {const hc={};S.rows.forEach(r=>{if(r.h)hc[r.h]=(hc[r.h]||0)+1});document.querySelectorAll('#heatf button').forEach(b=>{const h=b.dataset.hf;b.classList.toggle('on',(S.hf||'')===h);if(h)b.innerHTML='<i></i>'+HEAT[h]+(hc[h]?' <em>'+hc[h]+'</em>':'')})}
  const v=visible();
- $('#list').innerHTML=v.map(r=>'<div class="it'+(r.id===S.last?' on':'')+'" data-id="'+r.id+'">'+(r.done?'<span class="tag">'+esc(r.log.length?r.log[r.log.length-1].o:'Logged')+'</span>':'')+'<b>'+esc(title(r))+'</b><span>'+esc(sub(r))+'</span>'+(r.fu?'<span class="fub'+(r.fu<=Date.now()?' od':'')+'">'+ic('clock',12)+' '+esc(fuFmt(r.fu))+'</span>':'')+'</div>').join('')||'<p class="mute" style="padding:12px">'+(n?'Nothing here. Switch the filter above.':'Use Import list to start.')+'</p>';
+ $('#list').innerHTML=v.map(r=>'<div class="it'+(r.id===S.last?' on':'')+'" data-id="'+r.id+'">'+(r.done?'<span class="tag">'+esc(r.log.length?r.log[r.log.length-1].o:'Logged')+'</span>':'')+'<b>'+(r.h?'<i class="hdot h-'+r.h+'" title="'+HEAT[r.h]+'"></i>':'')+esc(title(r))+'</b><span>'+esc(sub(r))+'</span>'+(r.fu?'<span class="fub'+(r.fu<=Date.now()?' od':'')+'">'+ic('clock',12)+' '+esc(fuFmt(r.fu))+'</span>':'')+'</div>').join('')||'<p class="mute" style="padding:12px">'+(n?'Nothing here. Switch the filter above.':'Use Import list to start.')+'</p>';
 }
 const WIDE_RE=/detail|note|comment|remark|description|discuss|history/i;
 function isWide(c){return c.wide!==undefined?!!c.wide:WIDE_RE.test(c.n)}
@@ -1055,17 +1136,40 @@ function dialNum(ph){
  else if(/^9710?\d{8,9}$/.test(t))t=loc(t.slice(3));
  return t;
 }
+// WhatsApp needs the full international number without + (UAE local 05x -> 9715x)
+function waNum(ph){
+ let t=String(ph||'').split(/[\/,;]| or /i)[0].replace(/\(\s*0\s*\)/g,'').replace(/[^\d+]/g,'');
+ if(/^\+/.test(t))t=t.slice(1);else if(/^00/.test(t))t=t.slice(2);
+ else if(/^0\d{8,9}$/.test(t))t='971'+t.slice(1);
+ else if(/^5\d{8}$/.test(t))t='971'+t;
+ return t.replace(/\D/g,'').length>=9?t.replace(/\D/g,''):'';
+}
+const HEAT={hot:'Hot',warm:'Warm',cold:'Cold'};
+const TPL_DEFAULT=[
+ {n:'No answer',s:'Minerva Technologies: follow-up for {company}',b:'Dear {first},\n\nI tried to call you today about your earlier enquiry with Minerva Technologies.\n\nDo you have any current or upcoming requirements for two-way radios, wireless broadband links or body cameras? I would be happy to send a quote or set up a short call.\n\nBest regards,'},
+ {n:'After the call',s:'Thank you for your time, {first}',b:'Dear {first},\n\nThank you for taking my call today.\n\nAs discussed, \n\nPlease let me know if you need anything else from our side.\n\nBest regards,'},
+ {n:'Product info',s:'Minerva Technologies: product information for {company}',b:'Dear {first},\n\nAs promised, please find our product information attached.\n\nIf you share your requirement (quantity, site and use), I will prepare a quote for you.\n\nBest regards,'}
+];
+function tplList(){return Array.isArray(S.tpl)&&S.tpl.length?S.tpl:TPL_DEFAULT}
+function tplFill(t,r){
+ const nc=S.cols.find(c=>c.role!=='company'&&/first\s*name/i.test(c.n))||S.cols.find(c=>c.role!=='company'&&/contact|person|^name$|full\s*name/i.test(c.n));
+ const ct=String(val(r,cn('contact'))||(nc?val(r,nc.n):'')||'').trim(),first=ct.replace(/^(mr|mrs|ms|miss|dr|eng|engr)\.?\s+/i,'').split(/\s+/)[0]||'';
+ const m={first:first||'Sir/Madam',contact:ct||'Sir/Madam',company:title(r),name:first||'Sir/Madam'};
+ return String(t||'').replace(/\{([^{}]{1,60})\}/g,(x,k)=>{const kk=k.trim().toLowerCase();if(kk in m)return m[kk];const c=S.cols.find(c=>c.n.toLowerCase()===kk);return c?String(val(r,c.n)||''):x});
+}
+function emailOf(r){const c=S.cols.find(c=>/e-?mail/i.test(c.n)&&/@/.test(String(val(r,c.n))))||S.cols.find(c=>/@\S+\.\w/.test(String(val(r,c.n))));return c?(String(val(r,c.n)).match(/[^\s,;<>]+@[^\s,;<>]+\.\w+/)||[''])[0]:''}
+async function copyText(t){try{await navigator.clipboard.writeText(t);return true}catch(x){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(y){}a.remove();return ok}}
 const QN_DEFAULT=['GK answered','Email sent','No requirement now','Asked for a quote','Call back later','Sent brochure','Not the decision maker','Wrong contact'];
 function qnList(){return Array.isArray(S.qn)&&S.qn.length?S.qn:QN_DEFAULT}
 function renderCard(){
  const r=byId(S.last),c=$('#card'),m=$('#main');
  m.dataset.view=S.view;
  if(!r){c.innerHTML='<div class="empty"><h2>'+(S.rows.length?'All leads logged':'Import your leads')+'</h2><p>'+(S.rows.length?'Switch to Logged or All to review them, or import a new sheet.':'Choose a CSV or Excel file with your accounts and contacts. Every column comes in, and you pick which ones show here.')+'</p>'+(S.rows.length?'':'<p><button class="primary" data-impl>Import list</button></p>')+'</div>';return}
- const ph=val(r,cn('phone')),tel=dialNum(ph);
+ const ph=val(r,cn('phone')),tel=dialNum(ph),wa=waNum(ph);
  c.innerHTML='<div class="ctop"><button class="back" data-back>'+ic('back',16)+' Leads</button>'+(cn('company')?'':'<p class="warnb">No column is set as Company, so exports show the contact name instead. <button data-fields>Choose Company column</button></p>')+
- '<div class="ch"><div><h2 id="hd">'+esc(title(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p></div><div class="chr">'+cpAllBtn()+(tel?'<a class="dial" href="tel:'+esc(tel)+'" title="Dials '+esc(tel)+' (shortcut: C)">'+ic('phone',18)+' Call '+esc(tel)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+
+ '<div class="ch"><div><h2 id="hd">'+esc(title(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p><div class="heat" role="group" aria-label="Lead temperature">'+Object.keys(HEAT).map(h=>'<button type="button" class="h-'+h+(r.h===h?' on':'')+'" data-heat="'+h+'" aria-pressed="'+(r.h===h)+'" title="'+(r.h===h?'Clear the tag':'Mark as '+HEAT[h])+' (shortcut: H)"><i></i>'+HEAT[h]+'</button>').join('')+'</div></div><div class="chr">'+cpAllBtn()+(wa?'<a class="wa" href="https://wa.me/'+wa+'" target="_blank" rel="noopener" title="Open a WhatsApp chat with +'+wa+' (shortcut: W)">'+ic('chat',17)+' WhatsApp</a>':'')+(tel?'<a class="dial" href="tel:'+esc(tel)+'" title="Dials '+esc(tel)+' (shortcut: C)">'+ic('phone',18)+' Call '+esc(tel)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+
  '<div class="fields">'+S.cols.filter(x=>x.show).map(x=>{const v=val(r,x.n),wd=isWide(x),long=wd||String(v).length>60,pk=(S.pick||[]).includes(x.n);return '<label class="'+(wd?'wide':'')+(pk?' picked':'')+'" data-ci="'+S.cols.indexOf(x)+'"><button type="button" class="hide pbtn'+(pk?' on':'')+'" data-pick="'+esc(x.n)+'" aria-pressed="'+pk+'" title="'+(pk?'Remove from Copy selected':'Add to Copy selected')+'" aria-label="Select '+esc(x.n)+' for Copy selected">'+(pk?'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>')+'</button><button type="button" class="hide wbtn" data-wide="'+S.cols.indexOf(x)+'" title="'+(wd?'Make this box narrower':'Make this box full width')+'" aria-label="Toggle width of '+esc(x.n)+'">'+(wd?ic('shrink',14):ic('expand',14))+'</button><button type="button" class="hide" data-hide="'+S.cols.indexOf(x)+'" title="Hide this field (also removes it from the Excel export)" aria-label="Hide '+esc(x.n)+'">'+ic('x',14)+'</button><span class="grip" title="Drag to move this box"><span class="gd">'+ic('grip',12)+'</span>'+esc(x.n)+'</span>'+'<div class="fw'+(long?' ta':'')+'">'+(long?'<textarea rows="3" data-f="'+esc(x.n)+'">'+esc(v)+'</textarea>':'<input data-f="'+esc(x.n)+'" value="'+esc(v)+'">')+'<button type="button" class="cpy" data-copy title="Copy '+esc(x.n)+'" aria-label="Copy '+esc(x.n)+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>'+'</label>'}).join('')+'</div>'+
- addBoxHtml()+'<div class="log"><h3>Previous dealings with '+esc(title(r))+'</h3>'+histHtml(r)+'<button type="button" class="embtn" data-em>'+ic('mail',15)+' Log email reply</button>'+
+ addBoxHtml()+'<div class="log"><h3>Previous dealings with '+esc(title(r))+'</h3>'+histHtml(r)+'<div class="embar"><button type="button" class="embtn" data-em>'+ic('mail',15)+' Log email reply</button><button type="button" class="embtn" data-tpl title="Copy a ready-made email for this lead (shortcut: M)">'+ic('tpl',15)+' Email templates</button></div>'+
 '<h3 style="margin-top:16px">'+(r.done?'Logged. Add notes or call again':'Live call notes')+'</h3><textarea id="note" rows="6" placeholder="Type what is said, names, numbers, quantities, extensions...">'+esc(r.draft||'')+'</textarea><div class="qn">'+qnList().map((p,i)=>'<button type="button" class="qnb" data-qn="'+i+'">'+esc(p)+'</button>').join('')+'<button type="button" class="qnb qne" data-qnedit title="Edit quick notes" aria-label="Edit quick notes">'+ic('edit',13)+'</button></div><p class="draftmsg">Saved as you type. Pressing an outcome logs these notes to the report and loads the next lead.</p>'+fuHtml(r)+
 '<div class="oc">'+OUT.map(o=>'<button data-o="'+o+'">'+o+'</button>').join('')+(r.done?'<button data-reopen>Put back in To call</button>':'')+'<button class="del" data-delete>Delete lead</button></div></div>';
  fitAll();
@@ -1076,12 +1180,12 @@ function render(){renderList();renderCard();if(S.tab==='dash')renderDash();if(S.
 function select(id,view){S.last=id;if(view)S.view=view;save();render();const e=document.querySelector('.it.on');if(e)e.scrollIntoView({block:'nearest'})}
 function nextTodo(from){
  const i=S.rows.findIndex(r=>r.id===from),a=S.rows.slice(i+1).concat(S.rows.slice(0,i+1));
- return a.find(r=>!r.done&&r.id!==from);
+ return (S.hf&&a.find(r=>!r.done&&r.id!==from&&r.h===S.hf))||a.find(r=>!r.done&&r.id!==from);
 }
 function resume(){
  if(S.tab==='dash')setTab('dial');
  S.filter='todo';S.q='';$('#q').value='';
- const r=(byId(S.last)&&!byId(S.last).done)?byId(S.last):S.rows.find(r=>!r.done);
+ const r=(byId(S.last)&&!byId(S.last).done&&(!S.hf||byId(S.last).h===S.hf))?byId(S.last):(S.hf&&S.rows.find(r=>!r.done&&r.h===S.hf))||S.rows.find(r=>!r.done);
  if(r)select(r.id,'card');else{S.last=null;render();toast('Every lead is logged')}
 }
 function logCall(o){
@@ -1098,6 +1202,8 @@ function logCall(o){
 $('#list').onclick=e=>{const i=e.target.closest('.it');if(i)select(+i.dataset.id,'card')};
 $('#card').onclick=async e=>{
  if(e.target.closest('[data-em]')){openEmail(S.last);return}
+ if(e.target.closest('[data-tpl]')){openTpl();return}
+ const htb=e.target.closest('[data-heat]');if(htb){setHeat(htb.dataset.heat);return}
  const eme=e.target.closest('[data-emedit]');if(eme){openEmail(S.last,eme.dataset.emedit);return}
  const emd=e.target.closest('[data-emdel]');
  if(emd){const r=byId(S.last);if(!r)return;const t=emd.dataset.emdel;const gone=(r.em||[]).find(m=>emId(m)===t);r.em=(r.em||[]).filter(m=>emId(m)!==t);save();renderCard();if(!$('#elog').hidden)renderElog();toast('Email entry deleted',{fn:()=>{if(!gone)return;r.em=(r.em||[]).concat(gone).sort((a,b)=>a.t-b.t);save();if(r.id===S.last)renderCard();if(!$('#elog').hidden)renderElog();toast('Email entry restored')}});return}
@@ -1151,6 +1257,8 @@ $('#card').oninput=e=>{
 $('#card').onchange=e=>{if(e.target.id==='fud'||e.target.id==='fut'){if($('#fud').value)fuFromInputs();return}renderList()};
 $('#q').oninput=e=>{S.q=e.target.value;renderList()};
 $('#seg').onclick=e=>{const f=e.target.dataset.f;if(f){S.filter=f;save();renderList()}};
+$('#heatf').onclick=e=>{const b=e.target.closest('[data-hf]');if(!b)return;const h=b.dataset.hf;S.hf=(S.hf||'')===h&&h?'':h;save();renderList();if(S.hf){const v=visible();if(v.length&&!v.some(r=>r.id===S.last))select(v[0].id,FINE.matches?'card':S.view)}};
+function setHeat(h){const r=byId(S.last);if(!r)return;const was=r.h||'';if(was===h)delete r.h;else r.h=h;save();keepFocus(renderCard);renderList();window.syncSoon&&syncSoon();toast(r.h?title(r)+' marked '+HEAT[r.h]:'Tag cleared',{fn:()=>{if(was)r.h=was;else delete r.h;save();if(r.id===S.last)renderCard();renderList();window.syncSoon&&syncSoon()}})}
 $('#resume').onclick=resume;
 $('#addlead').onclick=()=>{
  if(!S.cols.length){S.cols=['Company','Contact','Phone','Email','Notes'].map(n=>({n,show:true,role:''}));guess(S.cols)}
@@ -1279,24 +1387,70 @@ function importList(js,names){
   S.filter='todo';S.q='';$('#q').value='';S.last=S.rows.length?S.rows[0].id:null;S.view='list';save();render();renderCols();
   toast(S.rows.length+' leads imported. Use Fields to choose what shows');return;
  }
- const map={};
- names.forEach(n=>{const ex=S.cols.find(c=>norm(c.n)===norm(n));if(ex)map[n]=ex.n;else{S.cols.push({n,show:true,role:''});S.rows.forEach(r=>{if(r.f[n]==null)r.f[n]=''});map[n]=n}});
+ const map={},newCols=[];
+ names.forEach(n=>{const ex=S.cols.find(c=>norm(c.n)===norm(n));if(ex)map[n]=ex.n;else{newCols.push(n);map[n]=n}});
  const coN=cn('company'),phN=cn('phone');
- const key=f=>norm(f[coN])+'|'+dg(f[phN]);
- const seen=new Set(S.rows.map(r=>key(r.f)));
- let add=0,dup=0,first=null;
+ const coK=v=>gNormCo(v),phK=v=>{const d=dg(v);return d.length>=7?d:''};
+ const byCo=new Map(),byPh=new Map();
+ S.rows.forEach(r=>{const c=coK(val(r,coN)),p=phK(val(r,phN));if(c&&!byCo.has(c))byCo.set(c,r);if(p&&!byPh.has(p))byPh.set(p,r)});
+ const inFile=new Set(),fresh=[],dups=[];let same=0;
  js.forEach(o=>{
-  const f={};S.cols.forEach(c=>f[c.n]='');
-  names.forEach(n=>{f[map[n]]=o[n]==null?'':o[n]});
-  const k=key(f);
-  if(k!=='|'&&seen.has(k)){dup++;return}
-  seen.add(k);const r={id:S.nid++,f,log:[],done:false};S.rows.push(r);add++;if(first==null)first=r.id;
+  const f={};names.forEach(n=>{f[map[n]]=o[n]==null?'':o[n]});
+  const c=coK(f[coN]),p=phK(f[phN]),k=c+'|'+p;
+  if(k!=='|'){if(inFile.has(k)){same++;return}inFile.add(k)}
+  const m=(c&&byCo.get(c))||(p&&byPh.get(p));
+  if(m)dups.push({f,m,why:c&&byCo.get(c)?(p&&byPh.get(p)===m?'same company and phone':'same company'):'same phone number'});else fresh.push(f);
  });
- S.filter='todo';S.q='';$('#q').value='';
- if(!byId(S.last)||byId(S.last).done)S.last=first!=null?first:S.last;
- save();render();renderCols();
- toast(add+' new lead'+(add===1?'':'s')+' added'+(dup?', '+dup+' duplicate'+(dup===1?'':'s')+' skipped':''));
+ const finish=(extra)=>{
+  newCols.forEach(n=>{S.cols.push({n,show:true,role:''});S.rows.forEach(r=>{if(r.f[n]==null)r.f[n]=''})});
+  let first=null;const all=fresh.concat(extra);
+  all.forEach(f0=>{const f={};S.cols.forEach(c=>f[c.n]=f0[c.n]==null?'':f0[c.n]);const r={id:S.nid++,f,log:[],done:false};S.rows.push(r);if(first==null)first=r.id});
+  S.filter='todo';S.q='';$('#q').value='';
+  if(!byId(S.last)||byId(S.last).done)S.last=first!=null?first:S.last;
+  save();render();renderCols();
+  const skip=dups.length-extra.length+same;
+  toast(all.length+' new lead'+(all.length===1?'':'s')+' added'+(skip?', '+skip+' duplicate'+(skip===1?'':'s')+' skipped':''));
+ };
+ if(!dups.length){finish([]);return}
+ DUP={dups,finish};
+ const st=r=>r.done?(r.log.length?r.log[r.log.length-1].o:'Logged'):'To call';
+ $('#dupmsg').innerHTML='<b>'+dups.length+'</b> of the '+js.length+' rows look like leads you already have. They are skipped unless you tick them.'+(fresh.length?' <b>'+fresh.length+'</b> new lead'+(fresh.length===1?'':'s')+' will be added.':'')+(same?' '+same+' repeated row'+(same===1?'':'s')+' inside the file will be skipped.':'');
+ $('#dupall').checked=false;
+ $('#duplist').innerHTML=dups.slice(0,300).map((d,i)=>'<label class="duprow"><input type="checkbox" data-dup="'+i+'"><span><b>'+esc(String(d.f[coN]||d.f[phN]||'(blank)'))+'</b>'+(d.f[phN]?' <span class="mute">'+esc(String(d.f[phN]))+'</span>':'')+'<br><span class="mute">Matches <b>'+esc(title(d.m))+'</b>'+(val(d.m,phN)?' ('+esc(String(val(d.m,phN)))+')':'')+', '+d.why+' &middot; '+esc(st(d.m))+'</span></span></label>').join('')+(dups.length>300?'<p class="mute">+ '+(dups.length-300)+' more (use "Add all" to include them)</p>':'');
+ updDup();$('#dupp').hidden=false;
 }
+let DUP=null;
+function updDup(){if(!DUP)return;const n=$('#dupall').checked?DUP.dups.length:document.querySelectorAll('#duplist [data-dup]:checked').length;$('#dupok').textContent=n?'Import, including '+n+' duplicate'+(n===1?'':'s'):'Import, skip duplicates'}
+$('#duplist').onchange=updDup;
+$('#dupall').onchange=()=>{document.querySelectorAll('#duplist [data-dup]').forEach(x=>x.checked=$('#dupall').checked);updDup()};
+$('#dupcancel').onclick=()=>{DUP=null;$('#dupp').hidden=true;toast('Import cancelled. Nothing was added')};
+$('#dupok').onclick=()=>{if(!DUP)return;const d=DUP;DUP=null;$('#dupp').hidden=true;const ex=$('#dupall').checked?d.dups.map(x=>x.f):[...document.querySelectorAll('#duplist [data-dup]:checked')].map(x=>d.dups[+x.dataset.dup].f);d.finish(ex)};
+// ---- Email templates ----
+let TPLI=0,TPLE=-1;
+function openTpl(){const r=byId(S.last);if(!r){toast('Open a lead first');return}TPLI=Math.min(TPLI,tplList().length-1);TPLE=-1;renderTpl();$('#tplp').hidden=false}
+function renderTpl(){
+ const r=byId(S.last),L=tplList(),t=L[TPLI]||L[0];
+ $('#tpls').innerHTML=L.map((x,i)=>'<button type="button" class="'+(i===TPLI?'on':'')+'" data-ti="'+i+'">'+esc(x.n)+'</button>').join('')+(L.length<20?'<button type="button" class="tadd" data-tnew>'+ic('plus',14)+' New</button>':'');
+ const ed=TPLE!==-1;$('#tplview').hidden=ed;$('#tplform').hidden=!ed;
+ if(ed){const x=TPLE===-2?{n:'',s:'',b:'Dear {first},\n\n\n\nBest regards,'}:L[TPLE];$('#tpln').value=x.n;$('#tplsi').value=x.s;$('#tplbi').value=x.b;$('#tpldel').hidden=TPLE===-2||L.length<2;return}
+ if(!r||!t)return;
+ const em=emailOf(r);
+ $('#tplfor').innerHTML='For <b>'+esc(title(r))+'</b>'+(em?' &middot; '+esc(em):'');
+ $('#tplsub').textContent=tplFill(t.s,r);$('#tplbody').textContent=tplFill(t.b,r);
+}
+function tplSaveAll(L){S.tpl=L;S.setAt=Date.now();save();window.syncSoon&&syncSoon()}
+$('#tpls').onclick=e=>{const b=e.target.closest('[data-ti]');if(b){TPLI=+b.dataset.ti;TPLE=-1;renderTpl();return}if(e.target.closest('[data-tnew]')){TPLE=-2;renderTpl();setTimeout(()=>$('#tpln').focus(),30)}};
+$('#tplcs').onclick=async()=>{if(await copyText($('#tplsub').textContent))toast('Subject copied');else toast('Copy blocked by the browser')};
+$('#tplcb').onclick=async()=>{if(await copyText($('#tplbody').textContent))toast('Email copied. Paste it into Outlook');else toast('Copy blocked by the browser')};
+$('#tplmail').onclick=()=>{const r=byId(S.last);if(!r)return;location.href='mailto:'+encodeURIComponent(emailOf(r))+'?subject='+encodeURIComponent($('#tplsub').textContent)+'&body='+encodeURIComponent($('#tplbody').textContent)};
+$('#tpledit').onclick=()=>{TPLE=TPLI;renderTpl();setTimeout(()=>$('#tplbi').focus(),30)};
+$('#tplcancel').onclick=()=>{TPLE=-1;renderTpl()};
+$('#tplsave').onclick=()=>{const n=$('#tpln').value.trim()||'Template',x={n,s:$('#tplsi').value.trim(),b:$('#tplbi').value.replace(/\s+$/,'')};const L=tplList().map(t=>Object.assign({},t));if(TPLE===-2){L.push(x);TPLI=L.length-1}else L[TPLE]=x;tplSaveAll(L);TPLE=-1;renderTpl();toast('Template saved')};
+$('#tpldel').onclick=()=>{const L=tplList().map(t=>Object.assign({},t)),i=TPLE,gone=L[i];L.splice(i,1);tplSaveAll(L);TPLI=0;TPLE=-1;renderTpl();toast('Template "'+gone.n+'" deleted',{fn:()=>{const M=tplList().map(t=>Object.assign({},t));M.splice(i,0,gone);tplSaveAll(M);if(!$('#tplp').hidden)renderTpl();toast('Template restored')}})};
+$('#tplreset').onclick=async()=>{if(!(await ask('Replace your templates with the original ones?','Reset',true)))return;tplSaveAll(TPL_DEFAULT.map(t=>Object.assign({},t)));TPLI=0;TPLE=-1;renderTpl()};
+$('#tplclose').onclick=()=>$('#tplp').hidden=true;
+$('#tplp').onclick=e=>{if(e.target.id==='tplp')$('#tplp').hidden=true};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#tplp').hidden){if(TPLE!==-1){TPLE=-1;renderTpl()}else $('#tplp').hidden=true}else if(!$('#dupp').hidden)$('#dupcancel').click()}});
 $('#impl').onclick=()=>$('#file3').click();
 $('#file3').onchange=e=>{
  const file=e.target.files[0];e.target.value='';if(!file)return;
@@ -1588,14 +1742,14 @@ $('#addf').onclick=()=>{
 $('#qnclose').onclick=()=>$('#qnp').hidden=true;
 $('#qnp').onclick=e=>{if(e.target.id==='qnp')$('#qnp').hidden=true};
 $('#qnreset').onclick=()=>{$('#qntext').value=QN_DEFAULT.join('\n')};
-$('#qnsave').onclick=()=>{const l=$('#qntext').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,20);S.qn=l.length?l:QN_DEFAULT.slice();save();$('#qnp').hidden=true;keepFocus(renderCard);toast('Quick notes saved')};
+$('#qnsave').onclick=()=>{const l=$('#qntext').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,20);S.qn=l.length?l:QN_DEFAULT.slice();S.setAt=Date.now();save();window.syncSoon&&syncSoon();$('#qnp').hidden=true;keepFocus(renderCard);toast('Quick notes saved')};
 
 // ---- Keyboard shortcuts ----
 const KBK='minerva-dialler-kbtip';
 function showKb(){$('#kbtip').hidden=false;setTimeout(()=>$('#kbok').focus(),50)}
 function hideKb(){$('#kbtip').hidden=true;try{localStorage.setItem(KBK,'1')}catch(e){}}
 $('#kbok').onclick=hideKb;$('#kbbtn').onclick=showKb;
-const OVL=['#dlg','#srp','#gsp','#emp','#qnp','#msheet','#det','#rep','#cols','#txt','#elog'];
+const OVL=['#dlg','#srp','#gsp','#emp','#qnp','#tplp','#dupp','#msheet','#det','#rep','#cols','#txt','#elog'];
 function moveLead(d){const v=visible();if(!v.length)return;let i=v.findIndex(r=>r.id===S.last);i=i<0?0:Math.max(0,Math.min(v.length-1,i+d));select(v[i].id,'card')}
 document.addEventListener('keydown',e=>{
  const t=e.target,tag=(t.tagName||'').toLowerCase(),typing=tag==='input'||tag==='textarea'||tag==='select'||t.isContentEditable;
@@ -1617,6 +1771,9 @@ document.addEventListener('keydown',e=>{
  if(/^[1-6]$/.test(k)){e.preventDefault();const b=document.querySelector('#card [data-o="'+OUT[+k-1]+'"]');if(b)animIn(b,'kbflash');logCall(OUT[+k-1]);return}
  if(lk==='t'){e.preventDefault();const n=$('#note');if(n){n.focus();n.setSelectionRange(n.value.length,n.value.length)}return}
  if(lk==='e'){e.preventDefault();openEmail(S.last);return}
+ if(lk==='w'){e.preventDefault();const a=document.querySelector('#card .wa');if(a){animIn(a,'kbflash');a.click()}else toast('No WhatsApp number on this lead');return}
+ if(lk==='m'){e.preventDefault();openTpl();return}
+ if(lk==='h'){e.preventDefault();const o=['hot','warm','cold',''],i=o.indexOf(r.h||'');const n=o[(i+1)%4];if(n)setHeat(n);else setHeat(r.h);return}
  if(lk==='s'){e.preventDefault();const b=document.querySelector('#card [data-cpall]');if(b&&!b.disabled)b.click();else toast('Tick the boxes you want to copy first');return}
 });
 
@@ -1632,8 +1789,15 @@ $('#thbtn').onclick=()=>{THEME=THS[(THS.indexOf(THEME)+1)%3];try{localStorage.se
 // ---- Phone layout: menu sheet, no pinch zoom ----
 const MENU=[['Leads',['addlead','impl','imp','addcols','colbtn']],['Emails',['emglobal','elogbtn']],['Reports',['srbtn','repbtn','exp']],['Data',['bkp','rst','inst','reset']],['Help',['kbbtn']]];
 const MENUIC={addlead:'plus',impl:'upload',imp:'refresh',addcols:'columns',colbtn:'sliders',emglobal:'mail',elogbtn:'inbox',srbtn:'report',repbtn:'list',exp:'sheet',bkp:'save',rst:'restore',inst:'install',reset:'trash',kbbtn:'keyboard'};
+function syncCard(){
+ if(!G.url)return '<button class="msync bad" data-m="gsync">'+ic('alert',18)+'<span><b>Not backed up to Google</b><em>Your data is only on this device. Tap to set up backup.</em></span></button>';
+ const old=G.last&&Date.now()-G.last>864e5,cls=gState==='err'?'bad':(gState==='wait'||gState==='busy'||old)?'warn':'ok';
+ const head=gState==='err'?'Backup needs attention':gState==='busy'?'Backing up now...':gState==='wait'?'Changes waiting to back up':old?'Last backup '+ago(G.last):'Backed up to Google';
+ const sub=(G.last?'Last saved '+ago(G.last)+' ('+fmtT(G.last)+')':'Not saved yet')+' &middot; '+(G.leads||0).toLocaleString()+' leads, '+(G.calls||0).toLocaleString()+' calls in the backup';
+ return '<button class="msync '+cls+'" data-m="gsync">'+ic(cls==='ok'?'cloud':'alert',18)+'<span><b>'+head+'</b><em>'+sub+'</em></span></button>';
+}
 function openMenu(){
- $('#mgrid').innerHTML=MENU.map(([h,ids])=>{const bs=ids.map(id=>{const b=document.getElementById(id);if(!b||b.hidden||(id==='kbbtn'&&!FINE.matches))return '';return '<button data-m="'+id+'" class="'+(b.classList.contains('danger')?'danger':'')+'">'+ic(MENUIC[id]||'list',16)+'<span>'+esc(b.textContent.trim().replace(/^\+\s*Lead$/,'New lead'))+'</span></button>'}).join('');return bs?'<div class="mh">'+h+'</div>'+bs:''}).join('');
+ $('#mgrid').innerHTML=syncCard()+MENU.map(([h,ids])=>{const bs=ids.map(id=>{const b=document.getElementById(id);if(!b||b.hidden||(id==='kbbtn'&&!FINE.matches))return '';return '<button data-m="'+id+'" class="'+(b.classList.contains('danger')?'danger':'')+'">'+ic(MENUIC[id]||'list',16)+'<span>'+esc(b.textContent.trim().replace(/^\+\s*Lead$/,'New lead'))+'</span></button>'}).join('');return bs?'<div class="mh">'+h+'</div>'+bs:''}).join('');
  $('#msheet').hidden=false;
 }
 $('#morebtn').onclick=openMenu;$('#navmenu').onclick=openMenu;
@@ -1952,13 +2116,13 @@ function gUids(rows){
   const b=u;let i=2;while(seen.has(u))u=b+'#'+(i++);seen.add(u);r.u=u});
 }
 const lkey=l=>l.t+'|'+l.o;
-const gSig=rows=>JSON.stringify(rows.map(r=>[r.u,r.f,!!r.done,r.fu||null,r.log.length,emSig(r)]));
-function gHash(){const t=gSig(S.rows)+JSON.stringify(S.cols.map(c=>c.n));let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return h}
+const gSig=rows=>JSON.stringify(rows.map(r=>[r.u,r.f,!!r.done,r.fu||null,r.log.length,emSig(r),r.h||'']));
+function gHash(){const t=gSig(S.rows)+JSON.stringify(S.cols.map(c=>c.n))+(S.setAt||0);let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return h}
 function gCounts(st){st=st||S;return{leads:st.rows.length,calls:st.rows.reduce((n,r)=>n+((r.log||[]).length),0)}}
-const snapRow=r=>({f:Object.assign({},r.f),d:!!r.done,fu:r.fu||null,n:(r.log||[]).length,e:emSig(r),emt:Object.fromEntries((r.em||[]).map(m=>[emId(m),m.mt||0]))});
+const snapRow=r=>({f:Object.assign({},r.f),d:!!r.done,h:r.h||'',fu:r.fu||null,n:(r.log||[]).length,e:emSig(r),emt:Object.fromEntries((r.em||[]).map(m=>[emId(m),m.mt||0]))});
 function setBase(rows){BASE={};rows.forEach(r=>{if(r.u)BASE[r.u]=snapRow(r)});baseSave()}
 const same=(a,b)=>(a==null?'':String(a))===(b==null?'':String(b));
-function rowChanged(r,b){if(!b)return true;if(!same(!!r.done,b.d)||!same(r.fu,b.fu)||(r.log||[]).length!==b.n||emSig(r)!==(b.e||''))return true;const ks=new Set(Object.keys(r.f||{}).concat(Object.keys(b.f)));for(const k of ks)if(!same((r.f||{})[k],b.f[k]))return true;return false}
+function rowChanged(r,b){if(!b)return true;if(!same(r.h||'',b.h||'')||!same(!!r.done,b.d)||!same(r.fu,b.fu)||(r.log||[]).length!==b.n||emSig(r)!==(b.e||''))return true;const ks=new Set(Object.keys(r.f||{}).concat(Object.keys(b.f)));for(const k of ks)if(!same((r.f||{})[k],b.f[k]))return true;return false}
 // 3-way merge: local (this device) + remote (sheet) against BASE (what both agreed on last time)
 function gMerge(L,R){
  const rr=(R&&R.rows)||[];gUids(rr);gUids(L.rows);
@@ -1976,13 +2140,15 @@ function gMerge(L,R){
    if(a&&c)ems.push((c.mt||0)>(a.mt||0)?c:a);
    else{const x=a||c;if(!inB||(x.mt||0)>bem[id])ems.push(x)}});
   const m=Object.assign({},l,{f,dl:[...dls],log:[...logs.values()].sort((a,c)=>a.t-c.t),em:ems.sort((a,c)=>a.t-c.t),done:!!pick(!!l.done,!!r.done,b&&b.d),fu:pick(l.fu||null,r.fu||null,b&&b.fu)||null});
+  {const h=pick(l.h||'',r.h||'',b?(b.h||''):undefined);if(h)m.h=h;else delete m.h}
   if(m.fu==='')m.fu=null;if(m.fu)m.fu=+m.fu;
   out.push(m);usedIds.add(l.id);
  });
  rr.forEach(r=>{if(lm.has(r.u))return;const b=BASE[r.u];if(b&&!rowChanged(r,b))return;
   const n=Object.assign({},r,{log:(r.log||[]).slice(),draft:''});if(usedIds.has(n.id)||!n.id)n.id=nid++;usedIds.add(n.id);nid=Math.max(nid,n.id+1);out.push(n)});
  const cols=L.cols.slice();((R&&R.cols)||[]).forEach(c=>{if(!cols.some(x=>x.n===c.n))cols.push(Object.assign({},c))});
- return{rows:out,cols,nid};
+ const st=(R&&(R.setAt||0)>(L.setAt||0))?R:L;
+ return{rows:out,cols,nid,set:{qn:st.qn,tpl:st.tpl,setAt:st.setAt||0}};
 }
 function keepFocus(fn){
  const a=document.activeElement,sel=a&&a.closest&&a.closest('#card')?{id:a.id,f:a.dataset&&a.dataset.f,s:a.selectionStart,e:a.selectionEnd}:null;
@@ -1991,6 +2157,7 @@ function keepFocus(fn){
 }
 function gApply(M){
  S.rows=M.rows;S.cols=M.cols;S.nid=Math.max(S.nid||1,M.nid);
+ if(M.set&&(M.set.setAt||0)>(S.setAt||0)){if(M.set.qn)S.qn=M.set.qn;if(M.set.tpl)S.tpl=M.set.tpl;S.setAt=M.set.setAt}
  if(S.last!=null&&!byId(S.last)){const r=S.rows.find(r=>!r.done);S.last=r?r.id:null}
  G.h=gHash();save();keepFocus(()=>{render();renderCols()});
 }
@@ -2037,9 +2204,9 @@ async function gSync(){
    const R=j.state||{rows:[],cols:[]};
    if(!R.rows||!R.rows.length){BASE={};baseSave()}  // empty sheet: never treat as "everything deleted"
    const before=gSig(S.rows),M=gMerge(S,R);
-   if(gSig(M.rows)!==before||M.cols.length!==S.cols.length)gApply(M);
+   if(gSig(M.rows)!==before||M.cols.length!==S.cols.length||(M.set.setAt||0)>(S.setAt||0))gApply(M);
    const c=gCounts();
-   if(gSigS(S.rows)===gSigS(R.rows||[])&&S.cols.length===(R.cols||[]).length){
+   if(gSigS(S.rows)===gSigS(R.rows||[])&&S.cols.length===(R.cols||[]).length&&(S.setAt||0)===(R.setAt||0)){
     setBase(S.rows);Object.assign(G,{v:j.v,leads:c.leads,calls:c.calls,last:Date.now(),pending:false});G.h=gHash();gSave();gConflict=null;gStatus('ok');return}
    gStatus('busy');
    const r=await gPush(j.v);if(r!=='stale')return;
