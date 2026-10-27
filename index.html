@@ -776,6 +776,9 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
 .addbox{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .addbox .grpt{margin-left:auto}
 .addbox>.chips,.addbox>.newbox{flex-basis:100%}
+
+.chr .cpclr{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--line);color:var(--mute);border-radius:999px;padding:7px 12px;font-size:13px;box-shadow:none;cursor:pointer}
+.chr .cpclr:hover{color:var(--bad);border-color:var(--bad)}
 </style>
 </head>
 <body>
@@ -1311,7 +1314,7 @@ function addBoxHtml(){
  const hid=S.cols.map((c,i)=>[c,i]).filter(x=>!x[0].show);
  return '<div class="addbox"><button type="button" data-addtoggle>'+(ADDOPEN?'Close':'+ Add box')+'</button>'+(FINE.matches?'<button type="button" class="btnl grpt" data-grptoggle title="'+(S.nogrp?'Sort boxes into Contact, Enquiry and Record':'Show all boxes in one free layout')+'">'+ic(S.nogrp?'list':'columns',14)+' '+(S.nogrp?'Group boxes':'One free layout')+'</button>':'')+(ADDOPEN?'<div class="chips">'+(hid.length?hid.map(x=>'<button type="button" data-showf="'+x[1]+'">+ '+esc(x[0].n)+'</button>').join(''):'<span class="mute">All your fields are already shown. Create a new box below.</span>')+'</div><div class="newbox"><input id="newbox" placeholder="New box name, e.g. Last order date"><button type="button" data-newbox>Create box</button></div>':'')+'</div>';
 }
-function cpAllBtn(){const n=pickedCols().length;return '<button type="button" class="cpall" data-cpall'+(n?'':' disabled')+' title="'+(n?'Copy all ticked boxes, one per line':'Tick the boxes you want (\u2610 next to each box), then copy them all here in one click')+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> '+(n?'Copy '+n+' selected':'Copy selected')+'</button>'}
+function cpAllBtn(){const n=pickedCols().length;return '<button type="button" class="cpall" data-cpall'+(n?'':' disabled')+' title="'+(n?'Copy all ticked boxes, one per line':'Tick the boxes you want (\u2610 next to each box), then copy them all here in one click')+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> '+(n?'Copy '+n+' selected':'Copy selected')+'</button>'+(n?'<button type="button" class="cpclr" data-cpclear title="Untick all boxes" aria-label="Untick all boxes">'+ic('x',14)+' Unselect all</button>':'')}
 function pickedCols(){const p=S.pick||[];return S.cols.filter(c=>c.show&&p.includes(c.n))}
 // UAE numbers dial as local: +971 50 123 4567 -> 0501234567 (3CX)
 function dialNum(ph){
@@ -1441,6 +1444,7 @@ function celebrate(h,t){
 }
 $('#list').onclick=e=>{if(e.target.closest('[data-impl]')){$('#file3').click();return}const i=e.target.closest('.it');if(i)select(+i.dataset.id,'card')};
 $('#card').onclick=async e=>{
+ if(e.target.closest('[data-cpclear]')){const was=(S.pick||[]).slice();S.pick=[];save();keepFocus(renderCard);toast('All boxes unticked',{fn:()=>{S.pick=was;save();renderCard();toast('Ticks restored')}});return}
  if(e.target.closest('[data-grptoggle]')){S.nogrp=!S.nogrp;save();keepFocus(renderCard);toast(S.nogrp?'Boxes in one free layout. Drag them anywhere':'Boxes grouped into Contact, Enquiry and Record');return}
  if(e.target.closest('[data-em]')){openEmail(S.last);return}
  if(e.target.closest('[data-tpl]')){openTpl();return}
