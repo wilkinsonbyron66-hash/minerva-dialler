@@ -1,6 +1,6 @@
 // Minerva Dialler offline cache. Bump VERSION after uploading a new index.html.
-const VERSION = 'dialler-v38';
-const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './logo-white.png', './logo-navy.png', './jspdf.umd.min.js',
+const VERSION = 'dialler-v39';
+const CORE = ['./', './index.html', './manifest.webmanifest?v=2', './icon-v2-192.png', './icon-v2-512.png', './icon-v2-maskable.png', './logo-white.png', './logo-navy.png', './jspdf.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'];
