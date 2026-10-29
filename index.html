@@ -735,7 +735,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
  .chr .wa svg{width:22px;height:22px}
  .chr .nophone{order:1;flex:1;text-align:center;padding:12px}
  /* Order: enquiry, then notes, then contact & record details */
- .fgrp.g-e{order:1}.log{order:2}.fgrp.g-c{order:3}.fgrp.g-r{order:4}.addbox{order:5}
+ .fgrp.g-s{order:1}.fgrp.g-e{order:1}.log{order:2}.fgrp.g-c{order:3}.fgrp.g-h{order:3}.fgrp.g-r{order:4}.addbox{order:5}
  /* Boxes as an iOS grouped list */
  .fgrp{margin:14px 0 0!important;opacity:1!important}
  .fgh{margin:0 4px 6px!important;font-size:12px!important}
@@ -1305,14 +1305,14 @@ function renderList(){
   :S.filter==='fu'?emptyHtml('clock','No follow-ups scheduled','Set a follow-up date on a lead and it will appear here, soonest first.')
   :S.filter==='done'?emptyHtml('phone','Nothing logged yet','Calls you log show up here.'):emptyHtml('list','Nothing here','Switch the filter above.'));
 }
-const WIDE_RE=/detail|note|comment|remark|description|discuss|history/i;
+const WIDE_RE=/detail|note|comment|remark|description|discuss|history|angle|products?\s*bought|top\s*items/i;
 function isWide(c){return c.wide!==undefined?!!c.wide:WIDE_RE.test(c.n)}
 function fit(t){if(!t||!t.scrollHeight)return;t.style.height='auto';t.style.height=Math.min(t.scrollHeight+4,520)+'px'}
 function fitAll(){document.querySelectorAll('#card .fields textarea').forEach(fit)}
 let ADDOPEN=false;
 function addBoxHtml(){
  const hid=S.cols.map((c,i)=>[c,i]).filter(x=>!x[0].show);
- return '<div class="addbox"><button type="button" data-addtoggle>'+(ADDOPEN?'Close':'+ Add box')+'</button>'+(FINE.matches?'<button type="button" class="btnl grpt" data-grptoggle title="'+(S.nogrp?'Sort boxes into Contact, Enquiry and Record':'Show all boxes in one free layout')+'">'+ic(S.nogrp?'list':'columns',14)+' '+(S.nogrp?'Group boxes':'One free layout')+'</button>':'')+(ADDOPEN?'<div class="chips">'+(hid.length?hid.map(x=>'<button type="button" data-showf="'+x[1]+'">+ '+esc(x[0].n)+'</button>').join(''):'<span class="mute">All your fields are already shown. Create a new box below.</span>')+'</div><div class="newbox"><input id="newbox" placeholder="New box name, e.g. Last order date"><button type="button" data-newbox>Create box</button></div>':'')+'</div>';
+ return '<div class="addbox"><button type="button" data-addtoggle>'+(ADDOPEN?'Close':'+ Add box')+'</button>'+(FINE.matches?'<button type="button" class="btnl grpt" data-grptoggle title="'+(S.nogrp?'Sort boxes into Contact, Sales angle, Enquiry, Account history and Record':'Show all boxes in one free layout')+'">'+ic(S.nogrp?'list':'columns',14)+' '+(S.nogrp?'Group boxes':'One free layout')+'</button>':'')+(ADDOPEN?'<div class="chips">'+(hid.length?hid.map(x=>'<button type="button" data-showf="'+x[1]+'">+ '+esc(x[0].n)+'</button>').join(''):'<span class="mute">All your fields are already shown. Create a new box below.</span>')+'</div><div class="newbox"><input id="newbox" placeholder="New box name, e.g. Last order date"><button type="button" data-newbox>Create box</button></div>':'')+'</div>';
 }
 function cpAllBtn(){const n=pickedCols().length;return '<button type="button" class="cpall" data-cpall'+(n?'':' disabled')+' title="'+(n?'Copy all ticked boxes, one per line':'Tick the boxes you want (\u2610 next to each box), then copy them all here in one click')+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> '+(n?'Copy '+n+' selected':'Copy selected')+'</button>'+(n?'<button type="button" class="cpclr" data-cpclear title="Untick all boxes" aria-label="Untick all boxes">'+ic('x',14)+' Unselect all</button>':'')}
 function pickedCols(){const p=S.pick||[];return S.cols.filter(c=>c.show&&p.includes(c.n))}
@@ -1378,10 +1378,12 @@ function ctry(r){
  if(/^9715|^9714|^9712|^9716|^9717|^9719|^9713/.test(d)&&d.length>=11)return 'UAE';
  return '';
 }
-const FGROUPS=[['c','Contact'],['e','Enquiry'],['r','Record']];
+const FGROUPS=[['c','Contact'],['s','Sales angle'],['e','Enquiry'],['h','Account history'],['r','Record']];
+const GRP_S=/angle|pitch|hook|priority|tier|^rank$|flag|hand\s*rfq|\brfq\b|next\s*step|opportunit/i;
+const GRP_H=/past\s*sales|lifetime|total\s*(usd|sales|value|spend)|last\s*(bought|order|purchase)|first\s*(bought|order|year)|products?\s*bought|top\s*items|years?\s*active|^orders$|order\s*count|old\s*rep|previous\s*rep|sales\s*person|purchase\s*history|history/i;
 const GRP_R=/updated|modified|created|owner|assigned|^id$|lead\s*id|record|source|stage|closure|closed|deal\s*id|quot(e|ation)\s*(no|number|id|#)/i;
 const GRP_C=/e-?mail|phone|mobile|\btel\b|whatsapp|contact|person|first\s*name|last\s*name|full\s*name|^name$|designation|position|job|^title$|web|site|url|linkedin|city|country|location|address|company|account|organi[sz]ation|customer|client/i;
-function grpOf(c){if(c.grp)return c.grp;if(c.role)return 'c';if(GRP_R.test(c.n))return 'r';if(isWide(c))return 'e';if(GRP_C.test(c.n))return 'c';return 'e'}
+function grpOf(c){if(c.grp)return c.grp;if(c.role)return 'c';if(GRP_S.test(c.n))return 's';if(GRP_H.test(c.n))return 'h';if(GRP_R.test(c.n))return 'r';if(isWide(c))return 'e';if(GRP_C.test(c.n))return 'c';return 'e'}
 const EMPTY_IC={check:'<path d="M20 6 9 17l-5-5"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'};
 function emptyHtml(icon,head,text,btn){return '<div class="empty2"><span class="eic">'+(EMPTY_IC[icon]?'<svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+EMPTY_IC[icon]+'</svg>':ic(icon,26))+'</span><b>'+head+'</b><p>'+text+'</p>'+(btn||'')+'</div>'}
 const QN_DEFAULT=['GK answered','Email sent','No requirement now','Asked for a quote','Call back later','Sent brochure','Not the decision maker','Wrong contact'];
@@ -1445,7 +1447,7 @@ function celebrate(h,t){
 $('#list').onclick=e=>{if(e.target.closest('[data-impl]')){$('#file3').click();return}const i=e.target.closest('.it');if(i)select(+i.dataset.id,'card')};
 $('#card').onclick=async e=>{
  if(e.target.closest('[data-cpclear]')){const was=(S.pick||[]).slice();S.pick=[];save();keepFocus(renderCard);toast('All boxes unticked',{fn:()=>{S.pick=was;save();renderCard();toast('Ticks restored')}});return}
- if(e.target.closest('[data-grptoggle]')){S.nogrp=!S.nogrp;save();keepFocus(renderCard);toast(S.nogrp?'Boxes in one free layout. Drag them anywhere':'Boxes grouped into Contact, Enquiry and Record');return}
+ if(e.target.closest('[data-grptoggle]')){S.nogrp=!S.nogrp;save();keepFocus(renderCard);toast(S.nogrp?'Boxes in one free layout. Drag them anywhere':'Boxes grouped into Contact, Sales angle, Enquiry, Account history and Record');return}
  if(e.target.closest('[data-em]')){openEmail(S.last);return}
  if(e.target.closest('[data-tpl]')){openTpl();return}
  const htb=e.target.closest('[data-heat]');if(htb){setHeat(htb.dataset.heat);return}
