@@ -631,6 +631,15 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
 .fgrp{margin:6px 0 10px}
 .fgh{margin:10px 0 4px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 .fgrp.g-r{opacity:.85}
+.guide{margin:10px 0 6px;padding:10px 14px;border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:10px;background:var(--panel);order:0}
+.guide .gh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.guide .gh b{display:flex;align-items:center;gap:6px;font-size:14px}.guide .gh .mute{font-size:12.5px}.guide .gh .btnl{margin-left:auto;font-size:12.5px}
+.guide ol{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
+.guide li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--mute)}
+.guide li b{font-weight:600}.guide li.next{color:var(--ink)}.guide li.next b{color:var(--accent)}.guide li.done b{text-decoration:line-through;font-weight:500}
+.guide li p{margin:2px 0 4px;font-size:13px;line-height:1.45;color:var(--ink);max-width:70ch}
+.guide .gtick{flex:0 0 auto;width:20px;height:20px;border-radius:6px;border:2px solid var(--line);background:transparent;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px;line-height:1;padding:0;margin-top:1px}
+.guide li.done .gtick{background:var(--c-ok);border-color:var(--c-ok)}
+.guide button.gtick{cursor:pointer}.guide button.gtick:hover{border-color:var(--accent)}
 .hist li.rfqh .co{color:var(--c-ok)}
 .fgrp.g-x{margin-top:14px}.fgrp.g-x .etog{font-size:13px;color:var(--mute)}.fgrp.g-x .fields{margin-top:8px}
 .fgrp.g-r .fields label{font-size:11.5px}
@@ -794,6 +803,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
   <button id="morebtn" aria-label="More actions">&#9776; Menu</button>
   <button id="addlead">+ Lead</button>
   <button id="kbbtn" title="Keyboard shortcuts">Keyboard shortcuts</button>
+  <button id="guidebtn" title="Show or hide the step-by-step guide on dormant-list leads">Hide lead guide</button>
   <button id="emglobal" title="Log a client email reply: find the lead by pasting the email">Email reply</button>
   <button id="elogbtn" title="See, check and edit every email reply you have logged">Email log</button>
   <button id="colbtn">Fields</button>
@@ -1420,13 +1430,28 @@ const EMPTY_IC={check:'<path d="M20 6 9 17l-5-5"/>',search:'<circle cx="11" cy="
 function emptyHtml(icon,head,text,btn){return '<div class="empty2"><span class="eic">'+(EMPTY_IC[icon]?'<svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+EMPTY_IC[icon]+'</svg>':ic(icon,26))+'</span><b>'+head+'</b><p>'+text+'</p>'+(btn||'')+'</div>'}
 const QN_DEFAULT=['GK answered','Email sent','No requirement now','Asked for a quote','Call back later','Sent brochure','Not the decision maker','Wrong contact'];
 function qnList(){return Array.isArray(S.qn)&&S.qn.length?S.qn:QN_DEFAULT}
+function isGuideLead(r){return S.cols.some(c=>/priority|angle/i.test(c.n)&&String(val(r,c.n)||'').trim())}
+function guideHtml(r){
+ if(S.guideOff||!isGuideLead(r))return '';
+ const has=re=>S.cols.some(c=>re.test(c.n)&&String(val(r,c.n)||'').trim());
+ const ac=S.cols.find(c=>/angle/i.test(c.n)),ang=ac?String(val(r,ac.n)||'').trim():'';
+ const st=[
+  ['Find the right person','Spend 5 minutes on the CRM, old emails, their website, LinkedIn or the switchboard. Ask for purchasing, or whoever handles radios. Save the name, phone and email in the boxes below.',!!(String(val(r,cn('contact'))||'').trim()||has(/e-?mail/i)),'gp'],
+  ['Call using the angle',(ang?'Your hook: '+ang+'. ':'')+'Open with what they bought before, then ask about new needs or projects. Goal: an RFQ, not a sale. Need a pitch or emails? Copy this lead and paste it to Claude with your call notes.',!!(r.gc||(r.draft||'').trim()),'gc'],
+  ['Send the email the same day','Spoke: send the thanks-for-your-time email with the next step. No answer: send the follow-up email. Tick when sent.',!!r.gm,'gm'],
+  ['Set the next follow-up','No answer: call again in 3 to 4 days (then WhatsApp, then a final email at 2 weeks). Spoke: follow up when they said. Use the follow-up box below.',!!r.fu,null],
+  ['Log the outcome','Click the outcome at the bottom. This saves the call and moves you to the next lead.',r.log.length>0,null],
+  ['If an RFQ comes in','Forward it to the BDM by email the same day, then open this lead and click "RFQ handed over" with the value. That is what counts for your commission.',!!(r.rfq&&r.rfq.length),null]];
+ const done=st.filter(x=>x[2]).length,next=st.findIndex(x=>!x[2]);
+ return '<section class="guide" aria-label="Lead guide"><div class="gh"><b>'+ic('list',15)+' Lead guide</b><span class="mute">'+done+' of '+st.length+' done</span><button type="button" class="btnl" data-guidehide title="Hide the guide on all leads. Bring it back from Menu, Help">Hide guide</button></div><ol>'+st.map((x,i)=>{const tick=x[3]&&!(x[3]==='gp'&&x[2]&&!r.gp)?'<button type="button" class="gtick" data-gtick="'+x[3]+'" aria-pressed="'+x[2]+'" title="'+(x[2]?'Mark as not done':'Mark as done')+'">'+(x[2]?'&#10003;':'')+'</button>':'<span class="gtick">'+(x[2]?'&#10003;':'')+'</span>';return '<li class="'+(x[2]?'done':'')+(i===next?' next':'')+'">'+tick+'<div><b>'+(i+1)+'. '+esc(x[0])+'</b>'+(i===next?'<p>'+esc(x[1])+'</p>':'')+'</div></li>'}).join('')+'</ol></section>';
+}
 function renderCard(){
  const r=byId(S.last),c=$('#card'),m=$('#main');
  m.dataset.view=S.view;
  if(!r){c.innerHTML=S.rows.length?emptyHtml('check','All leads logged','Nice work. Switch to Logged or All to review them, or import a new list.','<button class="primary" data-impl>Import list</button>'):emptyHtml('upload','Import your leads','Choose a CSV or Excel file with your accounts and contacts. Every column comes in, and you pick which ones show.','<button class="primary" data-impl>Import list</button>');return}
  const ph=val(r,cn('phone')),tel=dialNum(ph),wa=waNum(ph);
  c.innerHTML='<div class="ctop"><button class="back" data-back>'+ic('back',16)+' Leads</button>'+(cn('company')?'':'<p class="warnb">No column is set as Company, so exports show the contact name instead. <button data-fields>Choose Company column</button></p>')+
- '<div class="ch"><div class="chl">'+avHtml(r,'lg')+'<div><h2 id="hd" title="'+esc(title(r))+'">'+esc(dispTitle(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p><div class="heat" role="group" aria-label="Lead temperature">'+Object.keys(HEAT).map(h=>'<button type="button" class="h-'+h+(r.h===h?' on':'')+'" data-heat="'+h+'" aria-pressed="'+(r.h===h)+'" title="'+(r.h===h?'Clear the tag':'Mark as '+HEAT[h])+' (shortcut: H)"><i></i>'+HEAT[h]+'</button>').join('')+'</div></div></div><div class="chr">'+cpAllBtn()+(wa?'<a class="wa" href="'+(FINE.matches?'whatsapp://send?phone='+wa:'https://wa.me/'+wa)+'"'+(FINE.matches?'':' target="_blank" rel="noopener"')+' title="Open a WhatsApp chat with +'+wa+' (shortcut: W)">'+ic('chat',17)+' WhatsApp</a>':'')+(tel?'<a class="dial" href="tel:'+esc(tel)+'" title="Dials '+esc(tel)+' (shortcut: C)">'+ic('phone',18)+' Call '+esc(tel)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+
+ '<div class="ch"><div class="chl">'+avHtml(r,'lg')+'<div><h2 id="hd" title="'+esc(title(r))+'">'+esc(dispTitle(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p><div class="heat" role="group" aria-label="Lead temperature">'+Object.keys(HEAT).map(h=>'<button type="button" class="h-'+h+(r.h===h?' on':'')+'" data-heat="'+h+'" aria-pressed="'+(r.h===h)+'" title="'+(r.h===h?'Clear the tag':'Mark as '+HEAT[h])+' (shortcut: H)"><i></i>'+HEAT[h]+'</button>').join('')+'</div></div></div><div class="chr">'+cpAllBtn()+(wa?'<a class="wa" href="'+(FINE.matches?'whatsapp://send?phone='+wa:'https://wa.me/'+wa)+'"'+(FINE.matches?'':' target="_blank" rel="noopener"')+' title="Open a WhatsApp chat with +'+wa+' (shortcut: W)">'+ic('chat',17)+' WhatsApp</a>':'')+(tel?'<a class="dial" href="tel:'+esc(tel)+'" title="Dials '+esc(tel)+' (shortcut: C)">'+ic('phone',18)+' Call '+esc(tel)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+guideHtml(r)+
  (()=>{const boxH=x=>{const v=val(r,x.n),wd=isWide(x),long=wd||String(v).length>60,pk=(S.pick||[]).includes(x.n);return '<label class="'+(wd?'wide':'')+(pk?' picked':'')+'" data-ci="'+S.cols.indexOf(x)+'"><button type="button" class="hide pbtn'+(pk?' on':'')+'" data-pick="'+esc(x.n)+'" aria-pressed="'+pk+'" title="'+(pk?'Remove from Copy selected':'Add to Copy selected')+'" aria-label="Select '+esc(x.n)+' for Copy selected">'+(pk?'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>')+'</button><button type="button" class="hide wbtn" data-wide="'+S.cols.indexOf(x)+'" title="'+(wd?'Make this box narrower':'Make this box full width')+'" aria-label="Toggle width of '+esc(x.n)+'">'+(wd?ic('shrink',14):ic('expand',14))+'</button><button type="button" class="hide" data-hide="'+S.cols.indexOf(x)+'" title="Hide this field (also removes it from the Excel export)" aria-label="Hide '+esc(x.n)+'">'+ic('x',14)+'</button><span class="grip" title="Drag to move this box"><span class="gd">'+ic('grip',12)+'</span>'+esc(x.n)+'</span>'+'<div class="fw'+(long?' ta':'')+'">'+(long?'<textarea rows="3" data-f="'+esc(x.n)+'">'+esc(v)+'</textarea>':'<input data-f="'+esc(x.n)+'" value="'+esc(v)+'">')+'<button type="button" class="cpy" data-copy title="Copy '+esc(x.n)+'" aria-label="Copy '+esc(x.n)+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>'+'</label>'};const isF=x=>{const v=val(r,x.n);return String(v==null?'':v).trim()!==''};const E=[];const out=(S.nogrp?[['a','']]:FGROUPS).map(g=>{const all=S.cols.filter(x=>x.show&&(S.nogrp||grpOf(x)===g[0]));const cs=all.filter(isF);all.filter(x=>!isF(x)).forEach(x=>E.push(x));if(!cs.length)return '';return '<section class="fgrp g-'+g[0]+'" data-g="'+g[0]+'">'+(g[1]?'<h4 class="fgh">'+g[1]+'</h4>':'')+'<div class="fields">'+cs.map(boxH).join('')+'</div></section>'}).join('');return out+(E.length?'<section class="fgrp g-x"><button type="button" class="btnl etog" data-emptytoggle aria-expanded="'+SHOWEMPTY+'">'+(SHOWEMPTY?'Hide':'Show')+' empty fields ('+E.length+')</button>'+(SHOWEMPTY?'<div class="fields">'+E.map(boxH).join('')+'</div>':'')+'</section>':'')})()+
  addBoxHtml()+'<div class="log"><h3>Previous dealings with '+esc(dispTitle(r))+'</h3>'+histHtml(r)+'<div class="embar"><button type="button" class="embtn" data-em>'+ic('mail',15)+' Log email reply</button><button type="button" class="embtn" data-tpl title="Copy a ready-made email for this lead (shortcut: M)">'+ic('tpl',15)+' Email templates</button><button type="button" class="embtn rfqbtn" data-rfq title="Record an RFQ you passed to a BDM, with its value, for your reports">'+ic('star',15)+' RFQ handed over</button></div>'+
 '<h3 style="margin-top:16px">'+(r.done?'Logged. Add notes or call again':'Live call notes')+'</h3><textarea id="note" rows="6" placeholder="Type what is said, names, numbers, quantities, extensions...">'+esc(r.draft||'')+'</textarea><div class="qn">'+qnList().map((p,i)=>'<button type="button" class="qnb" data-qn="'+i+'">'+esc(p)+'</button>').join('')+'<button type="button" class="qnb qne" data-qnedit title="Edit quick notes" aria-label="Edit quick notes">'+ic('edit',13)+'</button></div><p class="draftmsg">Saved as you type. Pressing an outcome logs these notes to the report and loads the next lead.</p>'+fuHtml(r)+
@@ -1485,6 +1510,8 @@ $('#card').onclick=async e=>{
  if(e.target.closest('[data-tpl]')){openTpl();return}
  const htb=e.target.closest('[data-heat]');if(htb){setHeat(htb.dataset.heat);return}
  if(e.target.closest('[data-rfq]')){openRfq();return}
+ if(e.target.closest('[data-guidehide]')){setGuide(true);return}
+ const gt=e.target.closest('[data-gtick]');if(gt){const r=byId(S.last);if(!r)return;const k=gt.dataset.gtick;r[k]=!r[k];if(!r[k])delete r[k];save();keepFocus(renderCard);return}
  const rqd=e.target.closest('[data-rfqdel]');
  if(rqd){const r=byId(S.last);if(!r)return;const id=rqd.dataset.rfqdel,gone=(r.rfq||[]).find(q=>q.id===id);r.rfq=(r.rfq||[]).filter(q=>q.id!==id);save();renderCard();toast('RFQ entry deleted',{fn:()=>{if(!gone)return;r.rfq=(r.rfq||[]).concat(gone).sort((a,b)=>a.t-b.t);save();if(r.id===S.last)renderCard()}});return}
  const eme=e.target.closest('[data-emedit]');if(eme){openEmail(S.last,eme.dataset.emedit);return}
@@ -2044,6 +2071,8 @@ const KBK='minerva-dialler-kbtip';
 function showKb(){$('#kbtip').hidden=false;setTimeout(()=>$('#kbok').focus(),50)}
 function hideKb(){$('#kbtip').hidden=true;try{localStorage.setItem(KBK,'1')}catch(e){}}
 $('#kbok').onclick=hideKb;$('#kbbtn').onclick=showKb;
+function setGuide(off){S.guideOff=!!off;save();$('#guidebtn').textContent=S.guideOff?'Show lead guide':'Hide lead guide';if(S.view==='card'||FINE.matches)keepFocus(renderCard);toast(off?'Lead guide hidden. Bring it back from Menu, Help':'Lead guide is back on dormant-list leads',off?{fn:()=>setGuide(false)}:undefined)}
+$('#guidebtn').onclick=()=>setGuide(!S.guideOff);$('#guidebtn').textContent=S.guideOff?'Show lead guide':'Hide lead guide';
 const OVL=['#dlg','#srp','#gsp','#emp','#qnp','#tplp','#dupp','#msheet','#det','#rep','#cols','#txt','#elog'];
 function moveLead(d){const v=visible();if(!v.length)return;let i=v.findIndex(r=>r.id===S.last);i=i<0?0:Math.max(0,Math.min(v.length-1,i+d));select(v[i].id,'card')}
 document.addEventListener('keydown',e=>{
@@ -2082,8 +2111,8 @@ $('#navmenu').innerHTML=ic('menu',17)+'<span class="ml"> Menu</span>';$('#resume
 $('#thbtn').onclick=()=>{THEME=THS[(THS.indexOf(THEME)+1)%3];try{localStorage.setItem(THK,THEME)}catch(e){}applyTheme(THEME);toast('Theme: '+THL[THEME])};
 
 // ---- Phone layout: menu sheet, no pinch zoom ----
-const MENU=[['Leads',['addlead','impl','imp','addcols','colbtn']],['Emails',['emglobal','elogbtn']],['Reports',['srbtn','repbtn','exp']],['Data',['bkp','rst','inst','reset']],['Help',['thbtn','kbbtn']]];
-const MENUIC={addlead:'plus',impl:'upload',imp:'refresh',addcols:'columns',colbtn:'sliders',emglobal:'mail',elogbtn:'inbox',srbtn:'report',repbtn:'list',exp:'sheet',bkp:'save',rst:'restore',inst:'install',reset:'trash',kbbtn:'keyboard',thbtn:'sun'};
+const MENU=[['Leads',['addlead','impl','imp','addcols','colbtn']],['Emails',['emglobal','elogbtn']],['Reports',['srbtn','repbtn','exp']],['Data',['bkp','rst','inst','reset']],['Help',['thbtn','kbbtn','guidebtn']]];
+const MENUIC={addlead:'plus',impl:'upload',imp:'refresh',addcols:'columns',colbtn:'sliders',emglobal:'mail',elogbtn:'inbox',srbtn:'report',repbtn:'list',exp:'sheet',bkp:'save',rst:'restore',inst:'install',reset:'trash',kbbtn:'keyboard',guidebtn:'list',thbtn:'sun'};
 function syncCard(){
  if(!G.url)return '<button class="msync bad" data-m="gsync">'+ic('alert',18)+'<span><b>Not backed up to Google</b><em>Your data is only on this device. Tap to set up backup.</em></span></button>';
  const old=G.last&&Date.now()-G.last>864e5,cls=gState==='err'?'bad':(gState==='wait'||gState==='busy'||old)?'warn':'ok';
