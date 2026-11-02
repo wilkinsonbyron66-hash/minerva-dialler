@@ -805,7 +805,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
   <button id="morebtn" aria-label="More actions">&#9776; Menu</button>
   <button id="addlead">+ Lead</button>
   <button id="kbbtn" title="Keyboard shortcuts">Keyboard shortcuts</button>
-  <button id="guidebtn" title="Show or hide the step-by-step guide on dormant-list leads">Hide lead guide</button>
+  <button id="guidebtn" title="Show or hide the step-by-step guide on your leads">Hide lead guide</button>
   <button id="emglobal" title="Log a client email reply: find the lead by pasting the email">Email reply</button>
   <button id="elogbtn" title="See, check and edit every email reply you have logged">Email log</button>
   <button id="colbtn">Fields</button>
@@ -1454,13 +1454,17 @@ function qnList(){return Array.isArray(S.qn)&&S.qn.length?S.qn:QN_DEFAULT}
 let GOPEN=new Set();
 function isGuideLead(r){return S.cols.some(c=>/priority|angle/i.test(c.n)&&String(val(r,c.n)||'').trim())}
 function guideHtml(r){
- if(S.guideOff||!isGuideLead(r))return '';
+ if(S.guideOff)return '';
  const has=re=>S.cols.some(c=>re.test(c.n)&&String(val(r,c.n)||'').trim());
  const fv=re=>{const c=S.cols.find(c=>re.test(c.n)&&String(val(r,c.n)||'').trim());return c?String(val(r,c.n)).trim():''};
  const ang=fv(/angle/i),prod=fv(/products?\s*bought|models?\s*seen|top\s*items/i),last=fv(/last\s*(bought|order|year)/i),past=fv(/past\s*sales|total\s*usd|lifetime/i);
  const who=val(r,cn('contact'))?String(val(r,cn('contact'))).trim().split(/\s+/)[0]:'';
- const opener='"Hello'+(who?' '+who:'')+', this is Byron from Minerva Technologies, the authorised Motorola distributor in Dubai. Your company bought '+(prod?prod.replace(/,\s*/g,', '):'Motorola radios')+' from us'+(last?', last in '+String(last).slice(0,4):'')+'. Are those radios still in use? Do you have any new needs or projects coming?"';
- const callTxt=(ang?'Hook: '+ang.replace(/\s*->\s*/g,' → ').replace(/\s*\|\s*/g,'. Also: ')+'.\n':'')+'Opener: '+opener+(past?'\nThey have spent about $'+Number(String(past).replace(/[^0-9.]/g,'')||0).toLocaleString('en-US')+' with us, so treat them as a valued past customer.':'')+'\nGoal: an RFQ, not a sale. For a full pitch and emails, copy this lead and paste it to Claude with your call notes.';
+ const enq=prod?'':fv(/enquir|inquir|requirement|product|description|item|subject|interest/i),edc=S.cols.find(c=>/date|created|received/i.test(c.n)&&String(val(r,c.n)||'').trim()),ed=edc?String(val(r,edc.n)).trim():'';
+ const hi='"Hello'+(who?' '+who:'')+', this is Byron from Minerva Technologies, the authorised Motorola distributor in Dubai. ';
+ const opener=prod?hi+'Your company bought '+prod.replace(/,\s*/g,', ')+' from us'+(last?', last in '+String(last).slice(0,4):'')+'. Are those radios still in use? Do you have any new needs or projects coming?"'
+  :enq?hi+'You contacted us'+(ed?' on '+ed.split(/[ T]/)[0]:'')+' about '+(enq.length>90?enq.slice(0,90)+'...':enq)+'. I am calling about your future needs. Do you have any new projects or requirements coming?"'
+  :hi+'Do your teams use two-way radios? Do you have any needs or projects coming where we can help?"';
+ const callTxt=(ang?'Hook: '+ang.replace(/\s*->\s*/g,' → ').replace(/\s*\|\s*/g,'. Also: ')+'.\n':'No angle saved for this lead yet. For a researched hook, paste the lead to Claude before calling.\n')+'Opener: '+opener+(past?'\nThey have spent about $'+Number(String(past).replace(/[^0-9.]/g,'')||0).toLocaleString('en-US')+' with us, so treat them as a valued past customer.':'')+'\nGoal: an RFQ, not a sale. For a full pitch and emails, copy this lead and paste it to Claude with your call notes.';
  const st=[
   ['Find the right person','Spend 5 minutes on the CRM, old emails, their website, LinkedIn or the switchboard. Ask for purchasing, or whoever handles radios. Save the name, phone and email in the boxes below.',!!(String(val(r,cn('contact'))||'').trim()||has(/e-?mail/i)),'gp'],
   ['Call using the angle',callTxt,!!(r.gc||(r.draft||'').trim()),'gc'],
@@ -2133,7 +2137,7 @@ const KBK='minerva-dialler-kbtip';
 function showKb(){$('#kbtip').hidden=false;setTimeout(()=>$('#kbok').focus(),50)}
 function hideKb(){$('#kbtip').hidden=true;try{localStorage.setItem(KBK,'1')}catch(e){}}
 $('#kbok').onclick=hideKb;$('#kbbtn').onclick=showKb;
-function setGuide(off){S.guideOff=!!off;save();$('#guidebtn').textContent=S.guideOff?'Show lead guide':'Hide lead guide';if(S.view==='card'||FINE.matches)keepFocus(renderCard);toast(off?'Lead guide hidden. Bring it back from Menu, Help':'Lead guide is back on dormant-list leads',off?{fn:()=>setGuide(false)}:undefined)}
+function setGuide(off){S.guideOff=!!off;save();$('#guidebtn').textContent=S.guideOff?'Show lead guide':'Hide lead guide';if(S.view==='card'||FINE.matches)keepFocus(renderCard);toast(off?'Lead guide hidden. Bring it back from Menu, Help':'Lead guide is back',off?{fn:()=>setGuide(false)}:undefined)}
 $('#guidebtn').onclick=()=>setGuide(!S.guideOff);$('#guidebtn').textContent=S.guideOff?'Show lead guide':'Hide lead guide';
 const OVL=['#dlg','#srp','#gsp','#emp','#qnp','#tplp','#dupp','#msheet','#det','#rep','#cols','#txt','#elog'];
 function moveLead(d){const v=visible();if(!v.length)return;let i=v.findIndex(r=>r.id===S.last);i=i<0?0:Math.max(0,Math.min(v.length-1,i+d));select(v[i].id,'card')}
