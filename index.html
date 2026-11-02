@@ -156,7 +156,7 @@ aside{display:flex;flex-direction:column;min-height:0;border-right:1px solid var
 .cr select{padding:3px;border:1px solid var(--line);border-radius:5px;background:var(--bg)}
 .add{display:flex;gap:6px;margin:12px 0}.add input{flex:1;padding:7px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
 .mute{color:var(--mute)}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;z-index:9}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:6px;z-index:30}
 .grip{cursor:grab;user-select:none}
 .fields label{position:relative}
 .fields .hide{position:absolute;top:-3px;right:0;padding:0 7px;border:0;background:none;color:var(--mute);font-size:19px;line-height:1.2}
@@ -227,7 +227,7 @@ header .danger{color:#FFB59E;border-color:rgba(240,83,34,.75)}
 aside{box-shadow:1px 0 0 var(--line)}
 .it.on{box-shadow:inset 3px 0 0 var(--cy)}
 /* Sales report panel */
-#srp,#emp{position:fixed;inset:0;background:rgba(0,20,35,.5);z-index:15;display:flex;align-items:center;justify-content:center;padding:16px}
+#srp,#emp,#rmp,#rfqp{position:fixed;inset:0;background:rgba(0,20,35,.5);z-index:15;display:flex;align-items:center;justify-content:center;padding:16px}
 #srp[hidden],#emp[hidden]{display:none}
 #emp .srbox{max-width:560px}
 .emres{display:flex;flex-direction:column;gap:6px;margin-top:6px}
@@ -346,7 +346,7 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
  .dgrid{grid-template-columns:1fr}
  #elog .ehead select{margin-left:0;width:100%}
  #det,#rep,#cols,#txt,#elog{padding-left:12px;padding-right:12px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
- #srp,#gsp,#emp{align-items:flex-end;padding:0}
+ #srp,#gsp,#emp,#rmp,#rfqp{align-items:flex-end;padding:0}
  #srp .srbox,#gsp .srbox,#emp .srbox{max-width:none;width:100%;border-radius:16px 16px 0 0;max-height:92vh;overflow:auto;padding-bottom:env(safe-area-inset-bottom)}
  .srhd{padding:12px 14px}.srhd img{height:24px}.srhd b{font-size:15px}
  .srrow{flex-direction:column}
@@ -822,7 +822,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
  </div>
  <input type="file" id="file" accept=".csv,.xlsx,.xls" hidden>
  <input type="file" id="file3" accept=".csv,.xlsx,.xls" hidden>
- <input type="file" id="file4" accept=".csv,.xlsx,.xls" hidden>
+ <input type="file" id="filerm" accept=".csv,.xlsx,.xls" hidden>
  <input type="file" id="file2" accept=".csv,.xlsx,.xls" hidden>
  <input type="file" id="file4" accept=".json,application/json" hidden>
 </header>
@@ -1789,15 +1789,15 @@ $('#rmtext').addEventListener('input',rmRender);
 $('#rmres').addEventListener('change',e=>{const c=e.target.closest('[data-rmid]');if(!c)return;const id=+c.dataset.rmid;if(c.checked)RMSEL.add(id);else RMSEL.delete(id);$('#rmgo').disabled=!RMSEL.size;$('#rmgo').textContent=RMSEL.size?'Remove '+RMSEL.size+' lead'+(RMSEL.size===1?'':'s'):'Remove leads'});
 $('#rmclose').onclick=()=>$('#rmp').hidden=true;
 $('#rmp').onclick=e=>{if(e.target.id==='rmp')$('#rmp').hidden=true};
-$('#rmfile').onclick=()=>$('#file4').click();
-$('#file4').onchange=e=>{const file=e.target.files[0];e.target.value='';if(!file)return;
+$('#rmfile').onclick=()=>$('#filerm').click();
+$('#filerm').onchange=e=>{const file=e.target.files[0];e.target.value='';if(!file)return;
  if(!window.XLSX){toast('Import library did not load. Check your connection and reload.');return}
  const rd=new FileReader();rd.onload=()=>{try{const wb=XLSX.read(rd.result,{type:'array'});
   const sn=wb.SheetNames.find(n=>/do\s*not\s*call|dnc/i.test(n))||wb.SheetNames[0];
   const js=readSheet({Sheets:{[sn]:wb.Sheets[sn]},SheetNames:[sn]});if(!js.length){toast('That sheet has no rows');return}
   const keys=Object.keys(js[0]);const k=keys.find(x=>/^(company|customer|account|client)/i.test(x.trim()))||keys.find(x=>/company|customer|account|client|name/i.test(x))||keys[0];
   $('#rmtext').value=js.map(o=>o[k]).filter(v=>String(v||'').trim()).join('\n');$('#rmres').dataset.seen='';RMSEL=new Set();rmRender();toast('Read '+js.length+' names from "'+sn+'" ('+k+' column)');
- }catch(err){toast('Could not read that file')}};rd.readAsArrayBuffer(file)};
+ }catch(err){toast('Could not read that file')}};rd.onerror=()=>toast('Could not open that file. If it is open in Excel, close it and try again');rd.readAsArrayBuffer(file)};
 $('#rmgo').onclick=()=>{
  const ids=new Set(RMSEL);if(!ids.size)return;const gone=[];
  S.rows.forEach((r,i)=>{if(ids.has(r.id))gone.push({r,i})});
