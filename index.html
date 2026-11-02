@@ -568,7 +568,8 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
 .heat button i,.heatf button i,.hdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--hc,var(--mute));flex:0 0 auto}
 .h-hot{--hc:var(--h-hot)}.h-warm{--hc:var(--h-warm)}.h-cold{--hc:var(--h-cold)}
 .heat button.on,.heatf button.on{background:color-mix(in srgb,var(--hc,var(--accent)) 14%,var(--panel));border-color:var(--hc,var(--accent));color:var(--ink);font-weight:600}
-.heatf{display:flex;gap:4px;margin-top:6px}.heatf button{flex:1;justify-content:center;padding:3px 4px;font-size:12px}
+.heatf{display:flex;gap:4px;margin-top:6px}
+#listf{width:100%;margin-top:6px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font-size:13.5px;font-weight:600}.heatf button{flex:1;justify-content:center;padding:3px 4px;font-size:12px}
 .heatf button em{font-style:normal;color:var(--mute);font-size:11px}
 .hdot{margin-right:6px;vertical-align:1px}
 .embar{display:flex;gap:8px;flex-wrap:wrap}
@@ -832,6 +833,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
   <div class="filt">
    <input id="q" type="search" placeholder="Search company, contact, phone...">
    <div class="seg" id="seg"><button data-f="todo">To call</button><button data-f="done">Logged</button><button data-f="fu">Follow-ups</button><button data-f="all">All</button></div>
+   <select id="listf" aria-label="Which list to work on" title="Choose which list of leads to work on"></select>
    <div class="heatf" id="heatf" role="group" aria-label="Filter by temperature"><button data-hf="">Any</button><button data-hf="hot" class="h-hot">Hot</button><button data-hf="warm" class="h-warm">Warm</button><button data-hf="cold" class="h-cold">Cold</button></div>
   </div>
   <div id="list"></div>
@@ -1335,15 +1337,20 @@ function leadHistory(r){
  const k=title(r).toLowerCase();
  return S.rows.filter(x=>title(x).toLowerCase()===k).flatMap(x=>x.log.map(l=>({x,l}))).sort((a,b)=>b.l.t-a.l.t);
 }
+function listOf(r){return r.ls||(isGuideLead(r)?'Dormant accounts':'Earlier leads')}
+const inL=r=>!S.lf||listOf(r)===S.lf;
+function renderListF(){const el=$('#listf');if(!el)return;const c={};S.rows.forEach(r=>{const k=listOf(r);c[k]=c[k]||{n:0,t:0};c[k].n++;if(!r.done)c[k].t++});
+ const ks=Object.keys(c).sort();if(S.lf&&!c[S.lf])S.lf='';el.hidden=ks.length<2&&!S.lf;
+ el.innerHTML='<option value="">All lists ('+S.rows.length+' leads)</option>'+ks.map(k=>'<option value="'+esc(k)+'"'+(S.lf===k?' selected':'')+'>'+esc(k)+' ('+c[k].t+' to call of '+c[k].n+')</option>').join('');el.value=S.lf||''}
 function visible(){
  const q=S.q.toLowerCase().trim(),dom=(q.match(/@([a-z0-9.-]+\.[a-z]{2,})/)||[])[1];
  const hit=r=>{const t=Object.values(r.f).join(' ').toLowerCase();return t.includes(q)||(dom&&!FREEMAIL.test(dom)&&t.includes(dom))};
- const v=S.rows.filter(r=>q?hit(r):(S.filter==='all'||(S.filter==='fu'?!!r.fu:(S.filter==='done')===!!r.done))&&(!S.hf||r.h===S.hf));
+ const v=S.rows.filter(r=>inL(r)&&(q?hit(r):(S.filter==='all'||(S.filter==='fu'?!!r.fu:(S.filter==='done')===!!r.done))&&(!S.hf||r.h===S.hf)));
  return S.filter==='fu'?v.slice().sort((a,b)=>a.fu-b.fu):v;
 }
 function renderList(){
- const done=S.rows.filter(r=>r.done).length,n=S.rows.length;
- $('#stat').textContent=n?done+' logged, '+(n-done)+' left to call':'No leads yet';
+ renderListF();const LR=S.rows.filter(inL),done=LR.filter(r=>r.done).length,n=LR.length;
+ $('#stat').textContent=n?(S.lf?S.lf+': ':'')+done+' logged, '+(n-done)+' left to call':'No leads yet';
  {const nfu=S.rows.filter(r=>r.fu).length,ndue=S.rows.filter(r=>r.fu&&r.fu<=Date.now()).length,fb=document.querySelector('#seg [data-f=fu]'),fd=$('#fudue');if(fb)fb.textContent='Follow-ups'+(nfu?' ('+nfu+')':'');fd.hidden=!ndue;fd.innerHTML=ic('clock',14)+' '+ndue+'<span class="ll"> follow-up'+(ndue===1?'':'s')+' due</span>'}
  $('#prog').style.width=n?(100*done/n)+'%':'0';$('#prog2').style.width=$('#prog').style.width;$('#tstat').textContent=$('#stat').textContent;
  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.f===S.filter));
@@ -1479,12 +1486,12 @@ function render(){renderList();renderCard();if(S.tab==='dash')renderDash();if(S.
 function select(id,view){S.last=id;if(view)S.view=view;save();render();const e=document.querySelector('.it.on');if(e)e.scrollIntoView({block:'nearest'})}
 function nextTodo(from){
  const i=S.rows.findIndex(r=>r.id===from),a=S.rows.slice(i+1).concat(S.rows.slice(0,i+1));
- return (S.hf&&a.find(r=>!r.done&&r.id!==from&&r.h===S.hf))||a.find(r=>!r.done&&r.id!==from);
+ return (S.hf&&a.find(r=>inL(r)&&!r.done&&r.id!==from&&r.h===S.hf))||a.find(r=>inL(r)&&!r.done&&r.id!==from);
 }
 function resume(){
  if(S.tab==='dash')setTab('dial');
  S.filter='todo';S.q='';$('#q').value='';
- const r=(byId(S.last)&&!byId(S.last).done&&(!S.hf||byId(S.last).h===S.hf))?byId(S.last):(S.hf&&S.rows.find(r=>!r.done&&r.h===S.hf))||S.rows.find(r=>!r.done);
+ const r=(byId(S.last)&&!byId(S.last).done&&inL(byId(S.last))&&(!S.hf||byId(S.last).h===S.hf))?byId(S.last):(S.hf&&S.rows.find(r=>inL(r)&&!r.done&&r.h===S.hf))||S.rows.find(r=>inL(r)&&!r.done);
  if(r)select(r.id,'card');else{S.last=null;render();toast('Every lead is logged')}
 }
 function logCall(o){
@@ -1581,6 +1588,7 @@ $('#card').oninput=e=>{
 $('#card').onchange=e=>{if(e.target.id==='fud'||e.target.id==='fut'){if($('#fud').value)fuFromInputs();return}renderList()};
 $('#q').oninput=e=>{S.q=e.target.value;renderList()};
 $('#seg').onclick=e=>{const f=e.target.dataset.f;if(f){S.filter=f;save();renderList()}};
+$('#listf').onchange=e=>{S.lf=e.target.value;save();renderList();const v=visible();if(v.length&&!v.some(r=>r.id===S.last))select(v[0].id,FINE.matches?'card':S.view);toast(S.lf?'Working on: '+S.lf:'Showing all lists')};
 $('#heatf').onclick=e=>{const b=e.target.closest('[data-hf]');if(!b)return;const h=b.dataset.hf;S.hf=(S.hf||'')===h&&h?'':h;save();renderList();if(S.hf){const v=visible();if(v.length&&!v.some(r=>r.id===S.last))select(v[0].id,FINE.matches?'card':S.view)}};
 function setHeat(h){const r=byId(S.last);if(!r)return;const was=r.h||'';if(was===h)delete r.h;else r.h=h;save();keepFocus(renderCard);renderList();window.syncSoon&&syncSoon();toast(r.h?title(r)+' marked '+HEAT[r.h]:'Tag cleared',{fn:()=>{if(was)r.h=was;else delete r.h;save();if(r.id===S.last)renderCard();renderList();window.syncSoon&&syncSoon()}})}
 $('#resume').onclick=resume;
@@ -1817,7 +1825,9 @@ $('#file3').onchange=e=>{
   const js=readSheet(wb);
   if(!js.length){toast('That file has no rows');return}
   const names=[];js.forEach(o=>Object.keys(o).forEach(k=>{if(!names.includes(k))names.push(k)}));
+  const before=new Set(S.rows.map(r=>r.id)),lname=file.name.replace(/\.[^.]+$/,'').replace(/[_]+/g,' ').replace(/\s+/g,' ').trim()||'Imported list';
   importList(js,names);
+  let tagged=0;S.rows.forEach(r=>{if(!before.has(r.id)&&!r.ls){r.ls=lname;tagged++}});if(tagged){S.lf=lname;save();render()}
  }catch(err){toast('Could not read that file')}};
  rd.readAsArrayBuffer(file);
 };
