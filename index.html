@@ -637,7 +637,7 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
 .guide .gh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.guide .gh b{display:flex;align-items:center;gap:6px;font-size:14px}.guide .gh .mute{font-size:12.5px}.guide .gh .btnl{margin-left:auto;font-size:12.5px}
 .guide ol{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px}
 .guide li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--mute)}
-.guide li b{font-weight:600}.guide li.next{color:var(--ink)}.guide li.next b{color:var(--accent)}.guide li.done b{text-decoration:line-through;font-weight:500}
+.guide li b{font-weight:600}.guide .gx{cursor:pointer}.guide li.next{color:var(--ink)}.guide li.next b{color:var(--accent)}.guide li.done b{text-decoration:line-through;font-weight:500}
 .guide li p{margin:2px 0 4px;font-size:13px;line-height:1.45;color:var(--ink);max-width:70ch}
 .guide .gtick{flex:0 0 auto;width:20px;height:20px;border-radius:6px;border:2px solid var(--mute);background:var(--bg);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px;line-height:1;padding:0;margin-top:1px}
 .guide li.done .gtick{background:var(--c-ok);border-color:var(--c-ok)}
@@ -1451,20 +1451,25 @@ const EMPTY_IC={check:'<path d="M20 6 9 17l-5-5"/>',search:'<circle cx="11" cy="
 function emptyHtml(icon,head,text,btn){return '<div class="empty2"><span class="eic">'+(EMPTY_IC[icon]?'<svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+EMPTY_IC[icon]+'</svg>':ic(icon,26))+'</span><b>'+head+'</b><p>'+text+'</p>'+(btn||'')+'</div>'}
 const QN_DEFAULT=['GK answered','Email sent','No requirement now','Asked for a quote','Call back later','Sent brochure','Not the decision maker','Wrong contact'];
 function qnList(){return Array.isArray(S.qn)&&S.qn.length?S.qn:QN_DEFAULT}
+let GOPEN=new Set();
 function isGuideLead(r){return S.cols.some(c=>/priority|angle/i.test(c.n)&&String(val(r,c.n)||'').trim())}
 function guideHtml(r){
  if(S.guideOff||!isGuideLead(r))return '';
  const has=re=>S.cols.some(c=>re.test(c.n)&&String(val(r,c.n)||'').trim());
- const ac=S.cols.find(c=>/angle/i.test(c.n)),ang=ac?String(val(r,ac.n)||'').trim():'';
+ const fv=re=>{const c=S.cols.find(c=>re.test(c.n)&&String(val(r,c.n)||'').trim());return c?String(val(r,c.n)).trim():''};
+ const ang=fv(/angle/i),prod=fv(/products?\s*bought|models?\s*seen|top\s*items/i),last=fv(/last\s*(bought|order|year)/i),past=fv(/past\s*sales|total\s*usd|lifetime/i);
+ const who=val(r,cn('contact'))?String(val(r,cn('contact'))).trim().split(/\s+/)[0]:'';
+ const opener='"Hello'+(who?' '+who:'')+', this is Byron from Minerva Technologies, the authorised Motorola distributor in Dubai. Your company bought '+(prod?prod.replace(/,\s*/g,', '):'Motorola radios')+' from us'+(last?', last in '+String(last).slice(0,4):'')+'. Are those radios still in use? Do you have any new needs or projects coming?"';
+ const callTxt=(ang?'Hook: '+ang.replace(/\s*->\s*/g,' → ').replace(/\s*\|\s*/g,'. Also: ')+'.\n':'')+'Opener: '+opener+(past?'\nThey have spent about $'+Number(String(past).replace(/[^0-9.]/g,'')||0).toLocaleString('en-US')+' with us, so treat them as a valued past customer.':'')+'\nGoal: an RFQ, not a sale. For a full pitch and emails, copy this lead and paste it to Claude with your call notes.';
  const st=[
   ['Find the right person','Spend 5 minutes on the CRM, old emails, their website, LinkedIn or the switchboard. Ask for purchasing, or whoever handles radios. Save the name, phone and email in the boxes below.',!!(String(val(r,cn('contact'))||'').trim()||has(/e-?mail/i)),'gp'],
-  ['Call using the angle',(ang?'Your hook: '+ang+'. ':'')+'Open with what they bought before, then ask about new needs or projects. Goal: an RFQ, not a sale. Need a pitch or emails? Copy this lead and paste it to Claude with your call notes.',!!(r.gc||(r.draft||'').trim()),'gc'],
+  ['Call using the angle',callTxt,!!(r.gc||(r.draft||'').trim()),'gc'],
   ['Send the email the same day','Spoke: send the thanks-for-your-time email with the next step. No answer: send the follow-up email. Tick when sent.',!!r.gm,'gm'],
   ['Set the next follow-up','No answer: call again in 3 to 4 days (then WhatsApp, then a final email at 2 weeks). Spoke: follow up when they said. Use the follow-up box below.',!!r.fu,null],
   ['Log the outcome','Click the outcome at the bottom. This saves the call and moves you to the next lead.',r.log.length>0,null],
   ['If an RFQ comes in','Forward it to the BDM by email the same day, then open this lead and click "RFQ handed over" with the value. That is what counts for your commission.',!!(r.rfq&&r.rfq.length),null]];
  const done=st.filter(x=>x[2]).length,next=st.findIndex(x=>!x[2]);
- return '<section class="guide" aria-label="Lead guide"><div class="gh"><b>'+ic('list',15)+' Lead guide</b><span class="mute">'+done+' of '+st.length+' done</span><button type="button" class="btnl" data-guidehide title="Hide the guide on all leads. Bring it back from Menu, Help">Hide guide</button></div><ol>'+st.map((x,i)=>{const tick=x[3]&&!(x[3]==='gp'&&x[2]&&!r.gp)?'<button type="button" class="gtick" data-gtick="'+x[3]+'" aria-pressed="'+x[2]+'" title="'+(x[2]?'Mark as not done':'Mark as done')+'">'+(x[2]?'&#10003;':'')+'</button>':'<span class="gtick">'+(x[2]?'&#10003;':'')+'</span>';return '<li class="'+(x[2]?'done':'')+(i===next?' next':'')+'">'+tick+'<div><b>'+(i+1)+'. '+esc(x[0])+'</b>'+(i===next?'<p>'+esc(x[1])+'</p>':'')+'</div></li>'}).join('')+'</ol></section>';
+ return '<section class="guide" aria-label="Lead guide"><div class="gh"><b>'+ic('list',15)+' Lead guide</b><span class="mute">'+done+' of '+st.length+' done</span><button type="button" class="btnl" data-guidehide title="Hide the guide on all leads. Bring it back from Menu, Help">Hide guide</button></div><ol>'+st.map((x,i)=>{const tick=x[3]&&!(x[3]==='gp'&&x[2]&&!r.gp)?'<button type="button" class="gtick" data-gtick="'+x[3]+'" aria-pressed="'+x[2]+'" title="'+(x[2]?'Mark as not done':'Mark as done')+'">'+(x[2]?'&#10003;':'')+'</button>':'<span class="gtick">'+(x[2]?'&#10003;':'')+'</span>';return '<li class="'+(x[2]?'done':'')+(i===next?' next':'')+'">'+tick+'<div><b class="gx" data-gx="'+i+'" title="Show or hide the details">'+(i+1)+'. '+esc(x[0])+'</b>'+(i===next||i===1||(GOPEN.has(i))?'<p>'+esc(x[1]).replace(/\n/g,'<br>')+'</p>':'')+'</div></li>'}).join('')+'</ol></section>';
 }
 function renderCard(){
  const r=byId(S.last),c=$('#card'),m=$('#main');
@@ -1532,6 +1537,7 @@ $('#card').onclick=async e=>{
  const htb=e.target.closest('[data-heat]');if(htb){setHeat(htb.dataset.heat);return}
  if(e.target.closest('[data-rfq]')){openRfq();return}
  if(e.target.closest('[data-guidehide]')){setGuide(true);return}
+ const gx=e.target.closest('[data-gx]');if(gx){const i=+gx.dataset.gx;if(GOPEN.has(i))GOPEN.delete(i);else GOPEN.add(i);keepFocus(renderCard);return}
  const gt=e.target.closest('[data-gtick]');if(gt){const r=byId(S.last);if(!r)return;const k=gt.dataset.gtick;r[k]=!r[k];if(!r[k])delete r[k];save();keepFocus(renderCard);return}
  const rqd=e.target.closest('[data-rfqdel]');
  if(rqd){const r=byId(S.last);if(!r)return;const id=rqd.dataset.rfqdel,gone=(r.rfq||[]).find(q=>q.id===id);r.rfq=(r.rfq||[]).filter(q=>q.id!==id);save();renderCard();toast('RFQ entry deleted',{fn:()=>{if(!gone)return;r.rfq=(r.rfq||[]).concat(gone).sort((a,b)=>a.t-b.t);save();if(r.id===S.last)renderCard()}});return}
