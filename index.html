@@ -563,6 +563,7 @@ body,button,input,select,textarea,.fields label,.fields input,.fields textarea,#
 :root{--h-hot:#E5484D;--h-warm:#E8A33D;--h-cold:#3E8ED0;--wa:#1DA851}
 .chr .wa{display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:var(--wa);border:1.5px solid color-mix(in srgb,var(--wa) 55%,transparent);background:color-mix(in srgb,var(--wa) 8%,var(--panel));border-radius:999px;padding:9px 16px;font-size:15px;font-weight:600;transition:background .15s,transform .1s}
 .chr .wa:hover{background:color-mix(in srgb,var(--wa) 16%,var(--panel))}.chr .wa:active{transform:scale(.97)}
+.chr .wa.embtn2{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 55%,transparent);background:color-mix(in srgb,var(--accent) 8%,var(--panel))}.chr .wa.embtn2:hover{background:color-mix(in srgb,var(--accent) 16%,var(--panel))}
 .heat{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .heat button,.heatf button{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px;font-size:12.5px;font-weight:400;background:transparent;border:1px solid var(--line);color:var(--mute);box-shadow:none;min-height:0}
 .heat button i,.heatf button i,.hdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--hc,var(--mute));flex:0 0 auto}
@@ -1244,9 +1245,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#dlg').hidden)$
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save in this browser')}if(window.syncSoon)window.syncSoon()};
 const cn=role=>(S.cols.find(c=>c.role===role)||{}).n;
 const val=(r,n)=>n?(r.f[n]==null?'':r.f[n]):'';
+const RVRE={phone:/phone|mobile|\btel\b|telephone|whatsapp|contact\s*(no|number)|cell/i,contact:/^(contact|contact\s*name|contact\s*person|person|name|full\s*name|first\s*name)$/i,email:/e-?mail/i};
+const rv=(r,role)=>{const v=val(r,cn(role));if(String(v==null?'':v).trim())return v;const re=RVRE[role];if(!re)return v;const c=S.cols.find(c=>c.role!==role&&re.test(c.n.trim())&&String(val(r,c.n)||'').trim());return c?val(r,c.n):v};
 const coAlt=r=>{const c=S.cols.find(c=>c.role!=='company'&&/^(company|customer|account|client)(\s*name)?$/i.test(c.n.trim())&&String(val(r,c.n)||'').trim());return c?val(r,c.n):''};
-const title=r=>val(r,cn('company'))||coAlt(r)||val(r,cn('contact'))||Object.values(r.f).find(Boolean)||'(blank lead)';
-const sub=r=>[val(r,cn('contact')),val(r,cn('phone'))].filter(Boolean).join(' - ');
+const title=r=>val(r,cn('company'))||coAlt(r)||rv(r,'contact')||Object.values(r.f).find(Boolean)||'(blank lead)';
+const sub=r=>[rv(r,'contact'),rv(r,'phone')].filter(Boolean).join(' - ');
 const byId=id=>S.rows.find(r=>r.id===id);
 const fmt=t=>new Date(t).toLocaleString([], {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
 const OUT=['Spoke','No answer','Call back','Not interested','Wrong number','No number'];
@@ -1266,15 +1269,15 @@ const emId=m=>m.id||('L'+m.t);
 const emSig=r=>(r.em||[]).map(m=>emId(m)+':'+(m.mt||0)).join(',');
 function histHtml(r){
  const k=title(r).toLowerCase(),same=S.rows.filter(x=>title(x).toLowerCase()===k);
- const items=same.flatMap(x=>x.log.map(l=>({x,t:l.t,html:'<li>'+fmt(l.t)+' - <b class="co">'+esc(l.o)+'</b>'+(x!==r&&val(x,cn('contact'))?' ('+esc(val(x,cn('contact')))+')':'')+(l.note?': '+esc(l.note):'')+'</li>'}))
-  .concat((x.em||[]).map(m=>({x,t:m.t,html:'<li class="em '+esc(m.k)+'">'+fmt(m.t)+' - <b class="co">'+ic('mail',13)+' '+esc(EMT[m.k]||'Email reply')+'</b>'+(x!==r&&val(x,cn('contact'))?' ('+esc(val(x,cn('contact')))+')':'')+(m.note?': <span class="emtxt">'+esc(m.note.length>400?m.note.slice(0,400)+'...':m.note)+'</span>':'')+(x===r?' <button type="button" class="emdel emed" data-emedit="'+esc(emId(m))+'" title="Edit this email entry" aria-label="Edit email entry">'+ic('edit',13)+' Edit</button><button type="button" class="emdel" data-emdel="'+esc(emId(m))+'" title="Delete this email entry" aria-label="Delete email entry">&times;</button>':'')+'</li>'}))));
+ const items=same.flatMap(x=>x.log.map(l=>({x,t:l.t,html:'<li>'+fmt(l.t)+' - <b class="co">'+esc(l.o)+'</b>'+(x!==r&&rv(x,'contact')?' ('+esc(rv(x,'contact'))+')':'')+(l.note?': '+esc(l.note):'')+'</li>'}))
+  .concat((x.em||[]).map(m=>({x,t:m.t,html:'<li class="em '+esc(m.k)+'">'+fmt(m.t)+' - <b class="co">'+ic('mail',13)+' '+esc(EMT[m.k]||'Email reply')+'</b>'+(x!==r&&rv(x,'contact')?' ('+esc(rv(x,'contact'))+')':'')+(m.note?': <span class="emtxt">'+esc(m.note.length>400?m.note.slice(0,400)+'...':m.note)+'</span>':'')+(x===r?' <button type="button" class="emdel emed" data-emedit="'+esc(emId(m))+'" title="Edit this email entry" aria-label="Edit email entry">'+ic('edit',13)+' Edit</button><button type="button" class="emdel" data-emdel="'+esc(emId(m))+'" title="Delete this email entry" aria-label="Delete email entry">&times;</button>':'')+'</li>'}))));
  same.forEach(x=>(x.rfq||[]).forEach(q=>items.push({x,t:q.t,html:'<li class="em rfqh">'+fmt(q.t)+' - <b class="co">'+ic('star',13)+' RFQ handed to '+esc(q.bdm||'BDM')+(q.v?' ($'+Number(q.v).toLocaleString('en-US')+')':'')+'</b>'+(q.note?': <span class="emtxt">'+esc(q.note)+'</span>':'')+(x===r?' <button type="button" class="emdel" data-rfqdel="'+esc(q.id)+'" title="Delete this RFQ entry" aria-label="Delete RFQ entry">&times;</button>':'')+'</li>'})));
  items.sort((a,b)=>b.t-a.t);
  return items.length?'<ul class="hist">'+items.map(i=>i.html).join('')+'</ul>':'<p class="mute" style="margin:0">No calls or emails logged yet. Account details are in the boxes above.</p>';
 }
 const FREEMAIL=/^(gmail|googlemail|outlook|hotmail|live|yahoo|icloud|me|msn|aol|proton|protonmail|ymail|minerva)\./i;
 let EMSEL=null,EMAUTO=true,EMEDIT=null;
-function emPick(id,auto){EMSEL=id;const r=byId(id);$('#emsel').hidden=!r;$('#emfindbox').hidden=!!r;if(r)$('#emco').textContent=title(r)+(val(r,cn('contact'))?' ('+val(r,cn('contact'))+')':'');$('#emhow').textContent=r&&auto?'Matched automatically from the email':'';}
+function emPick(id,auto){EMSEL=id;const r=byId(id);$('#emsel').hidden=!r;$('#emfindbox').hidden=!!r;if(r)$('#emco').textContent=title(r)+(rv(r,'contact')?' ('+rv(r,'contact')+')':'');$('#emhow').textContent=r&&auto?'Matched automatically from the email':'';}
 function emMatches(){
  const q=($('#emfind').value||'').toLowerCase().trim(),txt=($('#emtext').value||'').toLowerCase();
  const mails=[...new Set((q+' '+txt).match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g)||[])].filter(m=>!/@minerva/.test(m));
@@ -1290,7 +1293,7 @@ function emMatches(){
 function emRender(){
  if(EMSEL)return;const m=emMatches(),el=$('#emres');
  if(EMAUTO&&m.length){const s0=m[0].n,s1=m[1]?m[1].n:0;if(s0>=40&&s1<(s0>=100?100:40)){emPick(m[0].r.id,true);return}}
- el.innerHTML=m.length?m.map((x,i)=>'<button type="button" data-empick="'+x.r.id+'" class="'+(i===0&&x.n>=40?'best':'')+'"><b>'+esc(title(x.r))+'</b><span>'+esc([val(x.r,cn('contact')),val(x.r,cn('phone')),x.r.done?'called':'not called yet'].filter(Boolean).join(' \u00B7 '))+'</span></button>').join(''):(($('#emfind').value||$('#emtext').value)?'<p class="mute" style="margin:0">No matching lead yet. Try the company name.</p>':'');
+ el.innerHTML=m.length?m.map((x,i)=>'<button type="button" data-empick="'+x.r.id+'" class="'+(i===0&&x.n>=40?'best':'')+'"><b>'+esc(title(x.r))+'</b><span>'+esc([rv(x.r,'contact'),rv(x.r,'phone'),x.r.done?'called':'not called yet'].filter(Boolean).join(' \u00B7 '))+'</span></button>').join(''):(($('#emfind').value||$('#emtext').value)?'<p class="mute" style="margin:0">No matching lead yet. Try the company name.</p>':'');
 }
 function openEmail(id,editT){
  const r0=id&&byId(id),m0=editT!=null&&r0?(r0.em||[]).find(m=>emId(m)===editT):null;EMEDIT=m0?emId(m0):null;
@@ -1357,7 +1360,7 @@ function renderList(){
  {const hc={};S.rows.forEach(r=>{if(r.h)hc[r.h]=(hc[r.h]||0)+1});document.querySelectorAll('#heatf button').forEach(b=>{const h=b.dataset.hf;b.classList.toggle('on',(S.hf||'')===h);if(h)b.innerHTML='<i></i>'+HEAT[h]+(hc[h]?' <em>'+hc[h]+'</em>':'')})}
  const v=visible();
  const qq=S.q.trim(),hfN=S.hf?HEAT[S.hf]+' ':'',fN={todo:'to call',done:'logged',fu:'with a follow-up',all:''}[S.filter];
- $('#list').innerHTML=v.map(r=>{const lg=r.log.length?r.log[r.log.length-1]:null,c=ctry(r),ph=val(r,cn('phone')),ct=val(r,cn('contact'));
+ $('#list').innerHTML=v.map(r=>{const lg=r.log.length?r.log[r.log.length-1]:null,c=ctry(r),ph=rv(r,'phone'),ct=rv(r,'contact');
   return '<div class="it'+(r.id===S.last?' on':'')+(r.done?' isdone':'')+'" data-id="'+r.id+'">'+avHtml(r)+'<div class="itx"><div class="itr"><b>'+(r.h?'<i class="hdot h-'+r.h+'" title="'+HEAT[r.h]+'"></i>':'')+esc(dispTitle(r))+'</b>'+(lg?'<span class="tag" style="--oc:'+(OCOL[lg.o]||'var(--mute)')+'" title="Last call: '+esc(lg.o)+', '+esc(fmtT(lg.t))+'"><u></u>'+esc(lg.o)+' <em>'+esc(ago(lg.t).replace(' ago',''))+'</em></span>':r.done?'<span class="tag"><u></u>Logged</span>':'')+'</div>'+
   '<span class="itm">'+(c?'<em class="cty">'+esc(c)+'</em>':'')+esc([ct,ph].filter(Boolean).join(' · '))+'</span>'+(r.fu?'<span class="fub'+(r.fu<=Date.now()?' od':'')+'">'+ic('clock',12)+' '+esc(fuFmt(r.fu))+'</span>':'')+'</div></div>'}).join('')||
   (!n?emptyHtml('upload','No leads yet','Import your list of accounts to start calling.','<button class="primary" data-impl>Import list</button>')
@@ -1404,7 +1407,7 @@ const TPL_DEFAULT=[
 function tplList(){return Array.isArray(S.tpl)&&S.tpl.length?S.tpl:TPL_DEFAULT}
 function tplFill(t,r){
  const nc=S.cols.find(c=>c.role!=='company'&&/first\s*name/i.test(c.n))||S.cols.find(c=>c.role!=='company'&&/contact|person|^name$|full\s*name/i.test(c.n));
- const ct=String(val(r,cn('contact'))||(nc?val(r,nc.n):'')||'').trim(),first=ct.replace(/^(mr|mrs|ms|miss|dr|eng|engr)\.?\s+/i,'').split(/\s+/)[0]||'';
+ const ct=String(rv(r,'contact')||(nc?val(r,nc.n):'')||'').trim(),first=ct.replace(/^(mr|mrs|ms|miss|dr|eng|engr)\.?\s+/i,'').split(/\s+/)[0]||'';
  const m={first:first||'Sir/Madam',contact:ct||'Sir/Madam',company:dispTitle(r),name:first||'Sir/Madam'};
  return String(t||'').replace(/\{([^{}]{1,60})\}/g,(x,k)=>{const kk=k.trim().toLowerCase();if(kk in m)return m[kk];const c=S.cols.find(c=>c.n.toLowerCase()===kk);return c?String(val(r,c.n)||''):x});
 }
@@ -1433,7 +1436,7 @@ const CNAME={'united arab emirates':'UAE','u a e':'UAE','uae':'UAE','the united 
 function ctry(r){
  const cc=S.cols.find(c=>/country/i.test(c.n)&&String(val(r,c.n)).trim());
  if(cc){const v=String(val(r,cc.n)).trim();const k=v.toLowerCase().replace(/[^a-z]+/g,' ').trim();return CNAME[k]||CNAME[k.replace(/ /g,'')]||(v.length>12?v.slice(0,11)+'.':v)}
- let t=String(val(r,cn('phone'))||'').split(/[\/,;]| or /i)[0].replace(/\(\s*0\s*\)/g,'').trim();
+ let t=String(rv(r,'phone')||'').split(/[\/,;]| or /i)[0].replace(/\(\s*0\s*\)/g,'').trim();
  if(!/\d/.test(t))return '';const plus=/^\s*(\+|00)/.test(t);let d=t.replace(/\D/g,'');
  if(plus){if(d.startsWith('00'))d=d.slice(2);const m=CC.find(x=>d.startsWith(x[0]));return m?m[1]:''}
  if(/^0\d{8,9}$/.test(d)||/^5\d{8}$/.test(d))return 'UAE';
@@ -1458,7 +1461,7 @@ function guideHtml(r){
  const has=re=>S.cols.some(c=>re.test(c.n)&&String(val(r,c.n)||'').trim());
  const fv=re=>{const c=S.cols.find(c=>re.test(c.n)&&String(val(r,c.n)||'').trim());return c?String(val(r,c.n)).trim():''};
  const ang=fv(/angle/i),prod=fv(/products?\s*bought|models?\s*seen|top\s*items/i),last=fv(/last\s*(bought|order|year)/i),past=fv(/past\s*sales|total\s*usd|lifetime/i);
- const who=val(r,cn('contact'))?String(val(r,cn('contact'))).trim().split(/\s+/)[0]:'';
+ const who=rv(r,'contact')?String(rv(r,'contact')).trim().split(/\s+/)[0]:'';
  const enq=prod?'':fv(/enquir|inquir|requirement|product|description|item|subject|interest/i),edc=S.cols.find(c=>/date|created|received/i.test(c.n)&&String(val(r,c.n)||'').trim()),ed=edc?String(val(r,edc.n)).trim():'';
  const hi='"Hello'+(who?' '+who:'')+', this is Byron from Minerva Technologies, the authorised Motorola distributor in Dubai. ';
  const opener=prod?hi+'Your company bought '+prod.replace(/,\s*/g,', ')+' from us'+(last?', last in '+String(last).slice(0,4):'')+'. Are those radios still in use? Do you have any new needs or projects coming?"'
@@ -1466,7 +1469,7 @@ function guideHtml(r){
   :hi+'Do your teams use two-way radios? Do you have any needs or projects coming where we can help?"';
  const callTxt=(ang?'Hook: '+ang.replace(/\s*->\s*/g,' → ').replace(/\s*\|\s*/g,'. Also: ')+'.\n':'No angle saved for this lead yet. For a researched hook, paste the lead to Claude before calling.\n')+'Opener: '+opener+(past?'\nThey have spent about $'+Number(String(past).replace(/[^0-9.]/g,'')||0).toLocaleString('en-US')+' with us, so treat them as a valued past customer.':'')+'\nGoal: an RFQ, not a sale. For a full pitch and emails, copy this lead and paste it to Claude with your call notes.';
  const st=[
-  ['Find the right person','Spend 5 minutes on the CRM, old emails, their website, LinkedIn or the switchboard. Ask for purchasing, or whoever handles radios. Save the name, phone and email in the boxes below.',!!(String(val(r,cn('contact'))||'').trim()||has(/e-?mail/i)),'gp'],
+  ['Find the right person','Spend 5 minutes on the CRM, old emails, their website, LinkedIn or the switchboard. Ask for purchasing, or whoever handles radios. Save the name, phone and email in the boxes below.',!!(String(rv(r,'contact')||'').trim()||has(/e-?mail/i)),'gp'],
   ['Call using the angle',callTxt,!!(r.gc||(r.draft||'').trim()),'gc'],
   ['Send the email the same day','Spoke: send the thanks-for-your-time email with the next step. No answer: send the follow-up email. Tick when sent.',!!r.gm,'gm'],
   ['Set the next follow-up','No answer: call again in 3 to 4 days (then WhatsApp, then a final email at 2 weeks). Spoke: follow up when they said. Use the follow-up box below.',!!r.fu,null],
@@ -1479,9 +1482,9 @@ function renderCard(){
  const r=byId(S.last),c=$('#card'),m=$('#main');
  m.dataset.view=S.view;
  if(!r){c.innerHTML=S.rows.length?emptyHtml('check','All leads logged','Nice work. Switch to Logged or All to review them, or import a new list.','<button class="primary" data-impl>Import list</button>'):emptyHtml('upload','Import your leads','Choose a CSV or Excel file with your accounts and contacts. Every column comes in, and you pick which ones show.','<button class="primary" data-impl>Import list</button>');return}
- const ph=val(r,cn('phone')),tel=dialNum(ph),wa=waNum(ph);
+ const ph=rv(r,'phone'),tel=dialNum(ph),wa=waNum(ph),em=(String(rv(r,'email')||'').match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/)||[''])[0];
  c.innerHTML='<div class="ctop"><button class="back" data-back>'+ic('back',16)+' Leads</button>'+(cn('company')?'':'<p class="warnb">No column is set as Company, so exports show the contact name instead. <button data-fields>Choose Company column</button></p>')+
- '<div class="ch"><div class="chl">'+avHtml(r,'lg')+'<div><h2 id="hd" title="'+esc(title(r))+'">'+esc(dispTitle(r))+'</h2><p id="hs">'+esc(val(r,cn('contact')))+'</p><div class="heat" role="group" aria-label="Lead temperature">'+Object.keys(HEAT).map(h=>'<button type="button" class="h-'+h+(r.h===h?' on':'')+'" data-heat="'+h+'" aria-pressed="'+(r.h===h)+'" title="'+(r.h===h?'Clear the tag':'Mark as '+HEAT[h])+' (shortcut: H)"><i></i>'+HEAT[h]+'</button>').join('')+'</div></div></div><div class="chr">'+cpAllBtn()+(wa?'<a class="wa" href="'+(FINE.matches?'whatsapp://send?phone='+wa:'https://wa.me/'+wa)+'"'+(FINE.matches?'':' target="_blank" rel="noopener"')+' title="Open a WhatsApp chat with +'+wa+' (shortcut: W)">'+ic('chat',17)+' WhatsApp</a>':'')+(tel?'<a class="dial" href="tel:'+esc(tel)+'" title="Dials '+esc(tel)+' (shortcut: C)">'+ic('phone',18)+' Call '+esc(tel)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+guideHtml(r)+
+ '<div class="ch"><div class="chl">'+avHtml(r,'lg')+'<div><h2 id="hd" title="'+esc(title(r))+'">'+esc(dispTitle(r))+'</h2><p id="hs">'+esc(rv(r,'contact'))+'</p><div class="heat" role="group" aria-label="Lead temperature">'+Object.keys(HEAT).map(h=>'<button type="button" class="h-'+h+(r.h===h?' on':'')+'" data-heat="'+h+'" aria-pressed="'+(r.h===h)+'" title="'+(r.h===h?'Clear the tag':'Mark as '+HEAT[h])+' (shortcut: H)"><i></i>'+HEAT[h]+'</button>').join('')+'</div></div></div><div class="chr">'+cpAllBtn()+(wa?'<a class="wa" href="'+(FINE.matches?'whatsapp://send?phone='+wa:'https://wa.me/'+wa)+'"'+(FINE.matches?'':' target="_blank" rel="noopener"')+' title="Open a WhatsApp chat with +'+wa+' (shortcut: W)">'+ic('chat',17)+' WhatsApp</a>':'')+(em?'<a class="wa embtn2" href="mailto:'+encodeURIComponent(em).replace(/%40/g,'@')+'" title="Email '+esc(em)+'">'+ic('mail',17)+' Email</a>':'')+(tel?'<a class="dial" href="tel:'+esc(tel)+'" title="Dials '+esc(tel)+' (shortcut: C)">'+ic('phone',18)+' Call '+esc(tel)+'</a>':'<span class="nophone">No phone number set</span>')+'</div></div></div>'+guideHtml(r)+
  (()=>{const boxH=x=>{const v=val(r,x.n),wd=isWide(x),long=wd||String(v).length>60,pk=(S.pick||[]).includes(x.n);return '<label class="'+(wd?'wide':'')+(pk?' picked':'')+'" data-ci="'+S.cols.indexOf(x)+'"><button type="button" class="hide pbtn'+(pk?' on':'')+'" data-pick="'+esc(x.n)+'" aria-pressed="'+pk+'" title="'+(pk?'Remove from Copy selected':'Add to Copy selected')+'" aria-label="Select '+esc(x.n)+' for Copy selected">'+(pk?'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>':'<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="2"/></svg>')+'</button><button type="button" class="hide wbtn" data-wide="'+S.cols.indexOf(x)+'" title="'+(wd?'Make this box narrower':'Make this box full width')+'" aria-label="Toggle width of '+esc(x.n)+'">'+(wd?ic('shrink',14):ic('expand',14))+'</button><button type="button" class="hide" data-hide="'+S.cols.indexOf(x)+'" title="Hide this field (also removes it from the Excel export)" aria-label="Hide '+esc(x.n)+'">'+ic('x',14)+'</button><span class="grip" title="Drag to move this box"><span class="gd">'+ic('grip',12)+'</span>'+esc(x.n)+'</span>'+'<div class="fw'+(long?' ta':'')+'">'+(long?'<textarea rows="3" data-f="'+esc(x.n)+'">'+esc(v)+'</textarea>':'<input data-f="'+esc(x.n)+'" value="'+esc(v)+'">')+'<button type="button" class="cpy" data-copy title="Copy '+esc(x.n)+'" aria-label="Copy '+esc(x.n)+'"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>'+'</label>'};const isF=x=>{const v=val(r,x.n);return String(v==null?'':v).trim()!==''};const E=[];const out=(S.nogrp?[['a','']]:FGROUPS).map(g=>{const all=S.cols.filter(x=>x.show&&(S.nogrp||grpOf(x)===g[0]));const cs=all.filter(isF);all.filter(x=>!isF(x)).forEach(x=>E.push(x));if(!cs.length)return '';return '<section class="fgrp g-'+g[0]+'" data-g="'+g[0]+'">'+(g[1]?'<h4 class="fgh">'+g[1]+'</h4>':'')+'<div class="fields">'+cs.map(boxH).join('')+'</div></section>'}).join('');return out+(E.length?'<section class="fgrp g-x"><button type="button" class="btnl etog" data-emptytoggle aria-expanded="'+SHOWEMPTY+'">'+(SHOWEMPTY?'Hide':'Show')+' empty fields ('+E.length+')</button>'+(SHOWEMPTY?'<div class="fields">'+E.map(boxH).join('')+'</div>':'')+'</section>':'')})()+
  addBoxHtml()+'<div class="log"><h3>Previous dealings with '+esc(dispTitle(r))+'</h3>'+histHtml(r)+'<div class="embar"><button type="button" class="embtn" data-em>'+ic('mail',15)+' Log email reply</button><button type="button" class="embtn" data-tpl title="Copy a ready-made email for this lead (shortcut: M)">'+ic('tpl',15)+' Email templates</button><button type="button" class="embtn rfqbtn" data-rfq title="Record an RFQ you passed to a BDM, with its value, for your reports">'+ic('star',15)+' RFQ handed over</button></div>'+
 '<h3 style="margin-top:16px">'+(r.done?'Logged. Add notes or call again':'Live call notes')+'</h3><textarea id="note" rows="6" placeholder="Type what is said, names, numbers, quantities, extensions...">'+esc(r.draft||'')+'</textarea><div class="qn">'+qnList().map((p,i)=>'<button type="button" class="qnb" data-qn="'+i+'">'+esc(p)+'</button>').join('')+'<button type="button" class="qnb qne" data-qnedit title="Edit quick notes" aria-label="Edit quick notes">'+ic('edit',13)+'</button></div><p class="draftmsg">Saved as you type. Pressing an outcome logs these notes to the report and loads the next lead.</p>'+fuHtml(r)+
@@ -1593,7 +1596,7 @@ $('#card').oninput=e=>{
  if(e.target.id==='note'){const rr=byId(S.last);if(rr){rr.draft=e.target.value;save()}return}
  const f=e.target.dataset.f,r=byId(S.last);if(!f||!r)return;
  r.f[f]=e.target.value;save();if(e.target.tagName==='TEXTAREA')fit(e.target);
- $('#hd').textContent=dispTitle(r);$('#hs').textContent=val(r,cn('contact'));
+ $('#hd').textContent=dispTitle(r);$('#hs').textContent=rv(r,'contact');
 };
 $('#card').onchange=e=>{if(e.target.id==='fud'||e.target.id==='fut'){if($('#fud').value)fuFromInputs();return}renderList()};
 $('#q').oninput=e=>{S.q=e.target.value;renderList()};
@@ -1686,7 +1689,7 @@ function renderDash(){
  const recent=all.filter(x=>x.l.o==='Spoke').slice(0,6);
  const fus=S.rows.filter(r=>r.fu).sort((a,b)=>a.fu-b.fu),eod=new Date();eod.setHours(23,59,59,999);
  const fdue=fus.filter(r=>r.fu<=+eod).length;
- const fuh=fus.length?fus.slice(0,6).map(r=>'<div class="dli" data-open="'+r.id+'" style="--lc:'+(r.fu<=Date.now()?'var(--bad)':'var(--c-fu)')+'"><div><b>'+esc(title(r))+'</b><em>'+esc(fuFmt(r.fu))+'</em></div><span class="mute">'+esc([val(r,cn('contact')),val(r,cn('phone'))].filter(Boolean).join(' - '))+' &middot; '+fuRel(r.fu)+'</span></div>').join('')+(fus.length>6?'<p class="more">+ '+(fus.length-6)+' more</p>':''):'<p class="mute">No follow-ups scheduled. Set one from a lead card.</p>';
+ const fuh=fus.length?fus.slice(0,6).map(r=>'<div class="dli" data-open="'+r.id+'" style="--lc:'+(r.fu<=Date.now()?'var(--bad)':'var(--c-fu)')+'"><div><b>'+esc(title(r))+'</b><em>'+esc(fuFmt(r.fu))+'</em></div><span class="mute">'+esc([rv(r,'contact'),rv(r,'phone')].filter(Boolean).join(' - '))+' &middot; '+fuRel(r.fu)+'</span></div>').join('')+(fus.length>6?'<p class="more">+ '+(fus.length-6)+' more</p>':''):'<p class="mute">No follow-ups scheduled. Set one from a lead card.</p>';
  const tiles=[
   ['Calls today',today.length,tSp+' conversations','var(--c-ok)'],
   ['Calls this week',week.length,wSp+' conversations','var(--c-blue)'],
@@ -1706,7 +1709,7 @@ function renderDash(){
  const hrs={};all.forEach(x=>{const h=new Date(x.l.t).getHours(),o=hrs[h]=hrs[h]||{c:0,s:0};o.c++;if(x.l.o==='Spoke')o.s++});
  const hk=Object.keys(hrs).map(Number).sort((a,b)=>a-b);
  const hrows=hk.length?hk.map(h=>{const o=hrs[h],r=Math.round(100*o.s/o.c);return '<div class="hr" data-det="hour" data-arg="'+h+'"><span class="t">'+String(h).padStart(2,'0')+':00</span><span class="tr"><i style="width:'+r+'%"></i></span><span class="v">'+r+'% ('+o.s+'/'+o.c+')</span></div>'}).join(''):'<p class="mute">Log some calls to see the best hours to reach people.</p>';
- const li=(x,col)=>'<div class="dli" data-open="'+x.r.id+'" style="--lc:'+col+'"><div><b>'+esc(title(x.r))+'</b><em>'+ago(x.l.t)+'</em></div><span class="mute">'+esc([val(x.r,cn('contact')),val(x.r,cn('phone'))].filter(Boolean).join(' - '))+'</span>'+(x.l.note?'<p>'+esc(x.l.note)+'</p>':'')+'</div>';
+ const li=(x,col)=>'<div class="dli" data-open="'+x.r.id+'" style="--lc:'+col+'"><div><b>'+esc(title(x.r))+'</b><em>'+ago(x.l.t)+'</em></div><span class="mute">'+esc([rv(x.r,'contact'),rv(x.r,'phone')].filter(Boolean).join(' - '))+'</span>'+(x.l.note?'<p>'+esc(x.l.note)+'</p>':'')+'</div>';
  const cbh=cbs.length?cbs.slice(0,6).map(x=>li(x,'var(--c-cb)')).join('')+(cbs.length>6?'<p class="more">+ '+(cbs.length-6)+' more</p>':''):'<p class="mute">No call backs waiting.</p>';
  const rch=recent.length?recent.map(x=>li(x,'var(--c-ok)')).join(''):'<p class="mute">Conversations you log will show here.</p>';
  el.innerHTML='<div class="dtiles">'+tiles+'</div><div class="dgrid">'+
@@ -1883,11 +1886,11 @@ function sumHtml(list){
 }
 function callTable(list){
  if(!list.length)return '<p class="mute">Nothing here yet.</p>';
- return '<div class="tw"><table><thead><tr><th>When</th><th>Company</th><th>Spoke to</th><th>Outcome</th><th>Discussed</th></tr></thead><tbody>'+list.map(x=>'<tr class="clk" data-open="'+x.r.id+'"><td>'+fmt(x.l.t)+'<br><span class="mute">'+ago(x.l.t)+'</span></td><td><b>'+esc(title(x.r))+'</b></td><td>'+esc(val(x.r,cn('contact')))+(val(x.r,cn('phone'))?'<br><span class="mute">'+esc(val(x.r,cn('phone')))+'</span>':'')+'</td><td>'+pill(x.l.o)+'</td><td class="pre">'+esc(x.l.note||'')+'</td></tr>').join('')+'</tbody></table></div>';
+ return '<div class="tw"><table><thead><tr><th>When</th><th>Company</th><th>Spoke to</th><th>Outcome</th><th>Discussed</th></tr></thead><tbody>'+list.map(x=>'<tr class="clk" data-open="'+x.r.id+'"><td>'+fmt(x.l.t)+'<br><span class="mute">'+ago(x.l.t)+'</span></td><td><b>'+esc(title(x.r))+'</b></td><td>'+esc(rv(x.r,'contact'))+(rv(x.r,'phone')?'<br><span class="mute">'+esc(rv(x.r,'phone'))+'</span>':'')+'</td><td>'+pill(x.l.o)+'</td><td class="pre">'+esc(x.l.note||'')+'</td></tr>').join('')+'</tbody></table></div>';
 }
 function leadTable(rows){
  if(!rows.length)return '<p class="mute">Nothing here.</p>';
- return '<div class="tw"><table><thead><tr><th>Company</th><th>Contact</th><th>Phone</th><th>Status</th><th>Calls</th><th>Last outcome</th><th>Last contact</th><th>Latest notes</th></tr></thead><tbody>'+rows.map(r=>{const l=r.log[r.log.length-1];return '<tr class="clk" data-open="'+r.id+'"><td><b>'+esc(title(r))+'</b></td><td>'+esc(val(r,cn('contact')))+'</td><td>'+esc(val(r,cn('phone')))+'</td><td>'+(r.done?'Logged':'To call')+'</td><td>'+r.log.length+'</td><td>'+(l?pill(l.o):'<span class="mute">-</span>')+'</td><td>'+(l?fmt(l.t)+'<br><span class="mute">'+ago(l.t)+'</span>':'')+'</td><td class="pre">'+esc(l&&l.note||'')+'</td></tr>'}).join('')+'</tbody></table></div>';
+ return '<div class="tw"><table><thead><tr><th>Company</th><th>Contact</th><th>Phone</th><th>Status</th><th>Calls</th><th>Last outcome</th><th>Last contact</th><th>Latest notes</th></tr></thead><tbody>'+rows.map(r=>{const l=r.log[r.log.length-1];return '<tr class="clk" data-open="'+r.id+'"><td><b>'+esc(title(r))+'</b></td><td>'+esc(rv(r,'contact'))+'</td><td>'+esc(rv(r,'phone'))+'</td><td>'+(r.done?'Logged':'To call')+'</td><td>'+r.log.length+'</td><td>'+(l?pill(l.o):'<span class="mute">-</span>')+'</td><td>'+(l?fmt(l.t)+'<br><span class="mute">'+ago(l.t)+'</span>':'')+'</td><td class="pre">'+esc(l&&l.note||'')+'</td></tr>'}).join('')+'</tbody></table></div>';
 }
 let DETCUR=null,DETSTK=[];
 function openDetail(kind,arg,push){
@@ -1913,7 +1916,7 @@ function openDetail(kind,arg,push){
   case 'recent':t='Conversations ('+D.spoke.length+')';h='<p class="mute">Every call that ended in a conversation, newest first.</p>'+callTable(D.spoke);break;
   case 'followups':{
    const rows=S.rows.filter(r=>r.fu).sort((a,b)=>a.fu-b.fu);t='Follow-ups ('+rows.length+')';
-   h=rows.length?'<p class="mute">Soonest first. Tap a row to open the lead in the dialler.</p><div class="tw"><table><thead><tr><th>Follow-up</th><th>Status</th><th>Company</th><th>Contact</th><th>Last outcome</th><th>Latest notes</th><th>Calendar</th></tr></thead><tbody>'+rows.map(r=>{const l=r.log[r.log.length-1];return '<tr class="clk" data-open="'+r.id+'"><td>'+esc(fuFmt(r.fu))+'</td><td>'+(r.fu<=Date.now()?'<b style="color:var(--bad)">Overdue</b>':'Upcoming')+'<br><span class="mute">'+fuRel(r.fu)+'</span></td><td><b>'+esc(title(r))+'</b></td><td>'+esc(val(r,cn('contact')))+(val(r,cn('phone'))?'<br><span class="mute">'+esc(val(r,cn('phone')))+'</span>':'')+'</td><td>'+(l?pill(l.o):'-')+'</td><td class="pre">'+esc(l&&l.note||'')+'</td><td><a class="btnlink" target="_blank" rel="noopener noreferrer" href="'+esc(gcal(r))+'">Add</a></td></tr>'}).join('')+'</tbody></table></div>':'<p class="mute">No follow-ups scheduled yet. Open a lead and use the Follow-up call box to set one.</p>';break}
+   h=rows.length?'<p class="mute">Soonest first. Tap a row to open the lead in the dialler.</p><div class="tw"><table><thead><tr><th>Follow-up</th><th>Status</th><th>Company</th><th>Contact</th><th>Last outcome</th><th>Latest notes</th><th>Calendar</th></tr></thead><tbody>'+rows.map(r=>{const l=r.log[r.log.length-1];return '<tr class="clk" data-open="'+r.id+'"><td>'+esc(fuFmt(r.fu))+'</td><td>'+(r.fu<=Date.now()?'<b style="color:var(--bad)">Overdue</b>':'Upcoming')+'<br><span class="mute">'+fuRel(r.fu)+'</span></td><td><b>'+esc(title(r))+'</b></td><td>'+esc(rv(r,'contact'))+(rv(r,'phone')?'<br><span class="mute">'+esc(rv(r,'phone'))+'</span>':'')+'</td><td>'+(l?pill(l.o):'-')+'</td><td class="pre">'+esc(l&&l.note||'')+'</td><td><a class="btnlink" target="_blank" rel="noopener noreferrer" href="'+esc(gcal(r))+'">Add</a></td></tr>'}).join('')+'</tbody></table></div>':'<p class="mute">No follow-ups scheduled yet. Open a lead and use the Follow-up call box to set one.</p>';break}
   case 'outcome':{const list=D.all.filter(x=>x.l.o===arg);t='Outcome: '+arg+' ('+list.length+')';h=sumHtml(list)+callTable(list);break}
   case 'outcomes':{t='All outcomes';h=OUT.map(o=>{const list=D.all.filter(x=>x.l.o===o);return '<h3>'+pill(o)+' &nbsp;'+list.length+'</h3>'+callTable(list)}).join('');break}
   case 'day':{const x=D.days[+arg];t=dayName(x.d);h=sumHtml(x.list)+callTable(x.list);break}
@@ -1943,7 +1946,7 @@ function renderElog(){
  document.querySelectorAll('#elseg button').forEach(b=>b.classList.toggle('on',b.dataset.elf===ELF));
  $('#elsum').innerHTML=all.length?cnt('rfq')+' requests received \u00B7 '+cnt('later')+' will send later \u00B7 '+cnt('other')+' other'+(dd.size?' \u00B7 <b style="color:var(--bad)">'+dd.size+' possible duplicate'+(dd.size>1?'s':'')+'</b>':'')+(list.length!==all.length?' \u00B7 showing '+list.length:''):'';
  $('#ellist').innerHTML=list.length?list.map(x=>{const id=emId(x.m),n=x.m.note||'',long=n.length>320||n.split('\n').length>5,open=ELOPEN.has(id),dupT=dd.get(id);
-  return '<div class="ecard '+esc(x.m.k)+'" data-row="'+x.r.id+'" data-eid="'+esc(id)+'"><div class="ehead"><span class="edate">'+esc(new Date(x.m.t).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}))+'</span><button type="button" class="eco" data-elopen title="Open this lead">'+esc(title(x.r))+'</button>'+(val(x.r,cn('contact'))?'<span class="ect">'+esc(val(x.r,cn('contact')))+'</span>':'')+'<select data-eltype aria-label="Disposition">'+emOpt(x.m.k)+'</select></div>'+
+  return '<div class="ecard '+esc(x.m.k)+'" data-row="'+x.r.id+'" data-eid="'+esc(id)+'"><div class="ehead"><span class="edate">'+esc(new Date(x.m.t).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}))+'</span><button type="button" class="eco" data-elopen title="Open this lead">'+esc(title(x.r))+'</button>'+(rv(x.r,'contact')?'<span class="ect">'+esc(rv(x.r,'contact'))+'</span>':'')+'<select data-eltype aria-label="Disposition">'+emOpt(x.m.k)+'</select></div>'+
   (dupT?'<span class="edup">Possible duplicate of the entry from '+esc(new Date(dupT).toLocaleDateString('en-GB',{day:'numeric',month:'short'}))+' (left out of reports)</span>':'')+
   '<div class="ebody'+(n?'':' empty')+(long&&!open?' clamp':'')+'">'+(n?esc(n):'No email text saved')+'</div>'+(long?'<button type="button" class="emore" data-elmore>'+(open?'Show less':'Show full email')+'</button>':'')+
   '<div class="eact"><button type="button" data-eledit>'+ic('edit',13)+' Edit</button><button type="button" data-elopen>Open lead</button><button type="button" class="danger" data-eldel>Delete</button></div></div>'}).join(''):'<p class="mute">'+(all.length?'Nothing matches. Clear the search or pick All.':'No email replies logged yet. Use \u2709 Log new reply to add one.')+'</p>';
@@ -1986,7 +1989,7 @@ function fuRel(t){return t<=Date.now()?'overdue, '+ago(t):inn(t)}
 function fuStatus(r){return r.fu?'<b style="color:'+(r.fu<=Date.now()?'var(--bad)':'var(--c-fu)')+'">'+esc(fuFmt(r.fu))+'</b> <span class="mute">('+fuRel(r.fu)+')</span>':'<span class="mute">No follow-up set</span>'}
 function gcal(r){
  const f=d=>d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
- const det=[val(r,cn('contact')),val(r,cn('phone'))].filter(Boolean).join(' - ');
+ const det=[rv(r,'contact'),rv(r,'phone')].filter(Boolean).join(' - ');
  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Follow-up call: '+title(r))+'&dates='+f(new Date(r.fu))+'/'+f(new Date(r.fu+30*60000))+'&details='+encodeURIComponent(det);
 }
 function fuHtml(r){
@@ -2026,14 +2029,14 @@ function stats(k){const s=rangeStart(k),c=S.rows.flatMap(r=>r.log.map(l=>({r,l})
 function renderRep(){
  const k=$('#rrange').value,t=stats(k);
  const es=emStats(rangeStart(k),Date.now()+1),qs=rfqStats(rangeStart(k),Date.now()+1);$('#rsum').innerHTML='<p><b>'+t.c.length+'</b> calls to <b>'+t.leads+'</b> leads. '+OUT.map(o=>t.by[o]+' '+o.toLowerCase()).join(', ')+'.</p>'+(es.list.length?'<p>'+ic('mail',14)+' <b>'+es.list.length+'</b> email responses: <b>'+es.rfq+'</b> requests received, <b>'+es.later+'</b> will send requests later.</p>':'')+(qs.list.length?'<p>'+ic('star',14)+' <b>'+qs.list.length+'</b> RFQ'+(qs.list.length===1?'':'s')+' handed to BDMs, worth <b>'+usd(qs.val)+'</b>.</p>':'');
- $('#rtab').innerHTML=t.c.length?'<table><thead><tr><th>When</th><th>Company</th><th>Spoke to</th><th>Outcome</th><th>Discussed</th></tr></thead><tbody>'+t.c.map(x=>'<tr><td>'+fmt(x.l.t)+'</td><td>'+esc(title(x.r))+'</td><td>'+esc(val(x.r,cn('contact')))+(val(x.r,cn('phone'))?'<br><span class="mute">'+esc(val(x.r,cn('phone')))+'</span>':'')+'</td><td>'+esc(x.l.o)+'</td><td>'+esc(x.l.note)+'</td></tr>').join('')+'</tbody></table>':'<p class="mute">No calls logged in this period.</p>';
+ $('#rtab').innerHTML=t.c.length?'<table><thead><tr><th>When</th><th>Company</th><th>Spoke to</th><th>Outcome</th><th>Discussed</th></tr></thead><tbody>'+t.c.map(x=>'<tr><td>'+fmt(x.l.t)+'</td><td>'+esc(title(x.r))+'</td><td>'+esc(rv(x.r,'contact'))+(rv(x.r,'phone')?'<br><span class="mute">'+esc(rv(x.r,'phone'))+'</span>':'')+'</td><td>'+esc(x.l.o)+'</td><td>'+esc(x.l.note)+'</td></tr>').join('')+'</tbody></table>':'<p class="mute">No calls logged in this period.</p>';
 }
 $('#repbtn').onclick=()=>{renderRep();$('#rep').hidden=false};
 $('#repclose').onclick=()=>$('#rep').hidden=true;
 $('#rrange').onchange=renderRep;
 $('#rcopy').onclick=async()=>{
  const k=$('#rrange').value,t=stats(k);
- const es=emStats(rangeStart(k),Date.now()+1),qs=rfqStats(rangeStart(k),Date.now()+1);const txt=['Sales call report - '+LBL[k],'Calls: '+t.c.length+' to '+t.leads+' leads',OUT.map(o=>o+': '+t.by[o]).join(' | ')].concat(es.list.length?['Email responses: '+es.list.length+' ('+es.rfq+' requests received, '+es.later+' will send later)']:[]).concat(qs.list.length?['RFQs handed to BDMs: '+qs.list.length+' worth '+usd(qs.val)].concat(qs.list.map(x=>'- '+title(x.r)+' to '+x.q.bdm+(x.q.v?' ('+usd(x.q.v)+')':'')+(x.q.note?' - '+x.q.note.replace(/\s+/g,' ').slice(0,160):''))):[]).concat(['','Discussed:']).concat(t.c.map(x=>'- '+title(x.r)+(val(x.r,cn('contact'))?' ('+val(x.r,cn('contact'))+')':'')+': '+x.l.o+(x.l.note?' - '+x.l.note:''))).concat(es.list.length?['','Email responses:'].concat(es.list.map(x=>'- '+title(x.r)+': '+EMT[x.m.k]+(x.m.note?' - '+x.m.note.replace(/\s+/g,' ').slice(0,200):''))):[]).join('\n');
+ const es=emStats(rangeStart(k),Date.now()+1),qs=rfqStats(rangeStart(k),Date.now()+1);const txt=['Sales call report - '+LBL[k],'Calls: '+t.c.length+' to '+t.leads+' leads',OUT.map(o=>o+': '+t.by[o]).join(' | ')].concat(es.list.length?['Email responses: '+es.list.length+' ('+es.rfq+' requests received, '+es.later+' will send later)']:[]).concat(qs.list.length?['RFQs handed to BDMs: '+qs.list.length+' worth '+usd(qs.val)].concat(qs.list.map(x=>'- '+title(x.r)+' to '+x.q.bdm+(x.q.v?' ('+usd(x.q.v)+')':'')+(x.q.note?' - '+x.q.note.replace(/\s+/g,' ').slice(0,160):''))):[]).concat(['','Discussed:']).concat(t.c.map(x=>'- '+title(x.r)+(rv(x.r,'contact')?' ('+rv(x.r,'contact')+')':'')+': '+x.l.o+(x.l.note?' - '+x.l.note:''))).concat(es.list.length?['','Email responses:'].concat(es.list.map(x=>'- '+title(x.r)+': '+EMT[x.m.k]+(x.m.note?' - '+x.m.note.replace(/\s+/g,' ').slice(0,200):''))):[]).join('\n');
  try{await navigator.clipboard.writeText(txt);toast('Summary copied')}catch(e){toast('Copy is blocked here. Use Download Excel report instead')}
 };
 let XD=null;
@@ -2056,7 +2059,7 @@ async function exportX(kk){
  const k=kk||$('#rrange').value,t=stats(k);
  const sum=[['Period',LBL[k]],['Calls made',t.c.length],['Leads called',t.leads]].concat(OUT.map(o=>[o,t.by[o]]));
  const vis=S.cols.filter(c=>c.show),rest=vis.filter(c=>!['company','contact','phone'].includes(c.role));
- const log=[['Date','Time','Company','Person spoken to','Phone','Outcome','What was discussed'].concat(rest.map(c=>c.n))].concat(t.c.slice().reverse().map(x=>{const d=new Date(x.l.t);return [d.toLocaleDateString(),d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),title(x.r),val(x.r,cn('contact')),val(x.r,cn('phone')),x.l.o,x.l.note||''].concat(rest.map(c=>val(x.r,c.n)))}));
+ const log=[['Date','Time','Company','Person spoken to','Phone','Outcome','What was discussed'].concat(rest.map(c=>c.n))].concat(t.c.slice().reverse().map(x=>{const d=new Date(x.l.t);return [d.toLocaleDateString(),d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),title(x.r),rv(x.r,'contact'),rv(x.r,'phone'),x.l.o,x.l.note||''].concat(rest.map(c=>val(x.r,c.n)))}));
  const leads=[vis.map(c=>c.n).concat(['Status','Last outcome','Last logged','Calls made','Notes','Follow-up'])].concat(S.rows.map(r=>{const l=r.log[r.log.length-1]||{};return vis.map(c=>r.f[c.n]==null?'':r.f[c.n]).concat([r.done?'Logged':'To call',l.o||'',l.t?new Date(l.t).toLocaleString():'',r.log.length,r.log.map(x=>x.note).filter(Boolean).join(' | '),r.fu?new Date(r.fu).toLocaleString():''])}));
  XD={sum,log,leads};
  let dl=null;
@@ -2349,13 +2352,13 @@ async function buildSalesReport(R,by,forWho){
  // Conversations
  r=section(r,'Key conversations ('+D.conv.length+')');
  if(D.conv.length){r=thead(r,[['Date',2,2],['Company',3,3],['Contact',4,4],['What was discussed',5,7]]);
-  D.conv.forEach((x,i)=>{const n=x.l.note||'';r=trow(r,[[new Date(x.l.t).toLocaleDateString('en-GB',{day:'numeric',month:'short'}),2,2],[title(x.r),3,3,{bold:true}],[val(x.r,cn('contact')),4,4],[n,5,7]],i%2,estH(n,60))})}
+  D.conv.forEach((x,i)=>{const n=x.l.note||'';r=trow(r,[[new Date(x.l.t).toLocaleDateString('en-GB',{day:'numeric',month:'short'}),2,2],[title(x.r),3,3,{bold:true}],[rv(x.r,'contact'),4,4],[n,5,7]],i%2,estH(n,60))})}
  else r=trow(r,[['No conversations logged in this period.',2,7,{italic:true,color:{argb:XC.mute}}]]);
  r++;
  // Email responses
  r=section(r,'Email responses ('+D.ems.length+')');
  if(D.ems.length){r=thead(r,[['Date',2,2],['Company',3,3],['Contact',4,4],['Response',5,5],['Summary',6,7]]);
-  D.ems.forEach((x,i)=>{const n=x.m.note||'',col=x.m.k==='rfq'?'FF0B7A4B':x.m.k==='later'?'FFB45309':XC.ink;r=trow(r,[[new Date(x.m.t).toLocaleDateString('en-GB',{day:'numeric',month:'short'}),2,2],[title(x.r),3,3,{bold:true}],[val(x.r,cn('contact')),4,4],[EMT[x.m.k]||'Email reply',5,5,{bold:true,color:{argb:col}}],[n.length>600?n.slice(0,600)+'...':n,6,7]],i%2,estH(n.slice(0,600),40))})}
+  D.ems.forEach((x,i)=>{const n=x.m.note||'',col=x.m.k==='rfq'?'FF0B7A4B':x.m.k==='later'?'FFB45309':XC.ink;r=trow(r,[[new Date(x.m.t).toLocaleDateString('en-GB',{day:'numeric',month:'short'}),2,2],[title(x.r),3,3,{bold:true}],[rv(x.r,'contact'),4,4],[EMT[x.m.k]||'Email reply',5,5,{bold:true,color:{argb:col}}],[n.length>600?n.slice(0,600)+'...':n,6,7]],i%2,estH(n.slice(0,600),40))})}
  else r=trow(r,[['No email responses logged in this period.',2,7,{italic:true,color:{argb:XC.mute}}]]);
  r++;
  // RFQs handed over
@@ -2370,13 +2373,13 @@ async function buildSalesReport(R,by,forWho){
  const vis=S.cols.filter(c=>c.show),rest=vis.filter(c=>!['company','contact','phone'].includes(c.role));
  const lg=wb.addWorksheet('Call Log',{views:[{state:'frozen',ySplit:1}],pageSetup:{paperSize:9,orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0}});
  lg.columns=[{header:'Date',width:12},{header:'Time',width:8},{header:'Company',width:28},{header:'Contact',width:20},{header:'Phone',width:16},{header:'Outcome',width:15},{header:'What was discussed',width:60}].concat(rest.map(c=>({header:c.n,width:18})));
- D.c.forEach(x=>{const d=new Date(x.l.t);lg.addRow([d.toLocaleDateString('en-GB'),d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),title(x.r),val(x.r,cn('contact')),val(x.r,cn('phone')),x.l.o,x.l.note||''].concat(rest.map(c=>val(x.r,c.n))))});
+ D.c.forEach(x=>{const d=new Date(x.l.t);lg.addRow([d.toLocaleDateString('en-GB'),d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),title(x.r),rv(x.r,'contact'),rv(x.r,'phone'),x.l.o,x.l.note||''].concat(rest.map(c=>val(x.r,c.n))))});
  lg.eachRow((row,i)=>{row.eachCell({includeEmpty:true},c=>{c.alignment={vertical:'top',wrapText:true};c.font=font({size:10});c.border={bottom:{style:'thin',color:{argb:XC.line}}};if(i>1&&i%2===1)c.fill=fill(XC.soft)});
   if(i===1){row.height=22;row.eachCell(c=>{c.fill=fill(XC.navy);c.font=font({bold:true,color:{argb:XC.white},size:10});c.alignment={vertical:'middle'}})}
   else{const o=row.getCell(6),h=OHEX[o.value];if(h)o.font=font({size:10,bold:true,color:{argb:'FF'+h.slice(1)}})}});
  if(D.ems.length){const es=wb.addWorksheet('Email Responses',{views:[{state:'frozen',ySplit:1}],pageSetup:{paperSize:9,orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0}});
   es.columns=[{header:'Date',width:12},{header:'Time',width:8},{header:'Company',width:28},{header:'Contact',width:20},{header:'Phone',width:16},{header:'Response',width:24},{header:'Email / summary',width:80}].concat(rest.map(c=>({header:c.n,width:18})));
-  D.ems.slice().reverse().forEach(x=>{const d=new Date(x.m.t);es.addRow([d.toLocaleDateString('en-GB'),d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),title(x.r),val(x.r,cn('contact')),val(x.r,cn('phone')),EMT[x.m.k]||'Email reply',x.m.note||''].concat(rest.map(c=>val(x.r,c.n))))});
+  D.ems.slice().reverse().forEach(x=>{const d=new Date(x.m.t);es.addRow([d.toLocaleDateString('en-GB'),d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),title(x.r),rv(x.r,'contact'),rv(x.r,'phone'),EMT[x.m.k]||'Email reply',x.m.note||''].concat(rest.map(c=>val(x.r,c.n))))});
   es.eachRow((row,i)=>{row.eachCell({includeEmpty:true},c=>{c.alignment={vertical:'top',wrapText:true};c.font=font({size:10});if(i>1&&i%2===1)c.fill=fill(XC.soft)});if(i===1){row.height=22;row.eachCell(c=>{c.fill=fill(XC.navy);c.font=font({bold:true,color:{argb:XC.white},size:10})})}else{const o=row.getCell(6);o.font=font({size:10,bold:true,color:{argb:o.value==='Request received'?'FF0B7A4B':o.value==='Will send request later'?'FFB45309':XC.ink}})}});
   es.autoFilter={from:{row:1,column:1},to:{row:1,column:7+rest.length}};}
  lg.autoFilter={from:{row:1,column:1},to:{row:1,column:7+rest.length}};
@@ -2457,7 +2460,7 @@ function buildPdf(R,by,forWho){
   reqs.slice(0,RMAX).forEach((x,i)=>{
    if(i){stroke([196,226,208]);doc.setLineWidth(0.2);doc.line(bx+6,ry-4.6,bx+bw-5,ry-4.6)}
    font(8.8,'bold');col(INK);const co=fit(title(x.r),95),coW=doc.getTextWidth(co);doc.text(co,bx+6,ry);
-   const ct=val(x.r,cn('contact')),ph=val(x.r,cn('phone'));font(7.6);col(MUTE);doc.text(fit([ct,ph].filter(Boolean).join('  \u2022  '),Math.max(10,bw-12-coW-22)),bx+6+coW+3,ry);
+   const ct=rv(x.r,'contact'),ph=rv(x.r,'phone');font(7.6);col(MUTE);doc.text(fit([ct,ph].filter(Boolean).join('  \u2022  '),Math.max(10,bw-12-coW-22)),bx+6+coW+3,ry);
    font(7.6,'bold');col(GREEN);doc.text(dshort(x.m.t),bx+bw-5,ry,{align:'right'});
    font(7.9);col(INK);const lines=doc.splitTextToSize(pdfTxt(x.m.note||'No email text saved'),bw-12);const two=lines.slice(0,2);if(lines.length>2)two[1]=fit(two[1]+' '+lines.slice(2).join(' '),bw-12);
    two.forEach((l,j)=>doc.text(l,bx+6,ry+4.1+j*3.7));ry+=12.2});
@@ -2508,7 +2511,7 @@ const gNorm=v=>String(v==null?'':v).toLowerCase().replace(/\s+/g,' ').trim();
 function gUids(rows){
  const seen=new Set(rows.filter(r=>r.u).map(r=>r.u));
  rows.forEach(r=>{if(r.u)return;
-  const co=gNorm(val(r,cn('company'))),ph=String(val(r,cn('phone'))).replace(/\D/g,'').slice(-9);
+  const co=gNorm(val(r,cn('company'))),ph=String(rv(r,'phone')).replace(/\D/g,'').slice(-9);
   let u=(co||ph)?'k:'+co+'|'+ph:'n:'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);
   const b=u;let i=2;while(seen.has(u))u=b+'#'+(i++);seen.add(u);r.u=u});
 }
