@@ -114,6 +114,10 @@ aside{display:flex;flex-direction:column;min-height:0;border-right:1px solid var
 .seg{display:flex;gap:4px}.seg button{flex:1;padding:5px}.seg .on{background:var(--accent);color:#fff;border-color:var(--accent)}
 #list{flex:1;overflow:auto}
 .it{padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+#list .it{content-visibility:auto;contain-intrinsic-size:auto 62px}
+@supports (field-sizing:content){#card .fields textarea{field-sizing:content;max-height:520px;min-height:2.6em}}
+#list{contain:content;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#card{overscroll-behavior:contain}
 .it.on{background:var(--sel);box-shadow:inset 3px 0 0 var(--accent)}
 .it b{display:block;font-weight:600}.it span{color:var(--mute);font-size:13px}
 .tag{float:right;font-size:12px;color:var(--ok)}
@@ -537,6 +541,8 @@ button:active:not([disabled]),.dial:active,.btnlink:active{transform:scale(.95)}
 @keyframes lgt{to{opacity:.12}}
 #card.cin{animation:cin .55s cubic-bezier(.32,.72,0,1) .1s both}
 @keyframes cin{from{opacity:0;transform:scale(1.025) translateY(6px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+.logghost,#card.cin,.logfx-h,.logglow::before{will-change:transform,opacity}
+@media (hover:none) and (pointer:coarse){@keyframes lgo{to{opacity:0;transform:scale(.93) translateY(-8px)}}@keyframes cin{from{opacity:0;transform:scale(1.025) translateY(6px)}to{opacity:1;transform:none}}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
 /* ===== Icons, calmer boxes, undo, quick notes, shortcuts ===== */
@@ -1270,7 +1276,12 @@ function ask(msg,ok,danger){return new Promise(res=>{
  y.onclick=()=>done(true);n.onclick=()=>done(false);y.focus();
 })}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#dlg').hidden)$('#dno').click()});
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save in this browser')}if(window.syncSoon)window.syncSoon()};
+/* Saving is batched: many quick changes (typing, clicks) become one write a moment later, and anything pending is written straight away when the app is hidden or closed */
+let _svT=0;const saveNow=()=>{clearTimeout(_svT);_svT=0;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save in this browser')}if(window.syncSoon)window.syncSoon()};
+const save=()=>{if(!_svT)_svT=setTimeout(saveNow,250)};
+const _svFlush=()=>{if(_svT)saveNow()};
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')_svFlush()});
+addEventListener('pagehide',_svFlush);addEventListener('beforeunload',_svFlush);
 const cn=role=>(S.cols.find(c=>c.role===role)||{}).n;
 const val=(r,n)=>n?(r.f[n]==null?'':r.f[n]):'';
 const RVRE={phone:/phone|mobile|\btel\b|telephone|whatsapp|contact\s*(no|number)|cell/i,contact:/^(contact|contact\s*name|contact\s*person|person|name|full\s*name|first\s*name)$/i,email:/e-?mail/i};
@@ -1388,20 +1399,34 @@ function renderList(){
  {const hc={};S.rows.forEach(r=>{if(r.h)hc[r.h]=(hc[r.h]||0)+1});document.querySelectorAll('#heatf button').forEach(b=>{const h=b.dataset.hf;b.classList.toggle('on',(S.hf||'')===h);if(h)b.innerHTML='<i></i>'+HEAT[h]+(hc[h]?' <em>'+hc[h]+'</em>':'')})}
  const v=visible();
  const qq=S.q.trim(),hfN=S.hf?HEAT[S.hf]+' ':'',fN={todo:'to call',done:'logged',fu:'with a follow-up',all:''}[S.filter];
- $('#list').innerHTML=v.map(r=>{const lg=r.log.length?r.log[r.log.length-1]:null,c=ctry(r),ph=rv(r,'phone'),ct=rv(r,'contact');
+ const _rowH=r=>{const lg=r.log.length?r.log[r.log.length-1]:null,c=ctry(r),ph=rv(r,'phone'),ct=rv(r,'contact');
   return '<div class="it'+(r.id===S.last?' on':'')+(r.done?' isdone':'')+'" data-id="'+r.id+'">'+avHtml(r)+'<div class="itx"><div class="itr"><b>'+(r.h?'<i class="hdot h-'+r.h+'" title="'+HEAT[r.h]+'"></i>':'')+esc(dispTitle(r))+'</b>'+(lg?'<span class="tag" style="--oc:'+(OCOL[lg.o]||'var(--mute)')+'" title="Last call: '+esc(lg.o)+', '+esc(fmtT(lg.t))+'"><u></u>'+esc(lg.o)+' <em>'+esc(ago(lg.t).replace(' ago',''))+'</em></span>':r.done?'<span class="tag"><u></u>Logged</span>':'')+'</div>'+
-  '<span class="itm">'+(c?'<em class="cty">'+esc(c)+'</em>':'')+esc([ct,ph].filter(Boolean).join(' · '))+'</span>'+(r.fu?'<span class="fub'+(r.fu<=Date.now()?' od':'')+'">'+ic('clock',12)+' '+esc(fuFmt(r.fu))+'</span>':'')+'</div></div>'}).join('')||
+  '<span class="itm">'+(c?'<em class="cty">'+esc(c)+'</em>':'')+esc([ct,ph].filter(Boolean).join(' · '))+'</span>'+(r.fu?'<span class="fub'+(r.fu<=Date.now()?' od':'')+'">'+ic('clock',12)+' '+esc(fuFmt(r.fu))+'</span>':'')+'</div></div>'};
+ listPaint(v,_rowH,()=>
   (!n?emptyHtml('upload','No leads yet','Import your list of accounts to start calling.','<button class="primary" data-impl>Import list</button>')
   :qq?emptyHtml('search','No leads match “'+esc(qq)+'”','Try part of the company name, a contact or a few digits of the phone number.')
   :S.hf?emptyHtml('flame','No '+hfN+'leads '+(fN||'here'),'Tag a lead with Hot, Warm or Cold (or press H), or choose <b>Any</b> above.')
   :S.filter==='todo'?emptyHtml('check','All caught up','Every lead is logged. Check Follow-ups, or import a new list.')
   :S.filter==='fu'?emptyHtml('clock','No follow-ups scheduled','Set a follow-up date on a lead and it will appear here, soonest first.')
-  :S.filter==='done'?emptyHtml('phone','Nothing logged yet','Calls you log show up here.'):emptyHtml('list','Nothing here','Switch the filter above.'));
+  :S.filter==='done'?emptyHtml('phone','Nothing logged yet','Calls you log show up here.'):emptyHtml('list','Nothing here','Switch the filter above.')));
+}
+/* Draw the lead list fast: the rows you can see (and the selected one) first, the rest straight after in small batches */
+let _lpTok=0;
+function listPaint(v,rowH,emptyH){
+ const L=$('#list'),tok=++_lpTok;
+ if(!v.length){L.innerHTML=emptyH();return}
+ const sel=v.findIndex(r=>r.id===S.last),first=Math.min(v.length,Math.max(60,sel+30));
+ let html='';for(let i=0;i<first;i++)html+=rowH(v[i]);L.innerHTML=html;
+ let i=first;const step=()=>{if(tok!==_lpTok||i>=v.length)return;let h='';const end=Math.min(v.length,i+150);for(;i<end;i++)h+=rowH(v[i]);L.insertAdjacentHTML('beforeend',h);if(i<v.length)sched(step)};
+ const sched=f=>(window.requestIdleCallback?requestIdleCallback(f,{timeout:120}):setTimeout(f,16));
+ if(i<v.length)sched(step);
 }
 const WIDE_RE=/detail|note|comment|remark|description|discuss|history|angle|products?\s*bought|top\s*items/i;
 function isWide(c){return c.wide!==undefined?!!c.wide:WIDE_RE.test(c.n)}
-function fit(t){if(!t||!t.scrollHeight)return;t.style.height='auto';t.style.height=Math.min(t.scrollHeight+4,520)+'px'}
-function fitAll(){document.querySelectorAll('#card .fields textarea').forEach(fit)}
+function fit(t){if(FS||!t||!t.scrollHeight)return;t.style.height='auto';t.style.height=Math.min(t.scrollHeight+4,520)+'px'}
+const FS=window.CSS&&CSS.supports&&CSS.supports('field-sizing','content');
+function fitAll(){if(FS)return;const ts=[...document.querySelectorAll('#card .fields textarea')];if(!ts.length)return;
+ ts.forEach(t=>t.style.height='auto');const hs=ts.map(t=>t.scrollHeight);ts.forEach((t,i)=>{if(hs[i])t.style.height=Math.min(hs[i]+4,520)+'px'})}
 let ADDOPEN=false;
 function addBoxHtml(){
  const hid=S.cols.map((c,i)=>[c,i]).filter(x=>!x[0].show);
@@ -1656,11 +1681,11 @@ $('#card').oninput=e=>{
  if(e.target.id==='note'){const rr=byId(S.last);if(rr){rr.draft=e.target.value;save()}return}
  const f=e.target.dataset.f,r=byId(S.last);if(!f||!r)return;
  r.f[f]=e.target.value;save();if(e.target.tagName==='TEXTAREA')fit(e.target);
- $('#hd').textContent=dispTitle(r);$('#hs').textContent=rv(r,'contact');
+ {const a=dispTitle(r),b=String(rv(r,'contact')||''),h=$('#hd'),hs=$('#hs');if(h&&h.textContent!==a)h.textContent=a;if(hs&&hs.textContent!==b)hs.textContent=b}
 };
 $('#card').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('input[data-f]')){e.preventDefault();saveFields()}});
 $('#card').onchange=e=>{if(e.target.id==='fud'||e.target.id==='fut'){if($('#fud').value)fuFromInputs();return}renderList()};
-$('#q').oninput=e=>{S.q=e.target.value;renderList()};
+let _qT=0;$('#q').oninput=e=>{S.q=e.target.value;clearTimeout(_qT);_qT=setTimeout(()=>requestAnimationFrame(renderList),90)};
 $('#seg').onclick=e=>{const f=e.target.dataset.f;if(f){S.filter=f;save();renderList()}};
 $('#listf').onchange=e=>{S.lf=e.target.value;save();renderList();const v=visible();if(v.length&&!v.some(r=>r.id===S.last))select(v[0].id,FINE.matches?'card':S.view);toast(S.lf?'Working on: '+S.lf:'Showing all lists')};
 $('#heatf').onclick=e=>{const b=e.target.closest('[data-hf]');if(!b)return;const h=b.dataset.hf;S.hf=(S.hf||'')===h&&h?'':h;save();renderList();if(S.hf){const v=visible();if(v.length&&!v.some(r=>r.id===S.last))select(v[0].id,FINE.matches?'card':S.view)}};
@@ -2555,7 +2580,8 @@ const gSave=()=>{try{localStorage.setItem(GKEY,JSON.stringify(G))}catch(e){}};gS
 let BASE={};try{BASE=JSON.parse(localStorage.getItem(BKEY)||'{}')||{}}catch(e){BASE={}}
 const baseSave=()=>{try{localStorage.setItem(BKEY,JSON.stringify(BASE))}catch(e){}};
 let gTimer=null,gBusy=false,gLastTry=0,gState='off',gMsg='',gConflict=null,gSnaps=null,gOld=false;
-const fmtT=t=>{const d=new Date(t);return d.toDateString()===new Date().toDateString()?d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):d.toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})};
+const _fT1=new Intl.DateTimeFormat([],{hour:'2-digit',minute:'2-digit'}),_fT2=new Intl.DateTimeFormat([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+const fmtT=t=>{const d=new Date(t),n=new Date();return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&d.getDate()===n.getDate()?_fT1.format(d):_fT2.format(d)};
 let gStep='';
 async function gPost(body){
  gStep=body.action;const ac=new AbortController(),tm=setTimeout(()=>ac.abort(),body.action==='ping'?60000:240000);
