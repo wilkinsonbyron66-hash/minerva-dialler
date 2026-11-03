@@ -519,8 +519,17 @@ button:active:not([disabled]),.dial:active,.btnlink:active{transform:scale(.95)}
 .logfx-t b{font-size:14px}.logfx-t span{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
 @keyframes lfx{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}30%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-62%) scale(.96)}}
 @keyframes lfxk{to{stroke-dashoffset:0}}
-#card.cin{animation:cin .36s cubic-bezier(.2,.8,.2,1)}
-@keyframes cin{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+.logghost{position:fixed!important;display:block!important;z-index:55;overflow:hidden!important;pointer-events:none;margin:0!important;background:var(--bg);animation:lgo .5s cubic-bezier(.5,0,.75,0) forwards!important}
+.logghost-tint{position:absolute;left:0;right:0;height:100%;background:var(--fx);opacity:0;animation:lgt .5s ease-out forwards}
+@keyframes lgo{0%{transform:none;opacity:1}100%{transform:translateX(-55%) scale(.97);opacity:0}}
+@keyframes lgt{0%{opacity:0}40%{opacity:.22}100%{opacity:.35}}
+.logsweep{position:fixed;z-index:54;pointer-events:none;overflow:hidden}
+.logsweep::before{content:'';position:absolute;top:0;bottom:0;left:-60%;width:60%;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--fx) 30%,transparent) 55%,color-mix(in srgb,var(--fx) 14%,transparent),transparent);animation:lsw .85s cubic-bezier(.3,.6,.3,1) .12s forwards}
+.logsweep::after{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--fx);opacity:0;animation:lsb .85s ease-out .3s forwards}
+@keyframes lsw{to{left:110%}}
+@keyframes lsb{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+#card.cin{animation:cin .5s cubic-bezier(.2,.8,.2,1)}
+@keyframes cin{0%{opacity:0;transform:translateX(48px)}35%{opacity:.4}100%{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.logfx{animation:lfxr 1s forwards}.logfx svg path{stroke-dashoffset:0}@keyframes lfxr{0%,80%{opacity:1}100%{opacity:0}}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
@@ -1530,15 +1539,23 @@ function resume(){
 }
 
 /* Quick confirmation when a lead is logged: a coloured tick pops over the card, the next lead slides in */
-function logFx(o,name){
+function logGhost(){try{const c=$('#card');if(!c||!c.offsetParent)return null;const rc=c.getBoundingClientRect();if(!rc.width)return null;
+ const g=c.cloneNode(true);g.classList.add('logghost');g.classList.remove('cin');g.setAttribute('aria-hidden','true');g.inert=true;
+ g.querySelectorAll('[id]').forEach(x=>{if(x.id!=='note')x.removeAttribute('id')});const n=g.querySelector('#note');if(n){n.removeAttribute('id');n.classList.add('ghnote')}
+ Object.assign(g.style,{left:rc.left+'px',top:rc.top+'px',width:rc.width+'px',height:rc.height+'px'});
+ g.appendChild(Object.assign(document.createElement('i'),{className:'logghost-tint'}));g._st=c.scrollTop;g._at=c;return g}catch(e){return null}}
+function logFx(o,name,gh){
  try{
   const col=OCOL[o]||'var(--accent)',c=$('#card'),rc=c&&c.offsetParent?c.getBoundingClientRect():null;
   const d=document.createElement('div');d.className='logfx';d.setAttribute('aria-hidden','true');
   d.style.setProperty('--fx',col);
   if(rc&&rc.width){d.style.left=(rc.left+rc.width/2)+'px';d.style.top=(rc.top+Math.min(rc.height/2,260))+'px'}
   d.innerHTML='<div class="logfx-b"><svg viewBox="0 0 52 52" width="52" height="52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-16"/></svg></div><div class="logfx-t"><b>'+esc(o)+'</b><span>'+esc(name||'')+'</span></div>';
+  if(gh){gh.style.setProperty('--fx',col);(c||gh._at).after(gh);gh.scrollTop=gh._st||0;const t=gh.querySelector('.logghost-tint');if(t)t.style.top=gh.scrollTop+'px';setTimeout(()=>gh.remove(),560)}
+  if(c&&rc&&rc.width){const sw=document.createElement('div');sw.className='logsweep';sw.setAttribute('aria-hidden','true');sw.style.setProperty('--fx',col);
+   Object.assign(sw.style,{left:rc.left+'px',top:rc.top+'px',width:rc.width+'px',height:rc.height+'px'});document.body.appendChild(sw);setTimeout(()=>sw.remove(),900)}
   document.body.appendChild(d);setTimeout(()=>d.remove(),1100);
-  if(c){c.classList.remove('cin');void c.offsetWidth;c.classList.add('cin');setTimeout(()=>c.classList.remove('cin'),450)}
+  if(c){c.classList.remove('cin');void c.offsetWidth;c.classList.add('cin');setTimeout(()=>c.classList.remove('cin'),560)}
  }catch(e){}
 }
 function logCall(o){
@@ -1547,7 +1564,7 @@ function logCall(o){
  const entry={t:Date.now(),o,note:noteNow.trim()};
  r.log.push(entry);r.done=true;r.draft='';if(r.fu&&r.fu<=Date.now()){r.fu=null;r.fun=0}
  const nx=nextTodo(r.id);
- S.last=nx?nx.id:null;save();render();logFx(o,title(r));
+ const gh=logGhost();S.last=nx?nx.id:null;save();render();logFx(o,title(r),gh);
  toast('Logged "'+o+'" for '+title(r)+(nx?'':'. That was the last one'),{fn:()=>{const x=byId(r.id);if(!x)return;
   x.log=x.log.filter(l=>l!==entry);x.dl=(x.dl||[]).concat(entry.t+'|'+entry.o);x.done=prev.done;x.fu=prev.fu;x.fun=prev.fun;x.draft=noteNow;
   S.last=x.id;S.view='card';save();render();toast('Undone. Back on '+title(x))}});
