@@ -511,26 +511,32 @@ button:active:not([disabled]),.dial:active,.btnlink:active{transform:scale(.95)}
 .fields .pbtn.on svg{animation:popIn .18s ease}
 @media (max-width:760px) and (hover:none) and (pointer:coarse){#msheet:not([hidden]) .mbox{animation:sheetUp .22s cubic-bezier(.2,.8,.3,1) both}#toast:not([hidden]){animation:fadeUp .18s ease both}}
 
-.logfx{position:fixed;left:50%;top:45%;z-index:60;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;animation:lfx 1.05s cubic-bezier(.2,.8,.2,1) forwards}
-.logfx-b{width:72px;height:72px;border-radius:50%;background:var(--fx);display:grid;place-items:center;box-shadow:0 10px 30px color-mix(in srgb,var(--fx) 45%,transparent)}
-.logfx svg circle{fill:none;stroke:none}
-.logfx svg path{fill:none;stroke:#fff;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:lfxk .32s .12s ease-out forwards}
-.logfx-t{display:flex;flex-direction:column;align-items:center;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:6px 14px;box-shadow:0 6px 20px rgba(0,0,0,.12);max-width:260px;text-align:center}
-.logfx-t b{font-size:14px}.logfx-t span{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
-@keyframes lfx{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.06)}30%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-62%) scale(.96)}}
+.logfx{position:fixed;left:50%;top:45%;z-index:60;transform:translate(-50%,-50%);pointer-events:none}
+.logfx-h{width:148px;padding:22px 12px 16px;border-radius:30px;display:flex;flex-direction:column;align-items:center;gap:10px;
+ background:color-mix(in srgb,var(--panel) 70%,transparent);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);
+ border:.5px solid color-mix(in srgb,var(--ink) 10%,transparent);box-shadow:0 20px 50px rgba(0,0,0,.16),0 2px 8px rgba(0,0,0,.06);
+ animation:lfxin .5s cubic-bezier(.34,1.45,.64,1) both,lfxout .34s cubic-bezier(.32,.72,0,1) .82s forwards}
+.logfx-c{width:60px;height:60px;border-radius:50%;background:var(--fx);display:grid;place-items:center;box-shadow:0 6px 18px color-mix(in srgb,var(--fx) 40%,transparent);animation:lfxpop .55s cubic-bezier(.34,1.6,.64,1) .04s both}
+.logfx-c svg path{fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:36;stroke-dashoffset:36;animation:lfxk .3s cubic-bezier(.65,0,.35,1) .2s forwards}
+.logfx-t{display:flex;flex-direction:column;align-items:center;text-align:center;line-height:1.25;max-width:128px}
+.logfx-t b{font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+.logfx-t span{font-size:12px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:124px}
+@keyframes lfxin{from{opacity:0;transform:scale(.82);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes lfxout{to{opacity:0;transform:scale(.94);filter:blur(4px)}}
+@keyframes lfxpop{from{transform:scale(.4)}to{transform:none}}
 @keyframes lfxk{to{stroke-dashoffset:0}}
-.logghost{position:fixed!important;display:block!important;z-index:55;overflow:hidden!important;pointer-events:none;margin:0!important;background:var(--bg);animation:lgo .5s cubic-bezier(.5,0,.75,0) forwards!important}
-.logghost-tint{position:absolute;left:0;right:0;height:100%;background:var(--fx);opacity:0;animation:lgt .5s ease-out forwards}
-@keyframes lgo{0%{transform:none;opacity:1}100%{transform:translateX(-55%) scale(.97);opacity:0}}
-@keyframes lgt{0%{opacity:0}40%{opacity:.22}100%{opacity:.35}}
-.logsweep{position:fixed;z-index:54;pointer-events:none;overflow:hidden}
-.logsweep::before{content:'';position:absolute;top:0;bottom:0;left:-60%;width:60%;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--fx) 30%,transparent) 55%,color-mix(in srgb,var(--fx) 14%,transparent),transparent);animation:lsw .85s cubic-bezier(.3,.6,.3,1) .12s forwards}
-.logsweep::after{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--fx);opacity:0;animation:lsb .85s ease-out .3s forwards}
-@keyframes lsw{to{left:110%}}
-@keyframes lsb{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
-#card.cin{animation:cin .5s cubic-bezier(.2,.8,.2,1)}
-@keyframes cin{0%{opacity:0;transform:translateX(48px)}35%{opacity:.4}100%{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.logfx{animation:lfxr 1s forwards}.logfx svg path{stroke-dashoffset:0}@keyframes lfxr{0%,80%{opacity:1}100%{opacity:0}}}
+.logglow{position:fixed;z-index:54;pointer-events:none;overflow:hidden}
+.logglow::before{content:'';position:absolute;left:50%;top:var(--gy,45%);width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;
+ background:radial-gradient(circle,color-mix(in srgb,var(--fx) 34%,transparent) 0%,color-mix(in srgb,var(--fx) 14%,transparent) 45%,transparent 70%);
+ animation:lglow 1s cubic-bezier(.32,.72,0,1) .08s both}
+@keyframes lglow{0%{opacity:0;transform:scale(1)}25%{opacity:1}100%{opacity:0;transform:scale(48)}}
+.logghost{position:fixed!important;display:block!important;z-index:53;overflow:hidden!important;pointer-events:none;margin:0!important;background:var(--bg);transform-origin:50% 35%;
+ animation:lgo .42s cubic-bezier(.32,.72,0,1) forwards!important}
+.logghost-tint{position:absolute;left:0;right:0;height:100%;background:var(--fx);opacity:0;animation:lgt .42s ease-out forwards}
+@keyframes lgo{to{opacity:0;transform:scale(.93) translateY(-8px);filter:blur(8px)}}
+@keyframes lgt{to{opacity:.12}}
+#card.cin{animation:cin .55s cubic-bezier(.32,.72,0,1) .1s both}
+@keyframes cin{from{opacity:0;transform:scale(1.025) translateY(6px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
 /* ===== Icons, calmer boxes, undo, quick notes, shortcuts ===== */
@@ -1547,15 +1553,15 @@ function logGhost(){try{const c=$('#card');if(!c||!c.offsetParent)return null;co
 function logFx(o,name,gh){
  try{
   const col=OCOL[o]||'var(--accent)',c=$('#card'),rc=c&&c.offsetParent?c.getBoundingClientRect():null;
-  const d=document.createElement('div');d.className='logfx';d.setAttribute('aria-hidden','true');
-  d.style.setProperty('--fx',col);
-  if(rc&&rc.width){d.style.left=(rc.left+rc.width/2)+'px';d.style.top=(rc.top+Math.min(rc.height/2,260))+'px'}
-  d.innerHTML='<div class="logfx-b"><svg viewBox="0 0 52 52" width="52" height="52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-16"/></svg></div><div class="logfx-t"><b>'+esc(o)+'</b><span>'+esc(name||'')+'</span></div>';
-  if(gh){gh.style.setProperty('--fx',col);(c||gh._at).after(gh);gh.scrollTop=gh._st||0;const t=gh.querySelector('.logghost-tint');if(t)t.style.top=gh.scrollTop+'px';setTimeout(()=>gh.remove(),560)}
-  if(c&&rc&&rc.width){const sw=document.createElement('div');sw.className='logsweep';sw.setAttribute('aria-hidden','true');sw.style.setProperty('--fx',col);
-   Object.assign(sw.style,{left:rc.left+'px',top:rc.top+'px',width:rc.width+'px',height:rc.height+'px'});document.body.appendChild(sw);setTimeout(()=>sw.remove(),900)}
-  document.body.appendChild(d);setTimeout(()=>d.remove(),1100);
-  if(c){c.classList.remove('cin');void c.offsetWidth;c.classList.add('cin');setTimeout(()=>c.classList.remove('cin'),560)}
+  const d=document.createElement('div');d.className='logfx';d.setAttribute('aria-hidden','true');d.style.setProperty('--fx',col);
+  let cy=null;if(rc&&rc.width){cy=Math.min(rc.height/2,260);d.style.left=(rc.left+rc.width/2)+'px';d.style.top=(rc.top+cy)+'px'}
+  d.innerHTML='<div class="logfx-h"><div class="logfx-c"><svg viewBox="0 0 40 40" width="34" height="34"><path d="M11 21l6 6 12-13"/></svg></div><div class="logfx-t"><b>'+esc(o)+'</b><span>'+esc(name||'')+'</span></div></div>';
+  if(gh){gh.style.setProperty('--fx',col);(c||gh._at).after(gh);gh.scrollTop=gh._st||0;const t=gh.querySelector('.logghost-tint');if(t)t.style.top=gh.scrollTop+'px';setTimeout(()=>gh.remove(),460)}
+  if(rc&&rc.width){const g=document.createElement('div');g.className='logglow';g.setAttribute('aria-hidden','true');g.style.setProperty('--fx',col);
+   Object.assign(g.style,{left:rc.left+'px',top:rc.top+'px',width:rc.width+'px',height:rc.height+'px'});g.style.setProperty('--gy',cy+'px');document.body.appendChild(g);setTimeout(()=>g.remove(),1150)}
+  document.body.appendChild(d);setTimeout(()=>d.remove(),1200);
+  if(navigator.vibrate)try{navigator.vibrate(12)}catch(e){}
+  if(c){c.classList.remove('cin');void c.offsetWidth;c.classList.add('cin');setTimeout(()=>c.classList.remove('cin'),700)}
  }catch(e){}
 }
 function logCall(o){
