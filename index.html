@@ -1445,6 +1445,8 @@ function ctry(r){
  return '';
 }
 let SHOWEMPTY=false;
+/* Tick a lead guide step automatically: Call button -> 'Call using the angle', Email button -> 'Send the email the same day' */
+function guideMark(k){const r=byId(S.last);if(!r||r[k])return;r[k]=true;save();setTimeout(()=>keepFocus(renderCard),300);toast(k==='gc'?'Ticked: Call using the angle':'Ticked: Send the email the same day')}
 /* Save button on each box section: saves, then redraws the lead so Call, WhatsApp and Email buttons appear */
 function saveFields(){const r=byId(S.last);if(!r)return;document.querySelectorAll('#card [data-f]').forEach(i=>{r.f[i.dataset.f]=i.value});save();renderList();renderCard();
  const ph=rv(r,'phone'),tel=dialNum(ph),em=(String(rv(r,'email')||'').match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/)||[''])[0];
@@ -1544,6 +1546,7 @@ function celebrate(h,t){
 }
 $('#list').onclick=e=>{if(e.target.closest('[data-impl]')){$('#file3').click();return}const i=e.target.closest('.it');if(i)select(+i.dataset.id,'card')};
 $('#card').onclick=async e=>{
+ {const a=e.target.closest('a.dial,a.embtn2');if(a){guideMark(a.classList.contains('dial')?'gc':'gm')}}
  if(e.target.closest('[data-cpclear]')){const was=(S.pick||[]).slice();S.pick=[];save();keepFocus(renderCard);toast('All boxes unticked',{fn:()=>{S.pick=was;save();renderCard();toast('Ticks restored')}});return}
  if(e.target.closest('[data-fsave]')){saveFields();return}
  if(e.target.closest('[data-emptytoggle]')){SHOWEMPTY=!SHOWEMPTY;keepFocus(renderCard);return}
@@ -1797,7 +1800,7 @@ function tplSaveAll(L){S.tpl=L;S.setAt=Date.now();save();window.syncSoon&&syncSo
 $('#tpls').onclick=e=>{const b=e.target.closest('[data-ti]');if(b){TPLI=+b.dataset.ti;TPLE=-1;renderTpl();return}if(e.target.closest('[data-tnew]')){TPLE=-2;renderTpl();setTimeout(()=>$('#tpln').focus(),30)}};
 $('#tplcs').onclick=async()=>{if(await copyText($('#tplsub').textContent))toast('Subject copied');else toast('Copy blocked by the browser')};
 $('#tplcb').onclick=async()=>{if(await copyText($('#tplbody').textContent))toast('Email copied. Paste it into Outlook');else toast('Copy blocked by the browser')};
-$('#tplmail').onclick=()=>{const r=byId(S.last);if(!r)return;location.href='mailto:'+encodeURIComponent(emailOf(r))+'?subject='+encodeURIComponent($('#tplsub').textContent)+'&body='+encodeURIComponent($('#tplbody').textContent)};
+$('#tplmail').onclick=()=>{const r=byId(S.last);if(!r)return;guideMark('gm');location.href='mailto:'+encodeURIComponent(emailOf(r))+'?subject='+encodeURIComponent($('#tplsub').textContent)+'&body='+encodeURIComponent($('#tplbody').textContent)};
 $('#tpledit').onclick=()=>{TPLE=TPLI;renderTpl();setTimeout(()=>$('#tplbi').focus(),30)};
 $('#tplcancel').onclick=()=>{TPLE=-1;renderTpl()};
 $('#tplsave').onclick=()=>{const n=$('#tpln').value.trim()||'Template',x={n,s:$('#tplsi').value.trim(),b:$('#tplbi').value.replace(/\s+$/,'')};const L=tplList().map(t=>Object.assign({},t));if(TPLE===-2){L.push(x);TPLI=L.length-1}else L[TPLE]=x;tplSaveAll(L);TPLE=-1;renderTpl();toast('Template saved')};
