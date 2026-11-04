@@ -1589,13 +1589,15 @@ function logFx(o,name,gh){
   if(c){c.classList.remove('cin');void c.offsetWidth;c.classList.add('cin');setTimeout(()=>c.classList.remove('cin'),700)}
  }catch(e){}
 }
+/* After logging, the next lead always starts at the top (company name), whichever part of the page was scrolled */
+function toTop(){const go=()=>{[$('#card'),$('#main'),document.scrollingElement,document.documentElement,document.body].forEach(el=>{if(el&&el.scrollTop)el.scrollTop=0});if(window.scrollY)window.scrollTo(0,0)};go();requestAnimationFrame(go)}
 function logCall(o){
  const r=byId(S.last);if(!r)return;
  const noteNow=($('#note').value||''),prev={done:r.done,fu:r.fu,fun:r.fun,view:S.view};
  const entry={t:Date.now(),o,note:noteNow.trim()};
  r.log.push(entry);r.done=true;r.draft='';if(r.fu&&r.fu<=Date.now()){r.fu=null;r.fun=0}
  const nx=nextTodo(r.id);
- const gh=logGhost();S.last=nx?nx.id:null;save();render();logFx(o,title(r),gh);
+ const gh=logGhost();S.last=nx?nx.id:null;save();render();toTop();logFx(o,title(r),gh);
  toast('Logged "'+o+'" for '+title(r)+(nx?'':'. That was the last one'),{fn:()=>{const x=byId(r.id);if(!x)return;
   x.log=x.log.filter(l=>l!==entry);x.dl=(x.dl||[]).concat(entry.t+'|'+entry.o);x.done=prev.done;x.fu=prev.fu;x.fun=prev.fun;x.draft=noteNow;
   S.last=x.id;S.view='card';save();render();toast('Undone. Back on '+title(x))}});
