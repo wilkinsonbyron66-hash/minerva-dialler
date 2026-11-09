@@ -231,8 +231,12 @@ header .danger{color:#FFB59E;border-color:rgba(240,83,34,.75)}
 aside{box-shadow:1px 0 0 var(--line)}
 .it.on{box-shadow:inset 3px 0 0 var(--cy)}
 /* Sales report panel */
-#srp,#emp,#rmp,#rfqp{position:fixed;inset:0;background:rgba(0,20,35,.5);z-index:15;display:flex;align-items:center;justify-content:center;padding:16px}
-#srp[hidden],#emp[hidden],#rmp[hidden],#rfqp[hidden]{display:none}
+#srp,#emp,#rmp,#rfqp,#alp{position:fixed;inset:0;background:rgba(0,20,35,.5);z-index:15;display:flex;align-items:center;justify-content:center;padding:16px}
+#srp[hidden],#emp[hidden],#rmp[hidden],#rfqp[hidden],#alp[hidden]{display:none}
+.lrow{display:flex;gap:6px;align-items:center}.lrow select{flex:1;min-width:0}.lrow select[hidden]+#addlead2{flex:1}
+#addlead2{white-space:nowrap;display:inline-flex;align-items:center;gap:4px;justify-content:center}
+#alp .srbd label{display:block;margin-bottom:8px}#alp .srbd label[hidden]{display:none}#alp .srbd input,#alp .srbd select{width:100%;box-sizing:border-box;font-size:16px}
+#alp .alg{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}@media(max-width:520px){#alp .alg{grid-template-columns:1fr}}
 #emp .srbox{max-width:560px}
 .emres{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 .emres button{text-align:left;padding:8px 10px;border-radius:8px}
@@ -350,7 +354,7 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
  .dgrid{grid-template-columns:1fr}
  #elog .ehead select{margin-left:0;width:100%}
  #det,#rep,#cols,#txt,#elog{padding-left:12px;padding-right:12px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
- #srp,#gsp,#emp,#rmp,#rfqp{align-items:flex-end;padding:0}
+ #srp,#gsp,#emp,#rmp,#rfqp,#alp{align-items:flex-end;padding:0}
  #srp .srbox,#gsp .srbox,#emp .srbox{max-width:none;width:100%;border-radius:16px 16px 0 0;max-height:92vh;overflow:auto;padding-bottom:env(safe-area-inset-bottom)}
  .srhd{padding:12px 14px}.srhd img{height:24px}.srhd b{font-size:15px}
  .srrow{flex-direction:column}
@@ -868,7 +872,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
   <div class="filt">
    <input id="q" type="search" placeholder="Search company, contact, phone...">
    <div class="seg" id="seg"><button data-f="todo">To call</button><button data-f="done">Logged</button><button data-f="fu">Follow-ups</button><button data-f="all">All</button></div>
-   <select id="listf" aria-label="Which list to work on" title="Choose which list of leads to work on"></select>
+   <div class="lrow"><select id="listf" aria-label="Which list to work on" title="Choose which list of leads to work on"></select><button type="button" id="addlead2" title="Add a lead of your own to a list">+ Add lead</button></div>
    <div class="heatf" id="heatf" role="group" aria-label="Filter by temperature"><button data-hf="">Any</button><button data-hf="hot" class="h-hot">Hot</button><button data-hf="warm" class="h-warm">Warm</button><button data-hf="cold" class="h-cold">Cold</button></div>
   </div>
   <div id="list"></div>
@@ -912,6 +916,22 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
   <label>Date received<input type="datetime-local" id="emdate"></label>
   <label>Email or short summary<textarea id="emtext" rows="7" placeholder="Paste the client's email here, or write a short summary (what they need, quantities, when)..."></textarea></label>
   <div class="drow"><button id="emclose">Cancel</button><button class="sales" id="emsave">Save</button></div>
+ </div>
+</div></div>
+<div id="alp" hidden><div class="srbox" role="dialog" aria-label="Add a lead">
+ <div class="srhd"><img src="logo-white.png" alt="Minerva"><b>Add a lead</b></div>
+ <div class="srbd">
+  <label>Add to list<select id="allist"></select></label>
+  <label id="alnewl" hidden>New list name<input id="alnewn" placeholder="e.g. My own leads"></label>
+  <label>Company<input id="alco" placeholder="Company name" autocomplete="off"></label>
+  <div class="alg">
+   <label>Contact name<input id="alct" autocomplete="off"></label>
+   <label>Number<input id="alph" type="tel" autocomplete="off"></label>
+  </div>
+  <label>Email<input id="alem" type="email" autocomplete="off"></label>
+  <label>Notes<input id="alnote" placeholder="Where you found them, what they need..." autocomplete="off"></label>
+  <p class="mute" id="aldup" style="margin:0 0 6px" hidden></p>
+  <div class="drow"><button id="alclose">Cancel</button><button class="primary" id="algo">Add lead</button></div>
  </div>
 </div></div>
 <div id="rmp" hidden><div class="srbox" role="dialog" aria-label="Remove leads from a list">
@@ -1693,11 +1713,42 @@ $('#listf').onchange=e=>{S.lf=e.target.value;save();renderList();const v=visible
 $('#heatf').onclick=e=>{const b=e.target.closest('[data-hf]');if(!b)return;const h=b.dataset.hf;S.hf=(S.hf||'')===h&&h?'':h;save();renderList();if(S.hf){const v=visible();if(v.length&&!v.some(r=>r.id===S.last))select(v[0].id,FINE.matches?'card':S.view)}};
 function setHeat(h){const r=byId(S.last);if(!r)return;const was=r.h||'';if(was===h)delete r.h;else r.h=h;save();keepFocus(renderCard);renderList();window.syncSoon&&syncSoon();toast(r.h?title(r)+' marked '+HEAT[r.h]:'Tag cleared',{fn:()=>{if(was)r.h=was;else delete r.h;save();if(r.id===S.last)renderCard();renderList();window.syncSoon&&syncSoon()}})}
 $('#resume').onclick=resume;
-$('#addlead').onclick=()=>{
- if(!S.cols.length){S.cols=['Company','Contact','Phone','Email','Notes'].map(n=>({n,show:true,role:''}));guess(S.cols)}
+/* Add a lead of your own to any list */
+function alLists(){const k=new Set(S.rows.map(listOf));return [...k].sort()}
+function openAddLead(){
+ const L=alLists(),def=S.lf||(L.includes('My own leads')?'My own leads':(L[0]||''));
+ $('#allist').innerHTML=L.map(k=>'<option value="'+esc(k)+'">'+esc(k)+'</option>').join('')+'<option value="__new">+ New list...</option>';
+ $('#allist').value=L.length?def:'__new';$('#alnewn').value=L.length?'':'My own leads';$('#alnewl').hidden=$('#allist').value!=='__new';
+ ['#alco','#alct','#alph','#alem','#alnote'].forEach(x=>$(x).value='');$('#aldup').hidden=true;
+ $('#alp').hidden=false;setTimeout(()=>$('#alco').focus(),50);
+}
+function alDup(){const co=gNormCo($('#alco').value),ph=String($('#alph').value).replace(/\D/g,'').slice(-8);
+ const m=S.rows.find(r=>(co&&gNormCo(title(r))===co)||(ph.length>=7&&String(rv(r,'phone')).replace(/\D/g,'').slice(-8)===ph));
+ const el=$('#aldup');el.hidden=!m;if(m)el.innerHTML='Heads up: you already have <b>'+esc(title(m))+'</b> in '+esc(listOf(m))+'.';return m}
+function alCol(role,name,re){let c=role?S.cols.find(c=>c.role===role):null;if(!c&&re)c=S.cols.find(c=>re.test(c.n.trim()));
+ if(!c){c={n:name,show:true,role:role||''};if(role&&S.cols.some(x=>x.role===role))c.role='';S.cols.push(c);S.rows.forEach(r=>{if(r.f[c.n]==null)r.f[c.n]=''})}return c.n}
+function saveAddLead(){
+ const co=$('#alco').value.trim(),ct=$('#alct').value.trim(),ph=$('#alph').value.trim(),em=$('#alem').value.trim(),nt=$('#alnote').value.trim();
+ if(!co&&!ct&&!ph){toast('Add at least a company, name or number');$('#alco').focus();return}
+ let ls=$('#allist').value;if(ls==='__new'){ls=$('#alnewn').value.trim();if(!ls){toast('Give the new list a name');$('#alnewn').focus();return}}
  const f={};S.cols.forEach(c=>f[c.n]='');
- const r={id:S.nid++,f,log:[],done:false};S.rows.unshift(r);S.filter='todo';select(r.id,'card');
-};
+ const put=(n,v)=>{if(v)f[n]=v};
+ const coN=alCol('company','Company',/^(company|customer|account|client)(\s*name)?$/i),ctN=alCol('contact','Contact',RVRE.contact),phN=alCol('phone','Phone',RVRE.phone);
+ put(coN,co);put(ctN,ct);put(phN,ph);
+ if(em)put(alCol('','Email',/e-?mail/i),em);
+ if(nt)put(alCol('','Notes',/^notes?$|comment|remark/i),nt);
+ S.cols.forEach(c=>{if(f[c.n]==null)f[c.n]=''});
+ const r={id:S.nid++,f,log:[],done:false,ls,own:Date.now()};S.rows.unshift(r);
+ $('#alp').hidden=true;S.lf=ls;S.filter='todo';S.q='';$('#q').value='';
+ save();renderCols();select(r.id,'card');toast(title(r)+' added to '+ls);
+}
+$('#addlead').onclick=openAddLead;$('#addlead2').onclick=openAddLead;
+$('#allist').onchange=()=>{const n=$('#allist').value==='__new';$('#alnewl').hidden=!n;if(n)setTimeout(()=>$('#alnewn').focus(),30)};
+$('#alco').oninput=$('#alph').oninput=alDup;
+$('#alclose').onclick=()=>$('#alp').hidden=true;
+$('#alp').onclick=e=>{if(e.target.id==='alp')$('#alp').hidden=true};
+$('#algo').onclick=saveAddLead;
+$('#alp').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();saveAddLead()}if(e.key==='Escape')$('#alp').hidden=true});
 $('#imp').onclick=()=>$('#file').click();
 $('#file').onchange=async e=>{
  const file=e.target.files[0];e.target.value='';if(!file)return;
