@@ -831,6 +831,33 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
 
 .chr .cpclr{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--line);color:var(--mute);border-radius:999px;padding:7px 12px;font-size:13px;box-shadow:none;cursor:pointer}
 .chr .cpclr:hover{color:var(--bad);border-color:var(--bad)}
+
+/* Notifications */
+#ntbtn{position:relative;display:inline-flex;align-items:center;gap:4px}
+#ntbtn svg{flex-shrink:0}
+#ntbadge{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--warn);color:#fff;font-size:11px;font-weight:700;line-height:18px;text-align:center;box-shadow:0 0 0 2px var(--panel)}
+#ntbadge.od{background:var(--bad)}
+#ntp{position:fixed;inset:0;z-index:16;background:rgba(0,20,35,.35);display:flex;justify-content:flex-end;opacity:0;transition:opacity .18s ease}
+#ntp[hidden]{display:none}#ntp.in{opacity:1}
+.ntbox{width:min(420px,100%);height:100%;background:var(--panel);color:var(--ink);box-shadow:-12px 0 40px rgba(0,0,0,.25);display:flex;flex-direction:column;transform:translateX(24px);transition:transform .22s cubic-bezier(.2,.8,.2,1);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+#ntp.in .ntbox{transform:none}
+.nthd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 18px 12px;border-bottom:1px solid var(--line)}
+.nthd h2{margin:0;font-size:18px}.nthd p{margin:3px 0 0;color:var(--mute);font-size:13px}
+.ntx{border:0;background:none;color:var(--mute);font-size:26px;line-height:1;cursor:pointer;padding:0 4px}
+#ntbody{overflow:auto;padding:8px 14px 24px;display:flex;flex-direction:column;gap:14px}
+.ntg h3{display:flex;align-items:center;gap:8px;margin:10px 2px 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.ntg h3 i{width:8px;height:8px;border-radius:50%;background:var(--lc);flex-shrink:0}
+.ntg h3 span{margin-left:auto;background:color-mix(in srgb,var(--lc) 15%,transparent);color:var(--lc);border-radius:9px;padding:1px 8px;font-size:11px;letter-spacing:0}
+.ntn{margin:-2px 2px 8px 18px;color:var(--mute);font-size:12px}
+.nti{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;font:inherit;color:inherit;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--lc);border-radius:8px;padding:9px 12px;margin-bottom:6px;cursor:pointer;transition:background-color .12s ease,border-color .12s ease}
+.nti:hover,.nti:focus-visible{background:var(--sel);outline:none;border-color:color-mix(in srgb,var(--lc) 60%,var(--line))}
+.ntt{display:flex;align-items:baseline;gap:10px}.ntt b{flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ntt em{font-style:normal;font-size:12px;font-weight:600;color:var(--lc);white-space:nowrap}
+.ntw{font-size:13px;color:var(--ink)}.ntc{font-size:12px;color:var(--mute)}
+.ntmore{border:0;background:none;color:var(--accent);font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:2px 4px}
+.ntempty{display:flex;flex-direction:column;gap:4px;align-items:center;text-align:center;padding:48px 16px;color:var(--mute)}.ntempty b{color:var(--ink);font-size:16px}
+@media (prefers-reduced-motion:reduce){#ntp,.ntbox{transition:none}}
+@media (max-width:1250px){#ntbtn .ml{display:none}}
 </style>
 </head>
 <body>
@@ -866,7 +893,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
  <input type="file" id="file2" accept=".csv,.xlsx,.xls" hidden>
  <input type="file" id="file4" accept=".json,application/json" hidden>
 </header>
-<nav id="tabs"><img class="navlogo" src="logo-navy.png" alt="Minerva Technologies"><div class="segtabs" role="tablist"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button></div><div class="nprog"><span id="tstat"></span><div class="bar"><i id="prog2" style="width:0"></i></div></div><div class="tright"><button id="resume2" title="Go to the next lead to call">Resume</button><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="fudue" hidden></button><button id="thbtn" title="Theme: Auto (follows your browser)" aria-label="Switch light or dark mode">&#9680;</button><button id="navmenu" aria-label="Menu">&#9776;<span class="ml"> Menu</span></button><button id="hdrtoggle" hidden></button></div></nav>
+<nav id="tabs"><img class="navlogo" src="logo-navy.png" alt="Minerva Technologies"><div class="segtabs" role="tablist"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button></div><div class="nprog"><span id="tstat"></span><div class="bar"><i id="prog2" style="width:0"></i></div></div><div class="tright"><button id="resume2" title="Go to the next lead to call">Resume</button><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="ntbtn" title="Notifications: what is due and most important" aria-label="Notifications"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="ml"> Notifications</span><span id="ntbadge" hidden></span></button><button id="fudue" hidden></button><button id="thbtn" title="Theme: Auto (follows your browser)" aria-label="Switch light or dark mode">&#9680;</button><button id="navmenu" aria-label="Menu">&#9776;<span class="ml"> Menu</span></button><button id="hdrtoggle" hidden></button></div></nav>
 <main id="main" data-view="list">
  <aside>
   <div class="filt">
@@ -934,6 +961,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
   <div class="drow"><button id="alclose">Cancel</button><button class="primary" id="algo">Add lead</button></div>
  </div>
 </div></div>
+<div id="ntp" hidden><div class="ntbox" role="dialog" aria-label="Notifications"><div class="nthd"><div><h2>Notifications</h2><p id="ntsum"></p></div><button type="button" class="ntx" aria-label="Close">&times;</button></div><div id="ntbody"></div></div></div>
 <div id="rmp" hidden><div class="srbox" role="dialog" aria-label="Remove leads from a list">
  <div class="srhd"><img src="logo-white.png" alt="Minerva"><b>Remove leads from a list</b></div>
  <div class="srbd">
@@ -1413,7 +1441,7 @@ function visible(){
 function renderList(){
  renderListF();const LR=S.rows.filter(inL),done=LR.filter(r=>r.done).length,n=LR.length;
  $('#stat').textContent=n?(S.lf?S.lf+': ':'')+done+' logged, '+(n-done)+' left to call':'No leads yet';
- {const nfu=S.rows.filter(r=>r.fu).length,ndue=S.rows.filter(r=>r.fu&&r.fu<=Date.now()).length,fb=document.querySelector('#seg [data-f=fu]'),fd=$('#fudue');if(fb)fb.textContent='Follow-ups'+(nfu?' ('+nfu+')':'');fd.hidden=!ndue;fd.innerHTML=ic('clock',14)+' '+ndue+'<span class="ll"> follow-up'+(ndue===1?'':'s')+' due</span>'}
+ {const nfu=S.rows.filter(r=>r.fu).length,ndue=S.rows.filter(r=>r.fu&&r.fu<=Date.now()).length,fb=document.querySelector('#seg [data-f=fu]'),fd=$('#fudue');if(fb)fb.textContent='Follow-ups'+(nfu?' ('+nfu+')':'');fd.hidden=!ndue;if(typeof ntBadge==='function')try{ntBadge()}catch(e){};fd.innerHTML=ic('clock',14)+' '+ndue+'<span class="ll"> follow-up'+(ndue===1?'':'s')+' due</span>'}
  $('#prog').style.width=n?(100*done/n)+'%':'0';$('#prog2').style.width=$('#prog').style.width;$('#tstat').textContent=$('#stat').textContent;
  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.f===S.filter));
  {const hc={};S.rows.forEach(r=>{if(r.h)hc[r.h]=(hc[r.h]||0)+1});document.querySelectorAll('#heatf button').forEach(b=>{const h=b.dataset.hf;b.classList.toggle('on',(S.hf||'')===h);if(h)b.innerHTML='<i></i>'+HEAT[h]+(hc[h]?' <em>'+hc[h]+'</em>':'')})}
@@ -2159,6 +2187,48 @@ function checkFu(){
  if(n){save();toast('Follow-up due: '+title(first)+(n>1?' (+'+(n-1)+' more)':''));if(S.tab==='dash')renderDash()}
  renderList();
 }
+
+/* ---------- Notifications: what is due and most important, click to open the lead ---------- */
+function notifs(){
+ const now=Date.now(),eod=new Date();eod.setHours(23,59,59,999);const wk=now+7*864e5,G=[];
+ const ct=r=>[rv(r,'contact'),rv(r,'phone')].filter(Boolean).join(' · ');
+ const lastEm=(r,k)=>(r.em||[]).filter(m=>m.k===k).reduce((a,m)=>m.t>a?m.t:a,0);
+ const lastRfq=r=>(r.rfq||[]).reduce((a,q)=>q.t>a?q.t:a,0);
+ const dF=t=>new Date(t).toLocaleDateString([], {weekday:'short',day:'numeric',month:'short'});
+ const tF=t=>new Date(t).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+ const over=S.rows.filter(r=>r.fu&&r.fu<now).sort((a,b)=>a.fu-b.fu);
+ G.push({k:'over',h:'Overdue follow-ups',c:'var(--bad)',urgent:true,items:over.map(r=>({r,why:'Follow-up was due '+fuFmt(r.fu),when:ago(r.fu).replace(' ago',' late')}))});
+ const today=S.rows.filter(r=>r.fu&&r.fu>=now&&r.fu<=+eod).sort((a,b)=>a.fu-b.fu);
+ G.push({k:'today',h:'Due today',c:'var(--warn)',urgent:true,items:today.map(r=>({r,why:'Follow-up at '+tF(r.fu)+(r.fun?' · attempt '+(r.fun+1):''),when:inn(r.fu)}))});
+ const rq=S.rows.filter(r=>{const e=lastEm(r,'rfq');return e&&e>lastRfq(r)}).sort((a,b)=>lastEm(b,'rfq')-lastEm(a,'rfq'));
+ G.push({k:'rfq',h:'Requests received, not handed over',c:'var(--ok)',urgent:true,note:'Forward to the BDM, then click "RFQ handed over" on the lead so it counts for commission.',items:rq.map(r=>({r,why:'Request received '+dF(lastEm(r,'rfq')),when:ago(lastEm(r,'rfq'))}))});
+ const pr=S.rows.filter(r=>{const l=lastEm(r,'later');return l&&now-l>5*864e5&&!r.fu&&lastEm(r,'rfq')<l&&lastRfq(r)<l}).sort((a,b)=>lastEm(a,'later')-lastEm(b,'later'));
+ G.push({k:'later',h:'Promised a request, no follow-up set',c:'var(--c-cb)',urgent:true,note:'They said they would send a request. Chase them or set a follow-up.',items:pr.map(r=>({r,why:'Said on '+dF(lastEm(r,'later'))+' they would send a request',when:ago(lastEm(r,'later'))}))});
+ const dr=S.rows.filter(r=>(r.draft||'').trim());
+ G.push({k:'draft',h:'Call notes not logged',c:'var(--c-wn)',urgent:true,note:'You typed notes but did not log the call.',items:dr.map(r=>({r,why:'"'+(r.draft.trim().length>70?r.draft.trim().slice(0,70)+'…':r.draft.trim())+'"',when:''}))});
+ const up=S.rows.filter(r=>r.fu&&r.fu>+eod&&r.fu<=wk).sort((a,b)=>a.fu-b.fu);
+ G.push({k:'up',h:'Coming up this week',c:'var(--c-fu)',urgent:false,items:up.map(r=>({r,why:'Follow-up '+fuFmt(r.fu),when:inn(r.fu)}))});
+ G.forEach(g=>g.items.forEach(i=>i.ct=ct(i.r)));
+ return G}
+function ntCount(G){return (G||notifs()).filter(g=>g.urgent).reduce((a,g)=>a+g.items.length,0)}
+function ntBadge(){const b=$('#ntbadge');if(!b)return;const G=notifs(),n=ntCount(G),od=G[0].items.length;b.hidden=!n;b.textContent=n>99?'99+':n;b.classList.toggle('od',!!od);
+ $('#ntbtn').title=n?n+' item'+(n===1?'':'s')+' need attention'+(od?' ('+od+' overdue)':''):'Notifications: nothing due';if(!$('#ntp').hidden)renderNt(G)}
+function renderNt(G){G=G||notifs();const n=ntCount(G),NT=window.NTOPEN||(window.NTOPEN={});
+ $('#ntsum').textContent=n?n+' need'+(n===1?'s':'')+' attention':'You are all caught up';
+ const shown=G.filter(g=>g.items.length);
+ $('#ntbody').innerHTML=shown.length?shown.map(g=>{const lim=NT[g.k]?999:g.k==='up'?5:8,more=g.items.length-lim;
+  return '<section class="ntg" style="--lc:'+g.c+'"><h3><i></i>'+esc(g.h)+'<span>'+g.items.length+'</span></h3>'+(g.note?'<p class="ntn">'+esc(g.note)+'</p>':'')+
+  g.items.slice(0,lim).map(i=>'<button type="button" class="nti" data-nopen="'+i.r.id+'"><span class="ntt"><b>'+esc(title(i.r))+'</b>'+(i.when?'<em>'+esc(i.when)+'</em>':'')+'</span><span class="ntw">'+esc(i.why)+'</span>'+(i.ct?'<span class="ntc">'+esc(i.ct)+'</span>':'')+'</button>').join('')+
+  (more>0?'<button type="button" class="ntmore" data-nmore="'+g.k+'">Show '+more+' more</button>':'')+'</section>'}).join(''):'<div class="ntempty"><b>Nothing due</b><span>No overdue or due-today follow-ups, no requests waiting to be handed over.</span></div>'}
+function openNt(){renderNt();$('#ntp').hidden=false;requestAnimationFrame(()=>$('#ntp').classList.add('in'));const f=$('#ntp .nti')||$('#ntp .ntx');f&&f.focus({preventScroll:true})}
+function closeNt(){$('#ntp').classList.remove('in');$('#ntp').hidden=true;$('#ntbtn').focus({preventScroll:true})}
+$('#ntbtn').onclick=()=>$('#ntp').hidden?openNt():closeNt();
+$('#ntp').onclick=e=>{
+ if(e.target===$('#ntp')||e.target.closest('.ntx')){closeNt();return}
+ const m=e.target.closest('[data-nmore]');if(m){(window.NTOPEN||(window.NTOPEN={}))[m.dataset.nmore]=1;renderNt();return}
+ const o=e.target.closest('[data-nopen]');if(o){const r=byId(+o.dataset.nopen);if(!r)return;if(!inL(r)){S.lf='';save()}closeNt();openLead(r.id)}};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#ntp').hidden){e.stopPropagation();closeNt()}},true);
+setInterval(ntBadge,60000);
 $('#fudue').onclick=()=>{S.filter='fu';save();setTab('dial');render()};
 setInterval(checkFu,60000);
 const LBL={today:'Today',week:'This week (from Monday)',all:'All time'};
