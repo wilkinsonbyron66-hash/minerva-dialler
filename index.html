@@ -3003,5 +3003,51 @@ setTab(S.tab);
 applyHdr();
 checkFu();
 </script>
+<!-- Animated notification bell -->
+<style>
+/* Bell swings from its top, like a real bell */
+#ntbtn svg{transform-origin:50% 10%}
+/* Gentle reminder swing every few seconds while there are unseen notifications */
+@keyframes ntswing{0%,22%,100%{transform:rotate(0)}3%{transform:rotate(15deg)}6%{transform:rotate(-13deg)}9%{transform:rotate(10deg)}12%{transform:rotate(-7deg)}15%{transform:rotate(4deg)}18%{transform:rotate(-2deg)}}
+/* Strong ring the moment a new notification arrives */
+@keyframes ntring{0%,100%{transform:rotate(0)}8%{transform:rotate(22deg)}16%{transform:rotate(-20deg)}24%{transform:rotate(17deg)}32%{transform:rotate(-14deg)}40%{transform:rotate(10deg)}50%{transform:rotate(-7deg)}60%{transform:rotate(4deg)}70%{transform:rotate(-2deg)}}
+@keyframes ntpop{0%{transform:scale(1)}35%{transform:scale(1.45)}65%{transform:scale(.9)}100%{transform:scale(1)}}
+@keyframes ntglow{0%{box-shadow:0 0 0 0 rgba(255,170,0,.55)}100%{box-shadow:0 0 0 10px rgba(255,170,0,0)}}
+#ntbtn.nt-unseen svg{animation:ntswing 4s ease-in-out infinite}
+#ntbtn.nt-ring svg{animation:ntring 1.2s ease-in-out}
+#ntbtn.nt-unseen #ntbadge{animation:ntglow 1.6s ease-out infinite}
+#ntbtn #ntbadge.nt-pop{animation:ntpop .55s ease-out}
+@media (prefers-reduced-motion:reduce){#ntbtn svg,#ntbadge{animation:none!important}}
+</style>
+<script>
+/* Wraps the dialler's existing ntBadge() so the bell reacts whenever the count updates.
+   - New notifications  -> strong ring + badge pop
+   - Unseen ones remain -> gentle swing every 4 seconds
+   - Opening the bell   -> marks them as seen and the swinging stops (until something new arrives) */
+(function(){
+  if(typeof window.ntBadge!=='function')return;
+  var orig=window.ntBadge, last=0, seen=0;
+  try{seen=+localStorage.getItem('ntSeenCount')||0}catch(e){}
+  function count(){var bd=document.getElementById('ntbadge');return(!bd||bd.hidden)?0:(parseInt(bd.textContent,10)||0)}
+  function restart(el,cls){el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
+  window.ntBadge=function(){
+    var r=orig.apply(this,arguments);
+    var b=document.getElementById('ntbtn'),bd=document.getElementById('ntbadge');
+    if(!b||!bd)return r;
+    var n=count();
+    if(n<seen)seen=n;                       // items were cleared or handled
+    b.classList.toggle('nt-unseen',n>seen);
+    if(n>last&&n>seen){restart(b,'nt-ring');restart(bd,'nt-pop')}
+    last=n;
+    return r;
+  };
+  var btn=document.getElementById('ntbtn');
+  if(btn){
+    btn.addEventListener('animationend',function(e){if(e.animationName==='ntring')btn.classList.remove('nt-ring')},true);
+    btn.addEventListener('click',function(){seen=count();try{localStorage.setItem('ntSeenCount',seen)}catch(e){}btn.classList.remove('nt-unseen')});
+  }
+  window.ntBadge();
+})();
+</script>
 </body>
 </html>
