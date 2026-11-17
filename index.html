@@ -888,6 +888,10 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
 #gsr .gsmore{padding:6px 12px 8px;color:var(--mute);font-size:12px}
 @media (max-width:560px){#gs{order:4;flex:1 1 100%;max-width:none}#gsr{width:100%;max-height:60vh}}
 #q[hidden]{display:none!important}
+.gsit{align-items:center;padding:7px 10px}
+.gsit .gm{display:flex;align-items:baseline;gap:10px;min-width:0;flex:1}
+.gsit .gt{flex:0 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+.gsit .gs2{flex:1 1 0;min-width:0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
@@ -2199,13 +2203,9 @@ function gsRender(){
  else{
   const emCol=S.cols.find(c=>/e-?mail/i.test(c.n));
   h=GS.res.map((x,n)=>{
-   const r=x.r,st=gsStatus(r),ct=rv(r,'contact'),ph=rv(r,'phone'),em=emCol?val(r,emCol.n):'';
+   const r=x.r,ct=rv(r,'contact'),ph=rv(r,'phone'),em=emCol?val(r,emCol.n):'';
    const sub=[ct,ph,em].map(v=>String(v==null?'':v).trim()).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i);
-   const showHit=x.hit&&!String(title(r)).toLowerCase().includes(GS.toks[0])&&!sub.some(v=>v.toLowerCase().includes(GS.toks[0]));
-   return '<button type="button" class="gsit'+(n===0?' on':'')+'" role="option" data-gid="'+r.id+'"><span class="gm"><div class="gt">'+gsHl(title(r),GS.toks)+'</div>'+
-    (sub.length?'<div class="gs2">'+sub.map(v=>gsHl(v,GS.toks)).join(' · ')+'</div>':'')+
-    (showHit?'<div class="gs3"><b>'+esc(x.hit[0])+':</b> '+gsHl(gsSnip(x.hit[1],GS.toks),GS.toks)+'</div>':'')+
-    '</span><span class="gc '+st[1]+'">'+esc(st[0])+'</span></button>';
+   return '<button type="button" class="gsit'+(n===0?' on':'')+'" role="option" data-gid="'+r.id+'"><span class="gm"><span class="gt">'+gsHl(title(r),GS.toks)+'</span>'+(sub.length?'<span class="gs2">'+sub.map(v=>gsHl(v,GS.toks)).join(' · ')+'</span>':'')+'</span></button>';
   }).join('')+(all.length>8?'<div class="gsmore">+ '+(all.length-8)+' more. Keep typing to narrow it down.</div>':'');
  }
  box.innerHTML=h;box.hidden=false;inp.setAttribute('aria-expanded','true');
