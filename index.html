@@ -860,6 +860,33 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
 .ntr:hover .ntdel,.ntdel:focus-visible{opacity:1}
 .ntdel:hover{background:color-mix(in srgb,var(--bad) 12%,transparent);color:var(--bad);opacity:1}
 @media (hover:none){.ntdel{opacity:.9}}
+
+/* universal search (top bar) */
+#gs{position:relative;flex:1 1 240px;min-width:150px;max-width:480px}
+#gs input{width:100%;box-sizing:border-box;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.32);color:#fff;border-radius:9px;padding:7px 12px 7px 34px;font-size:14px;margin:0}
+#gs input::placeholder{color:rgba(255,255,255,.75)}
+#gs input:focus{background:#fff;color:#17212B;border-color:var(--cy);outline:0;box-shadow:0 0 0 3px rgba(0,183,237,.35)}
+#gs input:focus::placeholder{color:#5B6773}
+#gs .gsi{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:rgba(255,255,255,.85)}
+#gs input:focus~.gsi{color:#004679}
+#gsr{position:absolute;left:0;top:calc(100% + 8px);width:max(100%,460px);max-width:calc(100vw - 20px);max-height:min(72vh,480px);overflow:auto;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 50px rgba(0,20,40,.35);z-index:40;padding:5px}
+#gsr[hidden]{display:none}
+.gsit{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;width:100%;text-align:left;background:transparent;border:0;border-radius:8px;padding:8px 10px;color:inherit;font:inherit;cursor:pointer;box-shadow:none!important;border:0!important;margin:0;transform:none!important}
+.gsit:hover,.gsit.on{background:var(--sel);box-shadow:none!important}
+.gsit::after,.gsit::before{display:none!important}
+.gsit .gm{min-width:0;flex:1}
+.gsit .gt{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gsit .gs2{font-size:12.5px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+.gsit .gs3{font-size:12.5px;color:var(--ink);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gsit .gs3 b{color:var(--mute);font-weight:600}
+.gsit mark{background:rgba(0,183,237,.28);color:inherit;border-radius:3px;padding:0 1px}
+.gsit .gc{flex:0 0 auto;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--bg);color:var(--mute);white-space:nowrap}
+.gsit .gc.todo{background:rgba(15,95,107,.12);color:var(--accent)}
+.gsit .gc.fu{background:rgba(214,85,158,.15);color:var(--c-fu)}
+.gsit .gc.ok{background:rgba(22,163,106,.15);color:var(--c-ok)}
+#gsr .gsn{padding:12px 12px;color:var(--mute);font-size:13.5px}
+#gsr .gsmore{padding:6px 12px 8px;color:var(--mute);font-size:12px}
+@media (max-width:560px){#gs{order:4;flex:1 1 100%;max-width:none}#gsr{width:100%;max-height:60vh}}
 </style>
 </head>
 <body>
@@ -894,7 +921,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
  <input type="file" id="file2" accept=".csv,.xlsx,.xls" hidden>
  <input type="file" id="file4" accept=".json,application/json" hidden>
 </header>
-<nav id="tabs"><img class="navlogo" src="logo-navy.png" alt="Minerva Technologies"><div class="segtabs" role="tablist"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button></div><div class="nprog"><span id="tstat"></span><div class="bar"><i id="prog2" style="width:0"></i></div></div><div class="tright"><button id="resume2" title="Go to the next lead to call">Resume</button><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="ntbtn" title="Notifications: what is due and most important" aria-label="Notifications"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="ml"> Notifications</span><span id="ntbadge" hidden></span></button><button id="fudue" hidden></button><button id="thbtn" title="Theme: Auto (follows your browser)" aria-label="Switch light or dark mode">&#9680;</button><button id="navmenu" aria-label="Menu">&#9776;<span class="ml"> Menu</span></button><button id="hdrtoggle" hidden></button></div></nav>
+<nav id="tabs"><img class="navlogo" src="logo-navy.png" alt="Minerva Technologies"><div class="segtabs" role="tablist"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button></div><div id="gs" role="search"><input id="gsq" type="text" inputmode="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Search all leads: name, number, email, notes..." aria-label="Search all leads" aria-controls="gsr" aria-expanded="false"><svg class="gsi" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><div id="gsr" role="listbox" hidden></div></div><div class="nprog"><span id="tstat"></span><div class="bar"><i id="prog2" style="width:0"></i></div></div><div class="tright"><button id="resume2" title="Go to the next lead to call">Resume</button><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="ntbtn" title="Notifications: what is due and most important" aria-label="Notifications"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="ml"> Notifications</span><span id="ntbadge" hidden></span></button><button id="fudue" hidden></button><button id="thbtn" title="Theme: Auto (follows your browser)" aria-label="Switch light or dark mode">&#9680;</button><button id="navmenu" aria-label="Menu">&#9776;<span class="ml"> Menu</span></button><button id="hdrtoggle" hidden></button></div></nav>
 <main id="main" data-view="list">
  <aside>
   <div class="filt">
@@ -1043,7 +1070,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
   <span><kbd>S</kbd> Copy selected</span><span><kbd>E</kbd> Log email reply</span>
   <span><kbd>W</kbd> WhatsApp</span><span><kbd>M</kbd> Email templates</span>
   <span><kbd>H</kbd> Hot / Warm / Cold</span><span></span>
-  <span><kbd>/</kbd> Search leads</span><span><kbd>R</kbd> Resume</span>
+  <span><kbd>/</kbd> Search all leads (or Ctrl+K)</span><span><kbd>R</kbd> Resume</span>
   <span><kbd>Ctrl</kbd>+<kbd>Z</kbd> Undo</span><span><kbd>?</kbd> Show this again</span>
  </div>
  <p class="kbo">Outcomes: 1 Spoke · 2 No answer · 3 Call back · 4 Not interested · 5 Wrong number · 6 No number</p>
@@ -2105,6 +2132,109 @@ $('#ellist').onclick=async e=>{const {c,r,m}=elFind(e.target);if(!m)return;
  if(e.target.closest('[data-eldel]')){r.em=r.em.filter(x=>x!==m);save();renderElog();if(r.id===S.last)renderCard();toast('Email entry deleted',{fn:()=>{r.em=(r.em||[]).concat(m).sort((a,b)=>a.t-b.t);save();renderElog();if(r.id===S.last)renderCard();toast('Email entry restored')}})}
 };
 function openLead(id){closeDet();S.filter='all';S.q='';$('#q').value='';setTab('dial');select(id,'card')}
+
+/* universal search: finds any lead by name, number, email, notes, list... */
+const GS={res:[],i:-1,toks:[]};
+function gsDocs(r){
+ const d=[];
+ Object.keys(r.f||{}).forEach(k=>{const v=r.f[k];if(v!=null&&String(v).trim())d.push([k,String(v)])});
+ (r.log||[]).forEach(l=>{if(l.note)d.push(['Call note',String(l.note)])});
+ (r.em||[]).forEach(m=>{if(m.note)d.push(['Email note',String(m.note)])});
+ (r.rfq||[]).forEach(q=>{if(q.note)d.push(['RFQ note',String(q.note)])});
+ d.push(['List',listOf(r)]);
+ return d;
+}
+function gsHl(text,toks){
+ let h=esc(text);
+ toks.slice().sort((a,b)=>b.length-a.length).forEach(t=>{const re=new RegExp(esc(t).replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');h=h.replace(re,m=>'<mark>'+m+'</mark>')});
+ return h;
+}
+function gsSnip(v,toks){
+ const l=v.toLowerCase();let at=-1,len=0;
+ for(const t of toks){const x=l.indexOf(t);if(x>=0&&(at<0||x<at)){at=x;len=t.length}}
+ if(at<0)return v.length>70?v.slice(0,70)+'…':v;
+ const a=Math.max(0,at-28),b=Math.min(v.length,at+len+42);
+ return (a>0?'…':'')+v.slice(a,b).replace(/\s+/g,' ')+(b<v.length?'…':'');
+}
+function gsSearch(raw){
+ const q=raw.trim().toLowerCase();if(!q)return[];
+ const toks=q.split(/\s+/).filter(Boolean);
+ let qd=q.replace(/\D/g,'');const numLike=/^[\d\s+()\-./]+$/.test(q)&&qd.length>=3;
+ if(numLike){qd=qd.replace(/^0+/,'');if(qd.length<3)qd=q.replace(/\D/g,'')}
+ const out=[];
+ S.rows.forEach(r=>{
+  const docs=gsDocs(r),t=String(title(r)).toLowerCase();
+  let hit=null,score=0;
+  const tokOk=toks.every(tk=>t.includes(tk)||docs.some(d=>d[1].toLowerCase().includes(tk)));
+  if(tokOk){
+   score=20;
+   if(t===q)score=100;else if(t.startsWith(q))score=90;else if(t.includes(q))score=80;
+   else if(toks.every(tk=>t.includes(tk)))score=70;
+   else{const ct=String(rv(r,'contact')||'').toLowerCase();if(ct&&toks.every(tk=>ct.includes(tk)))score=60}
+   hit=docs.find(d=>d[1].toLowerCase().includes(toks[0]))||null;
+  }
+  if(numLike){
+   const d=docs.find(d=>{const g=d[1].replace(/\D/g,'');return g.length>=5&&g.includes(qd)});
+   if(d){if(score<65)score=65;if(!hit||!hit[1].toLowerCase().includes(toks[0]))hit=d}
+  }
+  if(score)out.push({r,score,hit,t});
+ });
+ out.sort((a,b)=>b.score-a.score||(a.r.done===b.r.done?0:a.r.done?1:-1)||a.t.localeCompare(b.t));
+ GS.toks=toks;
+ return out;
+}
+function gsStatus(r){
+ const lg=r.log||[];
+ if(r.fu)return['Follow-up','fu'];
+ if(r.done)return[lg.length?lg[lg.length-1].o:'Logged','ok'];
+ return['To call','todo'];
+}
+function gsRender(){
+ const box=$('#gsr'),inp=$('#gsq'),raw=inp.value;
+ if(!raw.trim()){box.hidden=true;inp.setAttribute('aria-expanded','false');GS.res=[];GS.i=-1;return}
+ const all=gsSearch(raw);GS.res=all.slice(0,8);GS.i=GS.res.length?0:-1;
+ let h;
+ if(!GS.res.length)h='<div class="gsn">No lead matches "'+esc(raw.trim())+'". Try part of a name, a phone number or an email.</div>';
+ else{
+  const emCol=S.cols.find(c=>/e-?mail/i.test(c.n));
+  h=GS.res.map((x,n)=>{
+   const r=x.r,st=gsStatus(r),ct=rv(r,'contact'),ph=rv(r,'phone'),em=emCol?val(r,emCol.n):'';
+   const sub=[ct,ph,em].map(v=>String(v==null?'':v).trim()).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i);
+   const showHit=x.hit&&!String(title(r)).toLowerCase().includes(GS.toks[0])&&!sub.some(v=>v.toLowerCase().includes(GS.toks[0]));
+   return '<button type="button" class="gsit'+(n===0?' on':'')+'" role="option" data-gid="'+r.id+'"><span class="gm"><div class="gt">'+gsHl(title(r),GS.toks)+'</div>'+
+    (sub.length?'<div class="gs2">'+sub.map(v=>gsHl(v,GS.toks)).join(' · ')+'</div>':'')+
+    (showHit?'<div class="gs3"><b>'+esc(x.hit[0])+':</b> '+gsHl(gsSnip(x.hit[1],GS.toks),GS.toks)+'</div>':'')+
+    '</span><span class="gc '+st[1]+'">'+esc(st[0])+'</span></button>';
+  }).join('')+(all.length>8?'<div class="gsmore">+ '+(all.length-8)+' more. Keep typing to narrow it down.</div>':'');
+ }
+ box.innerHTML=h;box.hidden=false;inp.setAttribute('aria-expanded','true');
+}
+function gsClose(){const b=$('#gsr');if(b){b.hidden=true;$('#gsq').setAttribute('aria-expanded','false')}}
+function gsMove(d){
+ const its=[...document.querySelectorAll('#gsr .gsit')];if(!its.length)return;
+ GS.i=(GS.i+d+its.length)%its.length;its.forEach((e,n)=>e.classList.toggle('on',n===GS.i));its[GS.i].scrollIntoView({block:'nearest'});
+}
+function gsOpen(id){
+ const r=byId(+id)||byId(id);if(!r)return;
+ gsClose();$('#gsq').value='';$('#gsq').blur();
+ S.hf='';if(!inL(r))S.lf=listOf(r);
+ openLead(r.id);
+}
+{
+ let T=0;const inp=$('#gsq'),box=$('#gsr');
+ inp.addEventListener('input',()=>{clearTimeout(T);T=setTimeout(gsRender,70)});
+ inp.addEventListener('focus',()=>{if(inp.value.trim())gsRender();inp.select()});
+ inp.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'){e.preventDefault();if(box.hidden)gsRender();else gsMove(1)}
+  else if(e.key==='ArrowUp'){e.preventDefault();gsMove(-1)}
+  else if(e.key==='Enter'){e.preventDefault();clearTimeout(T);if(box.hidden||!GS.res.length)gsRender();const x=GS.res[Math.max(0,GS.i)];if(x)gsOpen(x.r.id)}
+  else if(e.key==='Escape'){e.preventDefault();if(inp.value){inp.value='';gsClose()}else inp.blur()}
+ });
+ box.addEventListener('mousedown',e=>e.preventDefault());
+ box.addEventListener('click',e=>{const b=e.target.closest('[data-gid]');if(b)gsOpen(b.dataset.gid)});
+ document.addEventListener('mousedown',e=>{if(!e.target.closest('#gs'))gsClose()});
+ document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&!e.altKey&&e.key.toLowerCase()==='k'){e.preventDefault();inp.focus();inp.select()}});
+}
 $('#dash').onclick=e=>{
  const o=e.target.closest('[data-open]');if(o){openLead(+o.dataset.open);return}
  const d=e.target.closest('[data-det]');if(d){DETSTK=[];DETCUR=null;openDetail(d.dataset.det,d.dataset.arg,false)}
@@ -2339,7 +2469,7 @@ document.addEventListener('keydown',e=>{
  if(OVL.some(id=>{const el=$(id);return el&&!el.hidden}))return;
  const k=e.key,r=byId(S.last);
  if(k==='?'){e.preventDefault();showKb();return}
- if(k==='/'){e.preventDefault();if(S.tab==='dash')setTab('dial');if(S.view==='card'&&!FINE.matches){S.view='list';renderCard()}$('#q').focus();$('#q').select();return}
+ if(k==='/'){e.preventDefault();$('#gsq').focus();$('#gsq').select();return}
  if(S.tab==='dash')return;
  const lk=k.toLowerCase();
  if(lk==='r'){e.preventDefault();resume();return}
