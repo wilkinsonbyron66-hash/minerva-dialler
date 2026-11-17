@@ -887,6 +887,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
 #gsr .gsn{padding:12px 12px;color:var(--mute);font-size:13.5px}
 #gsr .gsmore{padding:6px 12px 8px;color:var(--mute);font-size:12px}
 @media (max-width:560px){#gs{order:4;flex:1 1 100%;max-width:none}#gsr{width:100%;max-height:60vh}}
+#q[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -925,7 +926,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
 <main id="main" data-view="list">
  <aside>
   <div class="filt">
-   <input id="q" type="search" placeholder="Search company, contact, phone...">
+   <input id="q" type="search" hidden placeholder="Search company, contact, phone...">
    <div class="seg" id="seg"><button data-f="todo">To call</button><button data-f="done">Logged</button><button data-f="fu">Follow-ups</button><button data-f="all">All</button></div>
    <div class="lrow"><select id="listf" aria-label="Which list to work on" title="Choose which list of leads to work on"></select><button type="button" id="addlead2" title="Add a lead of your own to a list">+ Add lead</button></div>
    <div class="heatf" id="heatf" role="group" aria-label="Filter by temperature"><button data-hf="">Any</button><button data-hf="hot" class="h-hot">Hot</button><button data-hf="warm" class="h-warm">Warm</button><button data-hf="cold" class="h-cold">Cold</button></div>
