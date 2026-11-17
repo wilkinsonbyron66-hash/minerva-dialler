@@ -892,6 +892,14 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
 .gsit .gm{display:flex;align-items:baseline;gap:10px;min-width:0;flex:1}
 .gsit .gt{flex:0 1 auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
 .gsit .gs2{flex:1 1 0;min-width:0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* narrow window: search drops to its own row so the buttons on the right are never cut off */
+@media (max-width:1040px){
+ #tabs{flex-wrap:wrap;row-gap:8px}
+ .nprog{display:none}
+ #tabs .tright{margin-left:auto;flex:0 1 auto;flex-wrap:nowrap}
+ #gs{order:5;flex:1 1 100%;max-width:none;min-width:0}
+ #gsr{width:100%}
+}
 </style>
 </head>
 <body>
