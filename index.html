@@ -24,7 +24,7 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 :root{--c-ok:#16A36A;--c-na:#6B7C8F;--c-cb:#E19A1C;--c-ni:#D6453D;--c-wn:#8A5CD0;--c-blue:#2E86DE;--c-teal:#0F8B8D;--c-nn:#A0623A;--c-fu:#D6559E}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--c-ok:#3DD598;--c-na:#8FA1B3;--c-cb:#F5B544;--c-ni:#FF7A70;--c-wn:#B48CF0;--c-blue:#5AA9F5;--c-teal:#4FD1D3;--c-nn:#D49A6A;--c-fu:#F078B8}}
 :root[data-theme="dark"]{--c-ok:#3DD598;--c-na:#8FA1B3;--c-cb:#F5B544;--c-ni:#FF7A70;--c-wn:#B48CF0;--c-blue:#5AA9F5;--c-teal:#4FD1D3;--c-nn:#D49A6A;--c-fu:#F078B8}
-main[hidden],#dash[hidden],header[hidden]{display:none}
+main[hidden],#dash[hidden],#gen[hidden],header[hidden]{display:none}
 #tabs{align-items:center}
 .tright{margin-left:auto;display:flex;gap:8px;align-items:center;padding-bottom:4px}
 #tstat{color:var(--mute);font-size:13px}
@@ -33,7 +33,7 @@ main[hidden],#dash[hidden],header[hidden]{display:none}
 #tabs{display:flex;gap:4px;padding:4px 14px 0;background:var(--panel);border-bottom:1px solid var(--line)}
 #tabs button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;font-weight:700;font-size:16px;padding:7px 16px}
 #tabs button.on{border-bottom-color:var(--accent);color:var(--accent)}
-#dash{flex:1;min-height:0;overflow:auto;padding:16px 18px 28px}
+#dash,#gen{flex:1;min-height:0;overflow:auto;padding:16px 18px 28px}
 .dtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
 .tile{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--tc);border-radius:10px;padding:11px 14px}
 .tile b{display:block;font-size:32px;line-height:1.1;color:var(--tc);font-weight:700}
@@ -348,7 +348,7 @@ button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
  .oc button{min-height:50px;font-size:15px}
  .oc .del,.oc [data-reopen]{grid-column:1/-1;margin-left:0}
  .fu .chips button,.fur button{min-height:40px}
- #dash{padding:12px 12px 28px}
+ #dash,#gen{padding:12px 12px 28px}
  .dtiles{grid-template-columns:1fr 1fr;gap:8px}
  .tile{padding:9px 11px}.tile b{font-size:26px}
  .dgrid{grid-template-columns:1fr}
@@ -437,7 +437,7 @@ aside{background:var(--panel);border-right:1px solid var(--line);box-shadow:none
 .btnlink{border:0;background:var(--fill);border-radius:8px}
 .warnb{border-radius:10px}
 /* dashboard */
-#dash{background:var(--bg)}
+#dash,#gen{background:var(--bg)}
 .tile{border:0;border-top:0;border-radius:14px;box-shadow:var(--sh);padding:14px 16px}
 .tile b{font-weight:700;letter-spacing:-.02em}
 .dc{border:0;border-radius:14px;box-shadow:var(--sh)}
@@ -905,6 +905,56 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
  #gs{order:5;flex:1 1 100%;max-width:none;min-width:0}
  #gsr{width:100%}
 }
+
+/* ===== Generated leads ===== */
+#gen{max-width:1180px;margin:0 auto;width:100%;box-sizing:border-box}
+#gen .ghd{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:2px 0 14px}
+#gen .ghd h2{margin:0;font-size:22px;letter-spacing:-.01em}
+#gen .ghd p{margin:3px 0 0;font-size:13px}
+#gen .ghd button{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+#gen .gtools{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+#gen .gsrch input{width:100%;box-sizing:border-box;font-size:16px;padding:10px 14px;border-radius:12px;border:0;background:var(--panel);color:var(--ink);box-shadow:var(--sh),0 0 0 1px var(--line)}
+#gen .gsrch input:focus{outline:0;box-shadow:0 0 0 2px var(--accent)}
+#gen .gchips{display:flex;flex-wrap:wrap;gap:6px}
+#gen .gchip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 12px;font-size:13px;background:var(--panel);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+#gen .gchip b{font-weight:600;color:var(--mute);font-size:12px}
+#gen .gchip u{width:8px;height:8px;border-radius:50%;display:inline-block}
+#gen .gchip.on{background:var(--accent);color:#fff;box-shadow:none}#gen .gchip.on b{color:rgba(255,255,255,.85)}
+#gen .glist{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px;align-items:start}
+#gen .gcard{background:var(--panel);border-radius:14px;padding:14px;box-shadow:var(--sh),0 0 0 1px var(--line);display:flex;flex-direction:column;gap:8px;min-width:0;transition:box-shadow .15s ease}
+#gen .gcard:hover{box-shadow:0 6px 18px rgba(0,0,0,.10),0 0 0 1px var(--line)}
+#gen .gct{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+#gen .gcn{min-width:0}
+#gen .gcn h3{margin:0;font-size:16px;line-height:1.25;overflow-wrap:anywhere}
+#gen .gcn p{margin:2px 0 0;font-size:13px;color:var(--mute);overflow-wrap:anywhere}
+#gen .gst{flex:0 0 auto;appearance:none;-webkit-appearance:none;border:0;border-radius:999px;padding:4px 10px;font-size:12.5px;font-weight:600;color:var(--ink);background:color-mix(in srgb,var(--sc,var(--accent)) 16%,var(--panel));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--sc,var(--accent)) 55%,transparent);cursor:pointer;font-family:inherit}
+#gen .gr{display:flex;align-items:center;gap:8px;font-size:14px;min-width:0}
+#gen .gr>svg{flex:0 0 auto;color:var(--mute)}
+#gen .gr>a{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);text-decoration:none}
+#gen .gr>a:hover{color:var(--accent);text-decoration:underline}
+#gen .gx{margin-left:auto;display:inline-flex;align-items:center;gap:4px;flex:0 0 auto}
+#gen .gwa{font-size:12px;font-weight:600;color:var(--wa,#1FA855);text-decoration:none;padding:3px 8px;border-radius:999px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--wa,#1FA855) 50%,transparent)}
+#gen .gcp{width:28px;height:28px;padding:0;border-radius:7px;background:transparent;color:var(--mute);display:inline-flex;align-items:center;justify-content:center}
+#gen .gcp:hover{background:var(--sel,var(--fill));color:var(--accent)}#gen .gcp.ok{color:var(--ok)}
+#gen .gsrc{color:var(--mute);font-size:13px}
+#gen .gnote{margin:2px 0 0;font-size:13.5px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink);background:var(--fill);border-radius:10px;padding:8px 10px}
+#gen .gft{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:2px;font-size:12px;color:var(--mute)}
+#gen .gft button{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;font-size:13px;margin-left:4px}
+#gen .gft .gdel{color:var(--danger,#D64545);padding:5px 8px}
+#gen .gempty{grid-column:1/-1;text-align:center;padding:44px 16px;background:var(--panel);border-radius:16px;box-shadow:0 0 0 1px var(--line)}
+#gen .gempty h3{margin:0 0 6px;font-size:18px}#gen .gempty p{margin:0 auto 16px;max-width:420px;color:var(--mute);line-height:1.5}
+#gen .gempty button{display:inline-flex;align-items:center;gap:6px}
+#glp{position:fixed;inset:0;background:rgba(0,20,35,.5);z-index:15;display:flex;align-items:center;justify-content:center;padding:16px}
+#glp[hidden]{display:none}
+#glp .srbox{max-height:calc(100vh - 32px);overflow:auto}
+#glp .srbd label{display:block;margin-bottom:8px}#glp .srbd input,#glp .srbd select,#glp .srbd textarea{width:100%;box-sizing:border-box;font-size:16px;font-family:inherit}
+#glp .srbd textarea{resize:vertical;min-height:4.4em}
+#glp .alg{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+@media(max-width:520px){#glp .alg{grid-template-columns:1fr}}
+#glp:not([hidden]){animation:fadeIn .15s ease both}
+#glp:not([hidden]) .srbox{animation:popIn .2s var(--ease) both}
+@media (max-width:760px) and (hover:none) and (pointer:coarse){#glp{align-items:flex-end;padding:0}#glp .srbox{max-width:none;width:100%;border-radius:16px 16px 0 0;max-height:92vh;padding-bottom:env(safe-area-inset-bottom)}}
+@media (max-width:560px){#gen .glist{grid-template-columns:1fr}#gen .ghd h2{font-size:19px}}
 </style>
 </head>
 <body>
@@ -939,7 +989,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
  <input type="file" id="file2" accept=".csv,.xlsx,.xls" hidden>
  <input type="file" id="file4" accept=".json,application/json" hidden>
 </header>
-<nav id="tabs"><img class="navlogo" src="logo-navy.png" alt="Minerva Technologies"><div class="segtabs" role="tablist"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button></div><div id="gs" role="search"><input id="gsq" type="text" inputmode="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Search all leads: name, number, email, notes..." aria-label="Search all leads" aria-controls="gsr" aria-expanded="false"><svg class="gsi" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><div id="gsr" role="listbox" hidden></div></div><div class="nprog"><span id="tstat"></span><div class="bar"><i id="prog2" style="width:0"></i></div></div><div class="tright"><button id="resume2" title="Go to the next lead to call">Resume</button><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="ntbtn" title="Notifications: what is due and most important" aria-label="Notifications"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="ml"> Notifications</span><span id="ntbadge" hidden></span></button><button id="fudue" hidden></button><button id="thbtn" title="Theme: Auto (follows your browser)" aria-label="Switch light or dark mode">&#9680;</button><button id="navmenu" aria-label="Menu">&#9776;<span class="ml"> Menu</span></button><button id="hdrtoggle" hidden></button></div></nav>
+<nav id="tabs"><img class="navlogo" src="logo-navy.png" alt="Minerva Technologies"><div class="segtabs" role="tablist"><button data-tab="dial" class="on">Dialler</button><button data-tab="dash">Dashboard</button><button data-tab="gen">Generated leads</button></div><div id="gs" role="search"><input id="gsq" type="text" inputmode="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Search all leads: name, number, email, notes..." aria-label="Search all leads" aria-controls="gsr" aria-expanded="false"><svg class="gsi" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><div id="gsr" role="listbox" hidden></div></div><div class="nprog"><span id="tstat"></span><div class="bar"><i id="prog2" style="width:0"></i></div></div><div class="tright"><button id="resume2" title="Go to the next lead to call">Resume</button><button id="gsync" title="Google Sheet sync">&#9729; Set up cloud backup</button><button id="ntbtn" title="Notifications: what is due and most important" aria-label="Notifications"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="ml"> Notifications</span><span id="ntbadge" hidden></span></button><button id="fudue" hidden></button><button id="thbtn" title="Theme: Auto (follows your browser)" aria-label="Switch light or dark mode">&#9680;</button><button id="navmenu" aria-label="Menu">&#9776;<span class="ml"> Menu</span></button><button id="hdrtoggle" hidden></button></div></nav>
 <main id="main" data-view="list">
  <aside>
   <div class="filt">
@@ -953,6 +1003,29 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area
  <section id="card"></section>
 </main>
 <div id="dash" hidden></div>
+<div id="gen" hidden></div>
+<div id="glp" hidden><div class="srbox" role="dialog" aria-label="Generated lead">
+ <div class="srhd"><img src="logo-white.png" alt="Minerva"><b id="glttl">Add a generated lead</b></div>
+ <div class="srbd">
+  <label>Company<input id="glco" placeholder="Company name" autocomplete="off"></label>
+  <div class="alg">
+   <label>Contact name<input id="glnm" autocomplete="off"></label>
+   <label>Job title<input id="glrl" placeholder="e.g. Procurement manager" autocomplete="off"></label>
+  </div>
+  <div class="alg">
+   <label>Number<input id="glph" type="tel" autocomplete="off"></label>
+   <label>Email<input id="glem" type="email" autocomplete="off"></label>
+  </div>
+  <div class="alg">
+   <label>Website<input id="glwb" placeholder="company.com" autocomplete="off" autocapitalize="off"></label>
+   <label>Where you found them<input id="glsr" placeholder="LinkedIn, event, referral..." autocomplete="off"></label>
+  </div>
+  <label>Status<select id="glst"></select></label>
+  <label>Notes<textarea id="glnt" rows="3" placeholder="What they need, who you spoke to, next step..."></textarea></label>
+  <p class="mute" id="gldup" style="margin:0 0 6px" hidden></p>
+  <div class="drow"><button id="glcancel" type="button">Cancel</button><button class="primary" id="glgo" type="button">Save lead</button></div>
+ </div>
+</div></div>
 <div id="det" hidden><div class="dhead"><button id="detback" hidden>&lsaquo; Back</button><h2 id="dett"></h2><button id="detclose">Close</button></div><input id="detq" type="search" placeholder="Filter this list..."><div id="detsum"></div><div class="tw" id="detb"></div></div>
 <aside id="cols" hidden>
  <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0;font-size:19px">Fields on the dialling card</h2><button id="colclose">Close</button></div>
@@ -1315,6 +1388,8 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 // ---- Icon set (line icons) ----
 const IC={
+copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
+search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
 cloud:'<path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>',
 alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
 mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
@@ -1633,7 +1708,7 @@ function nextTodo(from){
  return (S.hf&&a.find(r=>inL(r)&&!r.done&&r.id!==from&&r.h===S.hf))||a.find(r=>inL(r)&&!r.done&&r.id!==from);
 }
 function resume(){
- if(S.tab==='dash')setTab('dial');
+ if(S.tab!=='dial')setTab('dial');
  S.filter='todo';S.q='';$('#q').value='';
  const r=(byId(S.last)&&!byId(S.last).done&&inL(byId(S.last))&&(!S.hf||byId(S.last).h===S.hf))?byId(S.last):(S.hf&&S.rows.find(r=>inL(r)&&!r.done&&r.h===S.hf))||S.rows.find(r=>inL(r)&&!r.done);
  if(r)select(r.id,'card');else{S.last=null;render();toast('Every lead is logged')}
@@ -1853,10 +1928,10 @@ $('#file2').onchange=e=>{
  rd.readAsArrayBuffer(file);
 };
 function setTab(t){
- S.tab=t==='dash'?'dash':'dial';save();
- $('#main').hidden=S.tab==='dash';$('#dash').hidden=S.tab!=='dash';
+ S.tab=t==='dash'?'dash':t==='gen'?'gen':'dial';save();
+ $('#main').hidden=S.tab!=='dial';$('#dash').hidden=S.tab!=='dash';$('#gen').hidden=S.tab!=='gen';
  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===S.tab));
- if(S.tab==='dash'){renderDash();animIn($('#dash'))}else{fitAll();animIn($('#card'))}
+ if(S.tab==='dash'){renderDash();animIn($('#dash'))}else if(S.tab==='gen'){renderGen();animIn($('#gen'))}else{fitAll();animIn($('#card'))}
 }
 const OCOL={Spoke:'var(--c-ok)','No answer':'var(--c-na)','Call back':'var(--c-cb)','Not interested':'var(--c-ni)','Wrong number':'var(--c-wn)','No number':'var(--c-nn)'};
 function ago(t){const m=Math.round((Date.now()-t)/60000);if(m<1)return 'just now';if(m<60)return m+'m ago';const h=Math.round(m/60);if(h<24)return h+'h ago';return Math.round(h/24)+'d ago'}
@@ -2485,7 +2560,7 @@ document.addEventListener('keydown',e=>{
  const k=e.key,r=byId(S.last);
  if(k==='?'){e.preventDefault();showKb();return}
  if(k==='/'){e.preventDefault();$('#gsq').focus();$('#gsq').select();return}
- if(S.tab==='dash')return;
+ if(S.tab!=='dial')return;
  const lk=k.toLowerCase();
  if(lk==='r'){e.preventDefault();resume();return}
  if(lk==='n'){e.preventDefault();moveLead(1);return}
@@ -2849,7 +2924,9 @@ function gUids(rows){
 }
 const lkey=l=>l.t+'|'+l.o;
 const gSig=rows=>JSON.stringify(rows.map(r=>[r.u,r.f,!!r.done,r.fu||null,r.log.length,emSig(r),r.h||'',(r.rfq||[]).map(q=>q.id).join(',')]));
-function gHash(){const t=gSig(S.rows)+JSON.stringify(S.cols.map(c=>c.n))+(S.setAt||0);let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return h}
+function genSig(x){return((x&&x.gen)||[]).map(g=>g.u+':'+(g.mt||g.t||0)).sort().join('|')+'/'+((x&&x.gdel)||[]).map(d=>d.u+':'+d.mt).sort().join('|')}
+function gMergeGen(L,R){const dl=new Map();[...(L.gdel||[]),...((R&&R.gdel)||[])].forEach(d=>{if(!dl.has(d.u)||dl.get(d.u)<d.mt)dl.set(d.u,d.mt)});const m=new Map();[...((R&&R.gen)||[]),...(L.gen||[])].forEach(x=>{const o=m.get(x.u);if(!o||(x.mt||x.t||0)>=(o.mt||o.t||0))m.set(x.u,x)});return{gen:[...m.values()].filter(x=>!(dl.has(x.u)&&dl.get(x.u)>=(x.mt||x.t||0))),gdel:[...dl].map(([u,mt])=>({u,mt}))}}
+function gHash(){const t=gSig(S.rows)+JSON.stringify(S.cols.map(c=>c.n))+(S.setAt||0)+genSig(S);let h=5381;for(let i=0;i<t.length;i++)h=((h<<5)+h+t.charCodeAt(i))|0;return h}
 function gCounts(st){st=st||S;return{leads:st.rows.length,calls:st.rows.reduce((n,r)=>n+((r.log||[]).length),0)}}
 const snapRow=r=>({f:Object.assign({},r.f),d:!!r.done,h:r.h||'',fu:r.fu||null,n:(r.log||[]).length,e:emSig(r),emt:Object.fromEntries((r.em||[]).map(m=>[emId(m),m.mt||0])),rq:(r.rfq||[]).map(q=>q.id)});
 function setBase(rows){BASE={};rows.forEach(r=>{if(r.u)BASE[r.u]=snapRow(r)});baseSave()}
@@ -2882,7 +2959,7 @@ function gMerge(L,R){
   const n=Object.assign({},r,{log:(r.log||[]).slice(),draft:''});if(usedIds.has(n.id)||!n.id)n.id=nid++;usedIds.add(n.id);nid=Math.max(nid,n.id+1);out.push(n)});
  const cols=L.cols.slice();((R&&R.cols)||[]).forEach(c=>{if(!cols.some(x=>x.n===c.n))cols.push(Object.assign({},c))});
  const st=(R&&(R.setAt||0)>(L.setAt||0))?R:L;
- return{rows:out,cols,nid,set:{qn:st.qn,tpl:st.tpl,setAt:st.setAt||0}};
+ return Object.assign({rows:out,cols,nid,set:{qn:st.qn,tpl:st.tpl,setAt:st.setAt||0}},gMergeGen(L,R));
 }
 function keepFocus(fn){
  const a=document.activeElement,sel=a&&a.closest&&a.closest('#card')?{id:a.id,f:a.dataset&&a.dataset.f,s:a.selectionStart,e:a.selectionEnd}:null;
@@ -2891,6 +2968,8 @@ function keepFocus(fn){
 }
 function gApply(M){
  S.rows=M.rows;S.cols=M.cols;S.nid=Math.max(S.nid||1,M.nid);
+ if(M.gen){S.gen=M.gen;S.gdel=M.gdel}
+ if(S.tab==='gen'&&window.renderGen)renderGen();
  if(M.set&&(M.set.setAt||0)>(S.setAt||0)){if(M.set.qn)S.qn=M.set.qn;if(M.set.tpl)S.tpl=M.set.tpl;S.setAt=M.set.setAt}
  if(S.last!=null&&!byId(S.last)){const r=S.rows.find(r=>!r.done);S.last=r?r.id:null}
  G.h=gHash();save();keepFocus(()=>{render();renderCols()});
@@ -2938,9 +3017,9 @@ async function gSync(){
    const R=j.state||{rows:[],cols:[]};
    if(!R.rows||!R.rows.length){BASE={};baseSave()}  // empty sheet: never treat as "everything deleted"
    const before=gSig(S.rows),M=gMerge(S,R);
-   if(gSig(M.rows)!==before||M.cols.length!==S.cols.length||(M.set.setAt||0)>(S.setAt||0))gApply(M);
+   if(gSig(M.rows)!==before||M.cols.length!==S.cols.length||(M.set.setAt||0)>(S.setAt||0)||genSig(M)!==genSig(S))gApply(M);
    const c=gCounts();
-   if(gSigS(S.rows)===gSigS(R.rows||[])&&S.cols.length===(R.cols||[]).length&&(S.setAt||0)===(R.setAt||0)){
+   if(gSigS(S.rows)===gSigS(R.rows||[])&&S.cols.length===(R.cols||[]).length&&(S.setAt||0)===(R.setAt||0)&&genSig(S)===genSig(R)){
     setBase(S.rows);Object.assign(G,{v:j.v,leads:c.leads,calls:c.calls,last:Date.now(),pending:false});G.h=gHash();gSave();gConflict=null;gStatus('ok');return}
    gStatus('busy');
    const r=await gPush(j.v);if(r!=='stale')return;
@@ -3099,6 +3178,103 @@ window.addEventListener('appinstalled',()=>{$('#inst').hidden=true;toast('Instal
 $('#inst').onclick=async()=>{if(!INSTEV)return;INSTEV.prompt();try{await INSTEV.userChoice}catch(e){}INSTEV=null;$('#inst').hidden=true};
 if(/^https?:$/.test(location.protocol)&&'serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+
+/* ===== Generated leads: leads you found yourself, kept for reference ===== */
+const GEN_ST=['New','Contacted','Interested','Follow up','Not a fit'];
+const GEN_COL={'New':'var(--accent)','Contacted':'var(--c-cb,#F5B544)','Interested':'var(--c-ok,#2FB67C)','Follow up':'var(--c-wn,#B47CFF)','Not a fit':'var(--c-na,#8FA1B3)'};
+let GENQ='',GENF='',GENEDIT=null;
+const gens=()=>S.gen||(S.gen=[]);
+const gTel=p=>String(p||'').replace(/[^\d+]/g,'');
+const gWaNum=p=>{let d=String(p||'').replace(/\D/g,'');if(d.startsWith('00'))d=d.slice(2);else if(d.startsWith('0'))d='971'+d.slice(1);return d};
+const gWebUrl=w=>{w=String(w||'').trim();return w?(/^https?:\/\//i.test(w)?w:'https://'+w):''};
+const gWebTxt=w=>String(w||'').trim().replace(/^https?:\/\//i,'').replace(/^www\./i,'').replace(/\/$/,'');
+const gDate=t=>t?new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'';
+function renderGen(){
+ const el=$('#gen');if(!el)return;
+ if(!el.querySelector('#genlist')){
+  el.innerHTML='<div class="ghd"><div><h2>Generated leads</h2><p id="gensum" class="mute"></p></div><button type="button" class="primary" data-gadd>'+ic('plus',16)+' Add lead</button></div>'+
+   '<div class="gtools"><div class="gsrch"><input id="gensq" type="text" inputmode="search" autocomplete="off" placeholder="Search name, number, company, website, notes..." aria-label="Search generated leads"></div><div id="genchips" class="gchips" role="group" aria-label="Filter by status"></div></div>'+
+   '<div id="genlist" class="glist"></div>';
+ }
+ renderGenList();
+}
+function genFilter(){
+ const q=GENQ.trim().toLowerCase().split(/\s+/).filter(Boolean);
+ let L=gens().slice().sort((a,b)=>(b.mt||b.t||0)-(a.mt||a.t||0));
+ const counts={};L.forEach(x=>{const k=x.st||'New';counts[k]=(counts[k]||0)+1});
+ const all=L.length;
+ if(GENF)L=L.filter(x=>(x.st||'New')===GENF);
+ if(q.length)L=L.filter(x=>{const d=[x.c,x.n,x.r,x.p,x.e,x.w,x.s,x.note,x.st].join(' ').toLowerCase(),dg=d.replace(/\D/g,'');return q.every(t=>d.includes(t)||(/\d{3,}/.test(t)&&dg.includes(t.replace(/\D/g,''))))});
+ return{L,counts,all};
+}
+function renderGenList(){
+ const {L,counts,all}=genFilter();
+ $('#gensum').textContent=all?all+(all===1?' lead':' leads')+' saved. Only you see this list.':'Your own leads, kept here for reference.';
+ $('#genchips').innerHTML='<button type="button" class="gchip'+(GENF?'':' on')+'" data-gchip="">All <b>'+all+'</b></button>'+GEN_ST.filter(k=>counts[k]||GENF===k).map(k=>'<button type="button" class="gchip'+(GENF===k?' on':'')+'" data-gchip="'+k+'"><u style="background:'+GEN_COL[k]+'"></u>'+k+' <b>'+(counts[k]||0)+'</b></button>').join('');
+ const box=$('#genlist');
+ if(!all){box.innerHTML='<div class="gempty"><h3>No generated leads yet</h3><p>Add the leads you find yourself: name, number, website, company and notes. They stay here so you can come back to them.</p><button type="button" class="primary" data-gadd>'+ic('plus',16)+' Add your first lead</button></div>';return}
+ if(!L.length){box.innerHTML='<div class="gempty"><h3>No match</h3><p>Nothing in Generated leads matches that search or filter.</p></div>';return}
+ box.innerHTML=L.map(genCard).join('');
+}
+function genCard(x){
+ const st=x.st||'New',title=x.c||x.n||x.p||x.e||'Untitled lead',sub=[x.c?x.n:'',x.r].filter(Boolean).join(' · ');
+ const cp=v=>'<button type="button" class="gcp" data-gcp="'+esc(v)+'" title="Copy" aria-label="Copy">'+ic('copy',14)+'</button>';
+ const rows=[];
+ if(x.p)rows.push('<div class="gr">'+ic('phone',15)+'<a href="tel:'+esc(gTel(x.p))+'">'+esc(x.p)+'</a><span class="gx"><a class="gwa" href="https://wa.me/'+esc(gWaNum(x.p))+'" target="_blank" rel="noopener" title="WhatsApp">WhatsApp</a>'+cp(x.p)+'</span></div>');
+ if(x.e)rows.push('<div class="gr">'+ic('mail',15)+'<a href="mailto:'+esc(x.e)+'">'+esc(x.e)+'</a><span class="gx">'+cp(x.e)+'</span></div>');
+ if(x.w)rows.push('<div class="gr">'+GEN_GLOBE+'<a href="'+esc(gWebUrl(x.w))+'" target="_blank" rel="noopener">'+esc(gWebTxt(x.w))+'</a><span class="gx">'+cp(gWebUrl(x.w))+'</span></div>');
+ if(x.s)rows.push('<div class="gr gsrc">'+ic('search',15)+'<span>Found via '+esc(x.s)+'</span></div>');
+ return '<article class="gcard" data-gid="'+esc(x.u)+'"><div class="gct"><div class="gcn"><h3>'+esc(title)+'</h3>'+(sub?'<p>'+esc(sub)+'</p>':'')+'</div>'+
+  '<select class="gst" data-gst="'+esc(x.u)+'" style="--sc:'+GEN_COL[st]+'" aria-label="Status">'+GEN_ST.map(k=>'<option'+(k===st?' selected':'')+'>'+k+'</option>').join('')+'</select></div>'+
+  rows.join('')+(x.note?'<p class="gnote">'+esc(x.note)+'</p>':'')+
+  '<div class="gft"><span>Added '+esc(gDate(x.t))+'</span><span><button type="button" data-gedit="'+esc(x.u)+'">'+ic('edit',14)+' Edit</button><button type="button" class="gdel" data-gdel="'+esc(x.u)+'" aria-label="Delete">'+ic('trash',14)+'</button></span></div></article>';
+}
+const GEN_GLOBE='<svg class="ic" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>';
+function genOpen(u){
+ GENEDIT=u||null;const x=u?gens().find(g=>g.u===u):null;
+ $('#glttl').textContent=x?'Edit generated lead':'Add a generated lead';
+ $('#glst').innerHTML=GEN_ST.map(k=>'<option>'+k+'</option>').join('');
+ const v=(id,val)=>{$(id).value=val||''};
+ v('#glco',x&&x.c);v('#glnm',x&&x.n);v('#glrl',x&&x.r);v('#glph',x&&x.p);v('#glem',x&&x.e);v('#glwb',x&&x.w);v('#glsr',x&&x.s);v('#glnt',x&&x.note);$('#glst').value=(x&&x.st)||'New';
+ $('#gldup').hidden=true;$('#glgo').textContent=x?'Save changes':'Save lead';
+ $('#glp').hidden=false;setTimeout(()=>{if(!$('#glp').contains(document.activeElement))$('#glco').focus()},50);
+}
+function genDup(){
+ const ph=String($('#glph').value).replace(/\D/g,'').slice(-8),co=String($('#glco').value).trim().toLowerCase(),em=String($('#glem').value).trim().toLowerCase();
+ const hit=gens().find(g=>g.u!==GENEDIT&&((ph.length>=7&&String(g.p||'').replace(/\D/g,'').slice(-8)===ph)||(em&&String(g.e||'').trim().toLowerCase()===em)||(co&&String(g.c||'').trim().toLowerCase()===co)));
+ return hit||null;
+}
+function genNoteDup(){const h=genDup(),n=$('#gldup');if(h){n.textContent='Already saved: '+(h.c||h.n||h.p)+' (same number, email or company).';n.hidden=false}else n.hidden=true}
+async function genSave(){
+ const f={c:$('#glco').value.trim(),n:$('#glnm').value.trim(),r:$('#glrl').value.trim(),p:$('#glph').value.trim(),e:$('#glem').value.trim(),w:$('#glwb').value.trim(),s:$('#glsr').value.trim(),note:$('#glnt').value.trim(),st:$('#glst').value};
+ if(!f.c&&!f.n&&!f.p&&!f.e){toast('Add at least a company, name, number or email');$('#glco').focus();return}
+ const d=genDup();if(d&&!GENEDIT&&!(await ask('This looks like a lead you already saved: '+(d.c||d.n||d.p)+'. Save it again?','Save again')))return;
+ const now=Date.now();
+ if(GENEDIT){const x=gens().find(g=>g.u===GENEDIT);if(x){Object.assign(x,f,{mt:now})}}
+ else gens().unshift(Object.assign({u:'g'+now.toString(36)+Math.random().toString(36).slice(2,6),t:now,mt:now},f));
+ const was=GENEDIT;GENEDIT=null;$('#glp').hidden=true;save();window.syncSoon&&syncSoon();renderGenList();toast((was?'Updated: ':'Saved: ')+(f.c||f.n||f.p||f.e));
+}
+function genDelete(u){
+ const i=gens().findIndex(g=>g.u===u);if(i<0)return;const x=gens()[i];
+ gens().splice(i,1);(S.gdel||(S.gdel=[])).push({u,mt:Date.now()});save();window.syncSoon&&syncSoon();renderGenList();
+ toast('Deleted '+(x.c||x.n||x.p||'lead'),{fn:()=>{S.gdel=(S.gdel||[]).filter(d=>d.u!==u);x.mt=Date.now();gens().push(x);save();window.syncSoon&&syncSoon();if(S.tab==='gen')renderGenList();toast('Lead restored')}});
+}
+$('#gen').addEventListener('click',async e=>{
+ const t=e.target;
+ if(t.closest('[data-gadd]')){genOpen();return}
+ const ed=t.closest('[data-gedit]');if(ed){genOpen(ed.dataset.gedit);return}
+ const dl=t.closest('[data-gdel]');if(dl){genDelete(dl.dataset.gdel);return}
+ const ch=t.closest('[data-gchip]');if(ch){GENF=ch.dataset.gchip;renderGenList();return}
+ const cp=t.closest('[data-gcp]');if(cp){const v=cp.dataset.gcp;if(await copyText(v)){cp.classList.add('ok');setTimeout(()=>cp.classList.remove('ok'),1100);toast('Copied: '+(v.length>40?v.slice(0,40)+'...':v))}else toast('Copy blocked by the browser');return}
+});
+$('#gen').addEventListener('change',e=>{const s=e.target.closest('[data-gst]');if(!s)return;const x=gens().find(g=>g.u===s.dataset.gst);if(!x)return;x.st=s.value;x.mt=Date.now();s.style.setProperty('--sc',GEN_COL[x.st]);save();window.syncSoon&&syncSoon();renderGenList()});
+let _gqT=0;$('#gen').addEventListener('input',e=>{if(e.target.id!=='gensq')return;GENQ=e.target.value;clearTimeout(_gqT);_gqT=setTimeout(()=>requestAnimationFrame(renderGenList),80)});
+$('#glcancel').onclick=()=>{$('#glp').hidden=true;GENEDIT=null};
+$('#glgo').onclick=genSave;
+$('#glp').addEventListener('input',e=>{if(['glco','glph','glem'].includes(e.target.id)&&!GENEDIT)genNoteDup()});
+$('#glp').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();genSave()}});
+$('#glp').addEventListener('mousedown',e=>{if(e.target.id==='glp'){$('#glp').hidden=true;GENEDIT=null}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#glp').hidden&&$('#dlg').hidden){$('#glp').hidden=true;GENEDIT=null}});
 
 ensureCompany();
 if(S.rows.length){if(!byId(S.last)||byId(S.last).done){const r=S.rows.find(r=>!r.done);S.last=r?r.id:null}}
